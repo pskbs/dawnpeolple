@@ -1,0 +1,75 @@
+.onboarding-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 24px;
+}
+
+.onboarding-page label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+
+.onboarding-page input,
+.onboarding-page select {
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 15px;
+}
+
+.nickname-row {
+  display: flex;
+  gap: 8px;
+}
+
+.nickname-row input {
+  flex: 1;
+}
+
+.nickname-row button {
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.onboarding-page label.checkbox-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.checkbox-row input {
+  width: auto;
+}
+
+.onboarding-warning {
+  color: var(--peach, #ff6b6b);
+  font-size: 13px;
+  margin: 0;
+}
+
+.onboarding-page > button[type='button']:last-child {
+  padding: 14px;
+  border-radius: 999px;
+  border: none;
+  background: var(--primary);
+  color: var(--primary-contrast);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.onboarding-page > button[type='button']:last-child:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

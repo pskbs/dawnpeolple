@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { AuthProvider } from './lib/auth-context'
 import './styles/themes/night.css'
 import './styles/themes/hybrid.css'
 import './index.css'
@@ -12,7 +13,9 @@ document.documentElement.setAttribute('data-theme', import.meta.env.VITE_THEME ?
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 )
