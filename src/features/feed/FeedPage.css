@@ -1,0 +1,108 @@
+.feed-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feed-banner {
+  background: var(--hero-from, var(--card));
+  color: var(--text);
+  border-radius: 24px;
+  padding: 16px;
+}
+
+.feed-banner p {
+  margin: 0;
+  color: inherit;
+  font-weight: 600;
+}
+
+.feed-nationwide {
+  font-size: 13px;
+}
+
+.feed-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 12px;
+}
+
+.feed-composer textarea {
+  resize: none;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.feed-composer textarea:focus {
+  outline: none;
+}
+
+.feed-composer-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.feed-composer-footer button {
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: none;
+  background: var(--primary);
+  color: var(--primary-contrast);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.feed-composer-footer button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feed-error {
+  color: var(--peach, #ff6b6b);
+  font-size: 13px;
+  margin: 0;
+}
+
+.feed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.feed-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 14px;
+}
+
+.feed-card-nickname {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.feed-card-body {
+  margin: 8px 0;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+
+.feed-card-footer {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-sub);
+}
