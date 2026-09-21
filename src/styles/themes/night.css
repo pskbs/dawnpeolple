@@ -1,21 +1,29 @@
-/* night 테마: 웹 기본값, 전면 딥네이비 야간 (요청서 10-4) */
+/* night 테마: 선택형 야간 변형. 기본값은 hybrid(라벤더 글래스)이고, 같은 토큰 이름을 딥네이비로 매핑만 해둬요. */
 :root[data-theme='night'] {
-  --bg: #12173a;
-  --surface: #1b2250;
-  --card: #232b63;
-  --border: #2f3878;
+  --bg: #15173a;
+  --bg-top: #1f2257;
+  --surface: #1f2250;
+  --card: #23265a;
+  --card-2: #272b63;
+  --border: #30357a;
+  --divider: #2a2e6a;
   --text: #f4f3ff;
-  --text-sub: #b5b8e0;
+  --text-sub: #b3b4dc;
+  --text-faint: #7d7fb0;
+  --primary: #9a80ff;
+  --primary-light: #c3b3ff;
+  --primary-soft: #2d2f70;
+  --primary-contrast: #ffffff;
+  --like: #ff6f9c;
+  --glow: 154, 128, 255;
+  --glass-bg: rgba(35, 38, 90, 0.72);
+  --glass-border: rgba(244, 243, 255, 0.12);
+  --orb-1: #6e5bd6;
+  --orb-2: #9c5bb8;
+  --orb-3: #4a6bc8;
   --moon: #ffd66b;
-  --moon-contrast: #12173a;
+  --moon-contrast: #15173a;
   --star: #fff4c7;
   --lavender: #a99bff;
-  --peach: #ff9f8a;
-  --primary: var(--moon);
-  --primary-contrast: var(--moon-contrast);
-  --card-2: #2a3372;
-  --divider: #232b63;
-  --glow: 214, 178, 107;
-  --glass-bg: rgba(35, 43, 99, 0.55);
-  --glass-border: rgba(244, 243, 255, 0.12);
+  --peach: #ff6f9c;
 }

@@ -1,22 +1,29 @@
-/* hybrid 테마: 앱인토스 제출 기본값, 콘텐츠 면은 밝게 + 히어로만 밤하늘 (요청서 10-4) */
+/* hybrid 테마: 앱인토스 제출·웹 기본값. design concept(design.png·design2.png)의 라벤더 글래스 팔레트를 그대로 따라요. */
 :root[data-theme='hybrid'] {
-  --bg: #f5f3ff;
-  --card: #fbfaff;
-  --border: #e3ddff;
-  --hero-from: #12173a;
-  --hero-to: #232b63;
-  --text: #1e2247;
-  --text-sub: #6b6f99;
-  --moon: #ffd66b;
-  --moon-contrast: #12173a;
-  --star: #fff4c7;
-  --primary: #6a58f0;
+  --bg: #f3f0fb;
+  --bg-top: #e9e3fb;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --card-2: #faf8ff;
+  --border: #ece7f8;
+  --divider: #f0ecf8;
+  --text: #1d1b2c;
+  --text-sub: #858199;
+  --text-faint: #b4b0c6;
+  --primary: #8465f2;
+  --primary-light: #b29cff;
+  --primary-soft: #efeaff;
   --primary-contrast: #ffffff;
-  --card-2: #ffffff;
-  --divider: #ece7ff;
-  --glow: 106, 88, 240;
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(30, 34, 71, 0.08);
-  --lavender: #a99bff;
-  --peach: #ff9f8a;
+  --like: #f2568a;
+  --glow: 132, 101, 242;
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --orb-1: #cbb9ff;
+  --orb-2: #f4c9ee;
+  --orb-3: #b9d3ff;
+  --moon: #ffcf6e;
+  --moon-contrast: #1d1b2c;
+  --star: #ffe29a;
+  --lavender: #b29cff;
+  --peach: #f2568a;
 }

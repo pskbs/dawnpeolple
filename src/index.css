@@ -2,8 +2,10 @@
 /* OS 다크모드(prefers-color-scheme)는 의도적으로 따르지 않아요 — VITE_THEME 값만 사용합니다. */
 
 :root {
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  font: 16px/145% var(--sans);
+  --sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo',
+    'Malgun Gothic', sans-serif;
+  font: 15px/1.5 var(--sans);
+  letter-spacing: -0.01em;
   color-scheme: light;
   color: var(--text);
   background: var(--bg);
@@ -11,6 +13,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
 }
 
 * {
@@ -20,21 +23,49 @@
 body {
   margin: 0;
   min-height: 100svh;
-  background: var(--bg);
   color: var(--text);
+  background: var(--bg);
+  overflow-x: clip;
+}
+
+/* iOS는 background-attachment: fixed를 지원하지 않아서 고정 레이어로 배경 그라데이션을 깔아요. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 40% at 100% 0%, color-mix(in srgb, var(--orb-2) 55%, transparent), transparent 70%),
+    radial-gradient(70% 45% at 0% 8%, color-mix(in srgb, var(--orb-1) 60%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--bg-top) 0%, var(--bg) 42%, var(--bg) 100%);
 }
 
 #root {
   min-height: 100svh;
 }
 
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
 h1,
-h2 {
+h2,
+h3 {
   color: var(--text);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 p {
   margin: 0;
   color: var(--text-sub);
+}
+
+a {
+  color: inherit;
 }

@@ -1,59 +1,84 @@
-.tab-bar {
+.tab-dock {
   position: fixed;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   left: 50%;
-  transform: translateX(-50%);
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
   display: flex;
-  gap: 6px;
-  padding: 8px;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-50%);
+}
+
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
   border-radius: 999px;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: var(--shadow-float);
 }
 
 .tab-bar__item {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  gap: 6px;
+  height: 48px;
+  min-width: 48px;
+  padding: 0 14px;
   border-radius: 999px;
   color: var(--text-sub);
   text-decoration: none;
-}
-
-.tab-bar__badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  color: currentColor;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.2s ease;
 }
 
 .tab-bar__icon {
-  color: currentColor;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
+/* 비활성 탭은 아이콘만, 활성 탭은 라벤더 알약 + 라벨 */
 .tab-bar__label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
+  display: none;
 }
 
 .tab-bar__item--active {
-  color: var(--primary-contrast);
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 
-.tab-bar__item--active .tab-bar__badge {
-  background: linear-gradient(160deg, var(--primary), var(--primary));
+.tab-bar__item--active .tab-bar__label {
+  display: inline;
+}
+
+.tab-fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.45), transparent 45%),
+    var(--grad-primary);
+  color: var(--primary-contrast);
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.35),
-    0 8px 18px rgba(var(--glow), 0.45);
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 14px 30px rgba(var(--glow), 0.45);
+}
+
+.tab-fab svg {
+  width: 26px;
+  height: 26px;
+}
+
+.tab-fab:active {
+  transform: scale(0.95);
 }
