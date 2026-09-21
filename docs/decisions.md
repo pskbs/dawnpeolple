@@ -23,3 +23,10 @@
 - 패키지 매니저: pnpm (사용자 PC에 corepack 활성화가 관리자 권한 문제로 실패해 `npm install -g pnpm`으로 대체 설치)
 - Vite 스캐폴드: `create-vite` 최신 버전이 기본적으로 ESLint 대신 **oxlint**를 사용함 — 요청서에 특정 린터 지정이 없어 그대로 채택. 문제 발생 시 ESLint로 교체 가능.
 - `build:toss` 스크립트는 현재 `build:web`과 동일한 placeholder임. Phase 2에서 `ait build`/`ait deploy`를 반영해 교체 예정.
+
+## 2026-09-21 — Supabase DB 접근 방식 확정
+
+- Supabase Personal Access Token(`sbp_...`)을 받아 **Supabase Management API**(`https://api.supabase.com/v1/projects/{ref}/database/query`)로 마이그레이션을 직접 적용하는 방식으로 확정. anon/service role key는 DDL(테이블 생성 등)을 못 하지만, Management API는 Postgres에 직접 SQL을 실행할 수 있음.
+- Supabase MCP 서버도 `claude mcp add`로 등록해둠(local scope, git에 안 올라감) — 다음 세션부터 도구로 사용 가능. 이번 세션은 Management API로 직접 처리.
+- `0001_init.sql` 마이그레이션 적용 완료 확인: 테이블 18개, RLS 정책 43개, 함수 5개, `app_settings` 4행.
+- **주의**: Personal Access Token은 Supabase 계정 전체에 대한 강력한 권한이라 각별히 조심. `.env`/커밋에 절대 포함하지 않음, 대화 기록에도 남기지 않도록 이후부터는 값 자체를 반복 출력하지 않기로 함.
