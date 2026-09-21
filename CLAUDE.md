@@ -14,7 +14,7 @@
 
 ## 절대 규칙 (비협상)
 1. 앱인토스 **검수 기준**을 항상 우선: TDS(Navigation·플로팅 탭바), 해요체, 토스 로그인만(앱인토스 안), 광고 규칙, **라이트 모드만(다크모드 금지)**.
-2. **테마 2종**: `hybrid`(앱인토스 제출 기본, 콘텐츠 면은 밝게 + 히어로에 밤하늘) / `night`(웹 기본, 전면 딥네이비). `VITE_THEME`로 전환, 색은 CSS 토큰만 사용, OS 다크모드 무시.
+2. **테마 2종**: `hybrid`(**앱인토스·웹 공통 기본**, design concept의 라벤더 글래스 팔레트) / `night`(선택형 딥네이비 변형). 2026-09-21 사용자 요청으로 기본 변경(docs/decisions.md). `VITE_THEME`로 전환, 색은 CSS 토큰만 사용, OS 다크모드 무시.
 3. **소개팅·만남으로 보이지 않게**: 앱 문구에 소개팅/연애/짝/썸/이성/매칭 금지, 성별·연령 기반 매칭·필터 금지. 성별·연령대는 벙개 참석 현황 안내로만 사용.
 4. **개인정보 최소 수집**: 실명·전화번호·이메일 원문·토스 CI 저장 금지. 닉네임 익명. 탈퇴/토스 연결 해제 시 데이터 삭제.
 5. **비밀값 커밋 금지**: `.env*`, service role 키, mTLS 인증서/개인키, 복호화 키, Anthropic 키. `.env.example`만 커밋.
@@ -37,7 +37,7 @@ Vite + React + TypeScript(SPA) · TDS · React Router · Supabase(Postgres/RLS/A
 - 닉네임: 야간 테마 자동 생성(`nickname-words.ts`), 변경 가능(7일 1회).
 - 광고: 글 작성 완료·벙개 개설 완료 시 전면형(빈도 제한, 실패해도 진행), 글·벙개 상세 하단 배너. 피드 목록 사이 광고 없음. 리워드 제외.
 - AI: 비속어·불법·선정 1차 필터 + 위기 문구 감지(작성자에게만 안내). 규칙 필터 → AI 순. 텍스트만 전송.
-- 디자인: 딥네이비 밤하늘 + 달·별 + 입체적·귀여운 캐릭터("새벽이들"). 참고: `C:\Users\PC\Desktop\claude code\2.dawnpeolple\design concept\`(→ `docs/design-reference/`로 복사). 참고 이미지의 캐릭터·구도는 복제 금지. 별 애니메이션·파티클 금지.
+- 디자인: design concept 그대로 — 연보라 라벤더 배경 + 반투명 글래스 카드 + 보라 그라데이션 알약 버튼 + 유리 구슬(orb). 폰트 Pretendard. 수다방은 스레드/인스타그램식 SNS UX. 캐릭터("새벽이들")는 추후. 참고: `C:\Users\PC\Desktop\claude code\2.dawnpeolple\design concept\`(→ `docs/design-reference/`로 복사). 참고 이미지의 캐릭터·구도는 복제 금지. 별 애니메이션·파티클 금지.
 - 약관: 월백컴퍼니 / 책임자 김봉수 / psbongsoo@gmail.com. 초안은 출시 전 법률 검토 필요.
 
 ## Git
