@@ -55,6 +55,11 @@ export const ONBOARDING_COPY = {
 
 export const FEED_COMPOSER_PLACEHOLDER = '오늘 퇴근길은 어땠어요?'
 
+export const SORT_COPY = {
+  latest: '지금',
+  popular: '인기',
+} as const
+
 export const COMMENT_COPY = {
   toggleShow: '댓글 보기',
   toggleHide: '댓글 접기',

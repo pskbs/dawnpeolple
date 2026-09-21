@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   COMMENT_COPY,
@@ -6,8 +6,10 @@ import {
   FEED_COMPOSER_PLACEHOLDER,
   FEED_NATIONWIDE_NOTICE,
   GUEST_COPY,
+  SORT_COPY,
 } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
+import { formatRelativeTime } from '../../lib/format'
 import { supabase } from '../../lib/supabase'
 import './FeedPage.css'
 
@@ -40,6 +42,8 @@ export function FeedPage() {
   const [openComments, setOpenComments] = useState<Set<number>>(new Set())
   const [commentsByPost, setCommentsByPost] = useState<Record<number, FeedComment[]>>({})
   const [commentDraft, setCommentDraft] = useState<Record<number, string>>({})
+  const [sortMode, setSortMode] = useState<'latest' | 'popular'>('latest')
+  const [composerOpen, setComposerOpen] = useState(false)
 
   async function loadPosts() {
     setLoading(true)
@@ -97,6 +101,7 @@ export function FeedPage() {
       })
       if (insertError) throw insertError
       setBody('')
+      setComposerOpen(false)
       await loadPosts()
     } catch (err) {
       setError(err instanceof Error ? err.message : '글을 올리지 못했어요')
@@ -176,34 +181,87 @@ export function FeedPage() {
     setNicknames((prev) => (prev[profile.id] ? prev : { ...prev, [profile.id]: profile.nickname }))
   }
 
+  const sortedPosts = useMemo(() => {
+    const list = [...posts]
+    if (sortMode === 'popular') {
+      list.sort((a, b) => b.like_count - a.like_count || b.created_at.localeCompare(a.created_at))
+    }
+    return list
+  }, [posts, sortMode])
+
+  function initial(id: string | null) {
+    const name = (id && nicknames[id]) || '?'
+    return name.charAt(0)
+  }
+
   return (
     <section className="feed-page">
-      <div className="feed-banner">
-        <p>{CONCEPT_COPY.primary}</p>
+      <div className="feed-hero blob-art">
+        <svg className="blob-art__icon blob-art__moon" aria-hidden="true">
+          <use href="/icons.svg#moon-icon" />
+        </svg>
+        <div className="blob-art__content">
+          <p className="feed-hero-headline">{CONCEPT_COPY.primary}</p>
+          <p className="feed-nationwide">{FEED_NATIONWIDE_NOTICE}</p>
+        </div>
       </div>
-      <p className="feed-nationwide">{FEED_NATIONWIDE_NOTICE}</p>
+
+      <div className="feed-sort" role="tablist" aria-label="정렬">
+        {(['latest', 'popular'] as const).map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            role="tab"
+            aria-selected={sortMode === mode}
+            className={`pill-button-ghost feed-sort-item${sortMode === mode ? ' pill-button-ghost--active' : ''}`}
+            onClick={() => setSortMode(mode)}
+          >
+            {SORT_COPY[mode]}
+          </button>
+        ))}
+      </div>
 
       {profile ? (
-        <form onSubmit={handleSubmit} className="feed-composer">
-          <textarea
-            placeholder={FEED_COMPOSER_PLACEHOLDER}
-            value={body}
-            maxLength={500}
-            onChange={(e) => setBody(e.target.value)}
-            rows={3}
-          />
-          <div className="feed-composer-footer">
-            <span>{body.length}/500</span>
-            <button type="submit" className="pill-button" disabled={!body.trim() || submitting}>
-              등록
-            </button>
-          </div>
-          {error && <p className="feed-error">{error}</p>}
-        </form>
+        composerOpen ? (
+          <form onSubmit={handleSubmit} className="feed-composer">
+            <textarea
+              placeholder={FEED_COMPOSER_PLACEHOLDER}
+              value={body}
+              maxLength={500}
+              autoFocus
+              onChange={(e) => setBody(e.target.value)}
+              rows={3}
+            />
+            <div className="feed-composer-footer">
+              <span>{body.length}/500</span>
+              <div className="feed-composer-actions">
+                <button
+                  type="button"
+                  className="pill-button-ghost"
+                  onClick={() => {
+                    setComposerOpen(false)
+                    setBody('')
+                  }}
+                >
+                  취소
+                </button>
+                <button type="submit" className="pill-button" disabled={!body.trim() || submitting}>
+                  등록
+                </button>
+              </div>
+            </div>
+            {error && <p className="feed-error">{error}</p>}
+          </form>
+        ) : (
+          <button type="button" className="feed-composer-trigger" onClick={() => setComposerOpen(true)}>
+            <span className="avatar avatar--md">{profile.nickname.charAt(0)}</span>
+            <span className="feed-composer-trigger-text">{FEED_COMPOSER_PLACEHOLDER}</span>
+          </button>
+        )
       ) : (
-        <div className="guest-cta clay-card">
+        <div className="guest-strip glass-panel">
           <p>{GUEST_COPY.browseNotice}</p>
-          <button type="button" className="pill-button" onClick={() => navigate('/me')}>
+          <button type="button" className="pill-button-ghost" onClick={() => navigate('/me')}>
             {GUEST_COPY.ctaLogin}
           </button>
         </div>
@@ -211,28 +269,44 @@ export function FeedPage() {
 
       {loading ? (
         <p>불러오는 중...</p>
-      ) : posts.length === 0 ? (
+      ) : sortedPosts.length === 0 ? (
         <p>아직 글이 없어요. 첫 글을 남겨볼까요?</p>
       ) : (
         <ul className="feed-list" data-testid="feed-list">
-          {posts.map((post) => (
-            <li key={post.id} className="feed-card" data-testid="feed-post">
-              <div className="feed-card-header">
-                <span className="feed-card-nickname">
-                  {(post.author_id && nicknames[post.author_id]) || '알 수 없음'}
-                </span>
+          {sortedPosts.map((post) => (
+            <li key={post.id} className="feed-row" data-testid="feed-post">
+              <div className="feed-row-header">
+                <span className="avatar avatar--md">{initial(post.author_id)}</span>
+                <div className="feed-row-header-text">
+                  <span className="feed-row-nickname">
+                    {(post.author_id && nicknames[post.author_id]) || '알 수 없음'}
+                  </span>
+                  <span className="feed-row-time">{formatRelativeTime(post.created_at)}</span>
+                </div>
               </div>
-              <p className="feed-card-body">{post.body}</p>
-              <div className="feed-card-footer">
+              <p className="feed-row-body">{post.body}</p>
+              <div className="feed-row-footer">
                 <button
                   type="button"
-                  className={`feed-action${likedIds.has(post.id) ? ' feed-action--active' : ''}`}
+                  className={`icon-action${likedIds.has(post.id) ? ' icon-action--active' : ''}`}
                   onClick={() => toggleLike(post.id)}
+                  aria-label="좋아요"
                 >
-                  좋아요 {post.like_count}
+                  <svg aria-hidden="true">
+                    <use href={`/icons.svg#${likedIds.has(post.id) ? 'heart-icon-filled' : 'heart-icon'}`} />
+                  </svg>
+                  {post.like_count}
                 </button>
-                <button type="button" className="feed-action" onClick={() => toggleComments(post.id)}>
-                  댓글 {post.comment_count}
+                <button
+                  type="button"
+                  className="icon-action"
+                  onClick={() => toggleComments(post.id)}
+                  aria-label="댓글"
+                >
+                  <svg aria-hidden="true">
+                    <use href="/icons.svg#chat-icon" />
+                  </svg>
+                  {post.comment_count}
                 </button>
               </div>
 
@@ -243,11 +317,14 @@ export function FeedPage() {
                   ) : (
                     <ul className="feed-comments-list">
                       {(commentsByPost[post.id] ?? []).map((c) => (
-                        <li key={c.id}>
-                          <span className="feed-comment-nickname">
-                            {(c.author_id && nicknames[c.author_id]) || '알 수 없음'}
+                        <li key={c.id} className="feed-comment-row">
+                          <span className="avatar avatar--sm">{initial(c.author_id)}</span>
+                          <span className="feed-comment-text">
+                            <span className="feed-comment-nickname">
+                              {(c.author_id && nicknames[c.author_id]) || '알 수 없음'}
+                            </span>
+                            <span className="feed-comment-body">{c.body}</span>
                           </span>
-                          <span className="feed-comment-body">{c.body}</span>
                         </li>
                       ))}
                     </ul>
@@ -264,8 +341,15 @@ export function FeedPage() {
                           if (e.key === 'Enter') submitComment(post.id)
                         }}
                       />
-                      <button type="button" className="pill-button-ghost" onClick={() => submitComment(post.id)}>
-                        {COMMENT_COPY.submit}
+                      <button
+                        type="button"
+                        className="feed-comment-send"
+                        onClick={() => submitComment(post.id)}
+                        aria-label={COMMENT_COPY.submit}
+                      >
+                        <svg aria-hidden="true">
+                          <use href="/icons.svg#send-icon" />
+                        </svg>
                       </button>
                     </div>
                   ) : (
