@@ -40,7 +40,7 @@ Vite + React + TypeScript(SPA) · TDS · React Router · Supabase(Postgres/RLS/A
 - 약관: 월백컴퍼니 / 책임자 김봉수 / psbongsoo@gmail.com. 초안은 출시 전 법률 검토 필요.
 
 ## Git
-- GitHub `pskbs`, 서비스당 저장소 1개(저장소명 `dawnpeople`). 작업 단위마다 **자동 커밋·푸시**(Conventional Commits). `main` 기본, 큰 변경은 `feat/*`.
+- GitHub `pskbs`, 서비스당 저장소 1개(저장소명 `dawnpeolple`, https://github.com/pskbs/dawnpeolple). 작업 단위마다 **자동 커밋·푸시**(Conventional Commits). `main` 기본, 큰 변경은 `feat/*`.
 - 파괴적 명령(`push --force`, `reset --hard`, DB drop/truncate) 금지 — 필요하면 먼저 확인.
 
 ## 먼저 물어볼 것

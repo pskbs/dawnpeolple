@@ -19,7 +19,7 @@
 
 ## 2026-09-21 — Phase 0: 초기 설정
 
-- 저장소명: `dawnpeople` (GitHub `pskbs` 계정)
+- 저장소명: `dawnpeolple` (GitHub `pskbs` 계정, https://github.com/pskbs/dawnpeolple) — 최초 논의 시 `dawnpeople`로 제안했으나 실제 생성된 저장소명(및 로컬 프로젝트 폴더명)에 맞춰 `dawnpeolple`로 통일
 - 패키지 매니저: pnpm (사용자 PC에 corepack 활성화가 관리자 권한 문제로 실패해 `npm install -g pnpm`으로 대체 설치)
 - Vite 스캐폴드: `create-vite` 최신 버전이 기본적으로 ESLint 대신 **oxlint**를 사용함 — 요청서에 특정 린터 지정이 없어 그대로 채택. 문제 발생 시 ESLint로 교체 가능.
 - `build:toss` 스크립트는 현재 `build:web`과 동일한 placeholder임. Phase 2에서 `ait build`/`ait deploy`를 반영해 교체 예정.

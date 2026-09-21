@@ -1,12 +1,24 @@
-import { BRAND_DISPLAY } from './config/brand'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { TabBar } from './components/TabBar'
+import { BungaePage } from './features/bungae/BungaePage'
+import { FeedPage } from './features/feed/FeedPage'
+import { MePage } from './features/me/MePage'
 import './App.css'
 
+// 홈(첫 진입 탭)은 수다방이에요.
 function App() {
   return (
-    <main style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>{BRAND_DISPLAY}</h1>
-      <p>낮에만 모임 있나요? 새벽에 일하는 우리도 있어요!</p>
-    </main>
+    <>
+      <main className="app-content">
+        <Routes>
+          <Route path="/" element={<Navigate to="/feed" replace />} />
+          <Route path="/feed" element={<FeedPage />} />
+          <Route path="/bungae" element={<BungaePage />} />
+          <Route path="/me" element={<MePage />} />
+        </Routes>
+      </main>
+      <TabBar />
+    </>
   )
 }
 

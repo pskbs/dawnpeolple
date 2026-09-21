@@ -1,0 +1,26 @@
+import { NavLink } from 'react-router-dom'
+import { TAB_LABELS } from '../config/copy'
+import './TabBar.css'
+
+// 웹 전용 임시 탭바입니다. 앱인토스 빌드에서는 반드시 TDS 플로팅 탭바로 교체해야 해요(커스텀 탭바 금지).
+const TABS = [
+  { to: '/feed', label: TAB_LABELS.feed },
+  { to: '/bungae', label: TAB_LABELS.bungae },
+  { to: '/me', label: TAB_LABELS.me },
+] as const
+
+export function TabBar() {
+  return (
+    <nav className="tab-bar">
+      {TABS.map((tab) => (
+        <NavLink
+          key={tab.to}
+          to={tab.to}
+          className={({ isActive }) => `tab-bar__item${isActive ? ' tab-bar__item--active' : ''}`}
+        >
+          {tab.label}
+        </NavLink>
+      ))}
+    </nav>
+  )
+}
