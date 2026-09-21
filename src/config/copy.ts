@@ -55,6 +55,25 @@ export const ONBOARDING_COPY = {
 
 export const FEED_COMPOSER_PLACEHOLDER = '오늘 퇴근길은 어땠어요?'
 
+export const FEED_COPY = {
+  greetingGuest: '새벽에 깨어 있는 당신께',
+  greeting: (nickname: string) => `${nickname}님, 오늘도 수고했어요`,
+  storiesTitle: '다가오는 소모임',
+  storiesCreate: '만들기',
+  storiesAll: '전체보기',
+  empty: '아직 글이 없어요. 첫 글을 남겨볼까요?',
+  composeTitle: '새 글',
+  composeCancel: '취소',
+  composeSubmit: '게시',
+  threadTitle: '스레드',
+  repliesTitle: '답글',
+  viewReplies: (n: number) => `답글 ${n}개`,
+  replyPlaceholder: (nickname: string) => `${nickname}님에게 답글 남기기`,
+  notFound: '글을 찾을 수 없어요.',
+  submitError: '글을 올리지 못했어요',
+  doubleTapHint: '두 번 톡 치면 좋아요',
+} as const
+
 export const SORT_COPY = {
   latest: '지금',
   popular: '인기',
@@ -84,4 +103,36 @@ export const BUNGAE_COPY = {
   hostBadge: '리더',
   participantsRestricted: '참석하면 참석자 명단과 대화를 볼 수 있어요.',
   backToList: '목록으로',
+  createTitle: '소모임 만들기',
+  fabLabel: '소모임 만들기',
+  seatsTitle: '참석 현황',
+  seatsCount: (joined: number, capacity: number) => `${joined} / ${capacity}명`,
+  chatTitle: '참석자 대화',
+  chatEmpty: '첫 인사를 남겨보세요.',
+  hostedBy: (nickname: string) => `${nickname}님이 열었어요`,
+  notFound: '존재하지 않는 소모임이에요.',
+  startsAtHint: '지금부터 1시간 이후로 정할 수 있어요.',
+} as const
+
+export const ME_COPY = {
+  title: '내정보',
+  statPosts: '게시글',
+  statLikes: '받은 좋아요',
+  statBungaes: '소모임',
+  myPostsTitle: '내가 쓴 글',
+  myPostsEmpty: '아직 쓴 글이 없어요.',
+  infoTitle: '내 정보',
+  workType: '근무 유형',
+  region: '지역',
+  logout: '로그아웃',
+} as const
+
+export const AUTH_EXTRA_COPY = {
+  subtitle: '새벽에 일하는 사람들의 수다방',
+  emailPlaceholder: '이메일 주소',
+  passwordPlaceholder: '비밀번호 (6자 이상)',
+} as const
+
+export const FAB_COPY = {
+  post: '새 글 쓰기',
 } as const
