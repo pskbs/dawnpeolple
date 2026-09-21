@@ -24,7 +24,7 @@ export function MePage() {
   return (
     <section className="me-page">
       <div className="me-card clay-card">
-        <div className="me-avatar squircle-badge">🌙</div>
+        <div className="avatar avatar--lg">{profile.nickname.charAt(0)}</div>
         <div>
           <h1>{profile.nickname}</h1>
           <p className="me-sub">

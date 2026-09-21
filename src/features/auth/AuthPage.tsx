@@ -34,22 +34,22 @@ export function AuthPage() {
 
   return (
     <section className="auth-page">
-      <div className="night-sky auth-hero">
-        <svg className="night-sky__icon night-sky__moon" aria-hidden="true">
+      <div className="blob-art auth-hero">
+        <svg className="blob-art__icon blob-art__moon" aria-hidden="true">
           <use href="/icons.svg#moon-icon" />
         </svg>
-        <svg className="night-sky__icon night-sky__star--sm" style={{ top: 20, left: 24, width: 14, height: 14 }} aria-hidden="true">
+        <svg className="blob-art__icon blob-art__star--sm" style={{ top: 20, left: 24, width: 14, height: 14 }} aria-hidden="true">
           <use href="/icons.svg#star-icon" />
         </svg>
-        <svg className="night-sky__icon night-sky__star--sm" style={{ bottom: 18, right: 60, width: 10, height: 10 }} aria-hidden="true">
+        <svg className="blob-art__icon blob-art__star--sm" style={{ bottom: 18, right: 60, width: 10, height: 10 }} aria-hidden="true">
           <use href="/icons.svg#star-icon" />
         </svg>
-        <div className="night-sky__content">
+        <div className="blob-art__content">
           <h1>{CONCEPT_COPY.tagline}</h1>
         </div>
       </div>
 
-      <div className="auth-card clay-card">
+      <div className="auth-card glass-panel">
         <h2>{mode === 'login' ? AUTH_COPY.loginTitle : AUTH_COPY.signupTitle}</h2>
 
         <form onSubmit={handleSubmit} className="auth-form">

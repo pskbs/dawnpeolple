@@ -15,10 +15,10 @@
 
 .onboarding-page input,
 .onboarding-page select {
-  padding: 10px 14px;
-  border-radius: 16px;
+  padding: 10px 16px;
+  border-radius: 999px;
   border: 1px solid var(--border);
-  background: var(--card);
+  background: var(--surface, var(--bg));
   color: var(--text);
   font-size: 15px;
 }
@@ -34,7 +34,7 @@
 
 .nickname-row button {
   padding: 0 14px;
-  border-radius: 16px;
+  border-radius: 999px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text);
