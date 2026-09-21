@@ -17,11 +17,14 @@ export function TabBar() {
           key={tab.to}
           to={tab.to}
           className={({ isActive }) => `tab-bar__item${isActive ? ' tab-bar__item--active' : ''}`}
+          aria-label={tab.label}
         >
-          <svg className="tab-bar__icon" width="20" height="20" aria-hidden="true">
-            <use href={`/icons.svg#${tab.icon}`} />
-          </svg>
-          {tab.label}
+          <span className="tab-bar__badge">
+            <svg className="tab-bar__icon" width="20" height="20" aria-hidden="true">
+              <use href={`/icons.svg#${tab.icon}`} />
+            </svg>
+          </span>
+          <span className="tab-bar__label">{tab.label}</span>
         </NavLink>
       ))}
     </nav>
