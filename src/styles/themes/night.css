@@ -13,4 +13,9 @@
   --peach: #ff9f8a;
   --primary: var(--moon);
   --primary-contrast: var(--moon-contrast);
+  --card-2: #2a3372;
+  --divider: #232b63;
+  --glow: 214, 178, 107;
+  --glass-bg: rgba(35, 43, 99, 0.55);
+  --glass-border: rgba(244, 243, 255, 0.12);
 }

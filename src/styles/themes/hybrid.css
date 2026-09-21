@@ -12,4 +12,11 @@
   --star: #fff4c7;
   --primary: #6a58f0;
   --primary-contrast: #ffffff;
+  --card-2: #ffffff;
+  --divider: #ece7ff;
+  --glow: 106, 88, 240;
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(30, 34, 71, 0.08);
+  --lavender: #a99bff;
+  --peach: #ff9f8a;
 }

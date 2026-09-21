@@ -1,24 +1,44 @@
-/* 공용 "클레이(clay) + 알약(pill)" 컴포넌트 스타일 — docs/design-notes.md의 시스템을 전역에 적용.
-   색은 항상 테마 토큰만 사용하고, 그림자(rgba(0,0,0,..))만 예외로 고정값을 써요(깊이감 표현용, 색상 아님). */
+/* 공용 "클레이(clay) + 글래스 + 알약(pill)" 컴포넌트 스타일 — docs/design-notes.md의 시스템을 전역에 적용.
+   색은 항상 테마 토큰만 사용하고, 그림자(rgba(0,0,0,..) 또는 --glow 틴트)만 예외로 고정값을 써요(깊이감 표현용, 색상 아님). */
+
+:root {
+  --r-lg: 28px;
+  --r-md: 20px;
+  --r-sm: 14px;
+}
 
 .clay-card {
-  background: var(--card);
+  background: linear-gradient(160deg, var(--card), var(--card-2));
   border: 1px solid var(--border);
-  border-radius: 28px;
+  border-radius: var(--r-lg);
   padding: 18px;
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 14px 32px rgba(0, 0, 0, 0.22);
+}
+
+/* 프로스티드 글래스 패널: 히어로/배너 등 배경 위에 떠 있는 반투명 면 */
+.glass-panel {
+  position: relative;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
 }
 
 .pill-button {
   padding: 14px 22px;
   border-radius: 999px;
   border: none;
-  background: var(--primary);
+  background: linear-gradient(160deg, var(--primary), var(--primary));
   color: var(--primary-contrast);
   font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 10px 22px rgba(var(--glow), 0.4);
 }
 
 .pill-button:disabled {
@@ -36,6 +56,12 @@
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
+}
+
+.pill-button-ghost--active {
+  border-color: transparent;
+  background: var(--primary);
+  color: var(--primary-contrast);
 }
 
 .pill-input {
@@ -63,24 +89,86 @@
     0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* 밤하늘 히어로: 로그인/인트로·피드 배너 등에서 사용. 달+별 장식은 애니메이션 없이 고정 배치(별 파티클 금지 규칙). */
-.night-sky {
+/* 아바타: 닉네임 첫 글자를 담는 원형 배지. 사진 없이도 SNS 피드 헤더행에 쓸 수 있게. */
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: linear-gradient(160deg, var(--moon), var(--lavender));
+  color: var(--moon-contrast);
+  font-weight: 700;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+.avatar--sm {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+.avatar--md {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.avatar--lg {
+  width: 56px;
+  height: 56px;
+  font-size: 22px;
+}
+
+/* 아이콘 전용 액션 버튼(좋아요·댓글 등): 텍스트 필 버튼 대신 SNS식 아이콘+숫자 */
+.icon-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 4px;
+  cursor: pointer;
+}
+
+.icon-action svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.15s ease;
+}
+
+.icon-action--active {
+  color: var(--peach);
+}
+
+.icon-action--active svg {
+  transform: scale(1.12);
+}
+
+/* 글로시 그라데이션 블롭: 히어로/빈 화면 배경 장식. 애니메이션·파티클 없이 정적 배치만. */
+.blob-art {
   position: relative;
   overflow: hidden;
-  border-radius: 32px;
-  background: linear-gradient(180deg, var(--hero-from, var(--bg)) 0%, var(--hero-to, var(--surface, var(--bg))) 100%);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(120% 90% at 85% -10%, rgba(var(--glow), 0.35), transparent 60%),
+    radial-gradient(90% 70% at 0% 110%, color-mix(in srgb, var(--lavender) 45%, transparent), transparent 65%),
+    linear-gradient(180deg, var(--hero-from, var(--bg)) 0%, var(--hero-to, var(--surface, var(--bg))) 100%);
   padding: 28px 22px;
   color: #f4f3ff;
 }
 
-.night-sky__icon {
+.blob-art__icon {
   position: absolute;
   color: var(--star);
   opacity: 0.85;
   pointer-events: none;
 }
 
-.night-sky__moon {
+.blob-art__moon {
   top: 16px;
   right: 20px;
   width: 40px;
@@ -88,12 +176,12 @@
   color: var(--moon);
 }
 
-.night-sky__star--sm {
+.blob-art__star--sm {
   width: 12px;
   height: 12px;
 }
 
-.night-sky__content {
+.blob-art__content {
   position: relative;
   z-index: 1;
 }
@@ -109,4 +197,23 @@
 
 .guest-cta p {
   font-size: 14px;
+}
+
+.guest-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+}
+
+.guest-strip p {
+  font-size: 13px;
+  margin: 0;
+}
+
+.guest-strip .pill-button-ghost {
+  padding: 8px 16px;
+  font-size: 13px;
+  flex-shrink: 0;
 }
