@@ -6,24 +6,85 @@
 
 .me-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 6px;
+  padding: 26px 18px 18px;
+  border-radius: var(--r-xl);
+  text-align: center;
+}
+
+.me-card .avatar-ring {
+  margin-bottom: 8px;
 }
 
 .me-card h1 {
-  font-size: 20px;
   margin: 0;
+  font-size: 22px;
+  font-weight: 800;
 }
 
 .me-sub {
-  font-size: 13px;
+  font-size: 14px;
+}
+
+.me-card .badge {
   margin-top: 4px;
+}
+
+.me-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--divider);
+}
+
+.me-stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+
+.me-stats div + div {
+  border-left: 1px solid var(--divider);
+}
+
+.me-stats dt {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.me-stats dd {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.me-section-title {
+  margin: 0;
+  padding: 16px 18px 10px;
+  font-size: 16px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.me-empty {
+  padding: 28px 18px;
+  text-align: center;
+  font-size: 14px;
 }
 
 .me-info-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+}
+
+.me-info-title {
+  margin: 0;
+  font-size: 16px;
 }
 
 .me-info-row {
@@ -35,9 +96,15 @@
 
 .me-info-row span:last-child {
   color: var(--text);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .me-logout {
   align-self: center;
+  color: var(--text-sub);
+}
+
+.me-logout__icon {
+  width: 18px;
+  height: 18px;
 }

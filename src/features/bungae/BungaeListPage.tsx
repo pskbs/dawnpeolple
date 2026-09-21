@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { Avatar, Icon, Loading } from '../../components/ui'
+import { REGION_LABEL } from '../../config/brand'
 import { BUNGAE_COPY, CONCEPT_COPY, REGION_NOTICE } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
 import { supabase } from '../../lib/supabase'
-import { formatStartsAt, type Bungae } from './bungae-types'
+import { fetchNicknames } from '../feed/feed-api'
+import { dateTileParts, type Bungae } from './bungae-types'
 import './BungaePage.css'
 
 export function BungaeListPage() {
   const { profile } = useAuth()
-  const navigate = useNavigate()
   const [bungaes, setBungaes] = useState<Bungae[]>([])
   const [nicknames, setNicknames] = useState<Record<string, string>>({})
   const [remaining, setRemaining] = useState<Record<number, number>>({})
@@ -27,63 +29,98 @@ export function BungaeListPage() {
       const list = (data ?? []) as Bungae[]
       setBungaes(list)
 
-      const hostIds = [...new Set(list.map((b) => b.host_id))]
-      if (hostIds.length > 0) {
-        const { data: cards } = await supabase.from('profile_cards').select('id, nickname').in('id', hostIds)
-        const map: Record<string, string> = {}
-        for (const c of cards ?? []) map[c.id] = c.nickname
-        setNicknames(map)
-      }
-
-      const slots = await Promise.all(
-        list.map(async (b) => {
-          const { data: n } = await supabase.rpc('get_bungae_remaining_slots', { p_bungae_id: b.id })
-          return [b.id, (n as number) ?? 0] as const
-        }),
-      )
+      const [names, slots] = await Promise.all([
+        fetchNicknames(list.map((b) => b.host_id)),
+        Promise.all(
+          list.map(async (b) => {
+            const { data: n } = await supabase.rpc('get_bungae_remaining_slots', { p_bungae_id: b.id })
+            return [b.id, (n as number) ?? 0] as const
+          }),
+        ),
+      ])
+      setNicknames(names)
       setRemaining(Object.fromEntries(slots))
       setLoading(false)
     }
     load()
   }, [])
 
-  function handleCreateClick() {
-    navigate(profile ? '/bungae/new' : '/me')
-  }
-
   return (
     <section className="bungae-page">
-      <div className="bungae-header">
-        <h1>{BUNGAE_COPY.listTitle}</h1>
-        <button type="button" className="pill-button" onClick={handleCreateClick}>
-          {BUNGAE_COPY.createButton}
-        </button>
+      <header className="app-bar">
+        <h1 className="bungae-page__title">{BUNGAE_COPY.listTitle}</h1>
+        <span className="badge bungae-region-badge">
+          <Icon name="pin-icon" />
+          {REGION_LABEL}
+        </span>
+      </header>
+
+      <div className="bungae-hero glass-panel">
+        <div className="bungae-hero__text">
+          <h2>{CONCEPT_COPY.bungaeIntro}</h2>
+          <p>{REGION_NOTICE}</p>
+        </div>
+        <span className="orb orb--md bungae-hero__orb" aria-hidden="true" />
       </div>
-      <p className="bungae-intro">{CONCEPT_COPY.bungaeIntro}</p>
-      <p className="bungae-region-notice">{REGION_NOTICE}</p>
 
       {loading ? (
-        <p>불러오는 중...</p>
+        <Loading />
       ) : bungaes.length === 0 ? (
-        <p>{BUNGAE_COPY.empty}</p>
+        <div className="empty-state glass-panel">
+          <span className="orb orb--md" aria-hidden="true" />
+          <p>{BUNGAE_COPY.empty}</p>
+          <Link to={profile ? '/bungae/new' : '/me'} className="pill-button">
+            {BUNGAE_COPY.createTitle}
+          </Link>
+        </div>
       ) : (
         <ul className="bungae-list">
-          {bungaes.map((b) => (
-            <li key={b.id}>
-              <Link to={`/bungae/${b.id}`} className="bungae-card clay-card">
-                <div className="bungae-card-header">
-                  <h2>{b.title}</h2>
-                  <span className="bungae-slots">{BUNGAE_COPY.remainingSlots(remaining[b.id] ?? 0)}</span>
-                </div>
-                <p className="bungae-card-body">{b.body}</p>
-                <div className="bungae-card-footer">
-                  <span>{formatStartsAt(b.starts_at)}</span>
-                  {b.place_hint && <span>{b.place_hint}</span>}
-                  <span>{nicknames[b.host_id] ?? '알 수 없음'}</span>
-                </div>
-              </Link>
-            </li>
-          ))}
+          {bungaes.map((b) => {
+            const left = remaining[b.id] ?? 0
+            const joined = Math.max(0, b.capacity - left)
+            const tile = dateTileParts(b.starts_at)
+            const host = nicknames[b.host_id] ?? '알 수 없음'
+            return (
+              <li key={b.id}>
+                <Link to={`/bungae/${b.id}`} className="bungae-card glass-panel">
+                  <div className="bungae-card__top">
+                    <span className="date-tile">
+                      <strong>{tile.day}</strong>
+                      <small>{tile.weekday}</small>
+                    </span>
+                    <div className="bungae-card__heading">
+                      <h2>{b.title}</h2>
+                      <div className="bungae-meta">
+                        <span>
+                          <Icon name="clock-icon" />
+                          {tile.time}
+                        </span>
+                        <span>
+                          <Icon name="pin-icon" />
+                          {b.place_hint ?? REGION_LABEL}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="bungae-card__body">{b.body}</p>
+
+                  <div className="bungae-card__bottom">
+                    <span className="bungae-host">
+                      <Avatar name={host} seed={b.host_id} size="xs" />
+                      {host}
+                    </span>
+                    <span className={`bungae-slots${left <= 0 ? ' bungae-slots--full' : ''}`}>
+                      {BUNGAE_COPY.remainingSlots(left)}
+                    </span>
+                  </div>
+                  <div className="seat-bar" aria-hidden="true">
+                    <span style={{ width: `${(joined / b.capacity) * 100}%` }} />
+                  </div>
+                </Link>
+              </li>
+            )
+          })}
         </ul>
       )}
     </section>

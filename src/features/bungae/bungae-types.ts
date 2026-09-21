@@ -21,3 +21,12 @@ export function formatStartsAt(iso: string) {
     minute: '2-digit',
   })
 }
+
+export function dateTileParts(iso: string) {
+  const d = new Date(iso)
+  return {
+    day: `${d.getMonth() + 1}/${d.getDate()}`,
+    weekday: d.toLocaleDateString('ko-KR', { weekday: 'short' }),
+    time: d.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' }),
+  }
+}

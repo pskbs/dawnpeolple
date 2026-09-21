@@ -1,10 +1,14 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
+import { AppBar, Icon } from '../../components/ui'
+import { BUNGAE_COPY } from '../../config/copy'
 import { BUCHEON_PLACE_CHIPS, OPEN_REGIONS } from '../../config/regions'
-import { BUNGAE_COPY, GUEST_COPY } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
 import { supabase } from '../../lib/supabase'
 import './BungaePage.css'
+
+const MIN_CAPACITY = 2
+const MAX_CAPACITY = 10
 
 export function BungaeCreatePage() {
   const { profile } = useAuth()
@@ -17,16 +21,7 @@ export function BungaeCreatePage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  if (!profile) {
-    return (
-      <section className="guest-cta clay-card">
-        <p>{GUEST_COPY.browseNotice}</p>
-        <button type="button" className="pill-button" onClick={() => navigate('/me')}>
-          {GUEST_COPY.ctaLogin}
-        </button>
-      </section>
-    )
-  }
+  if (!profile) return <Navigate to="/me" replace />
 
   const startsAtDate = startsAt ? new Date(startsAt) : null
   const canSubmit =
@@ -34,8 +29,8 @@ export function BungaeCreatePage() {
     body.trim().length > 0 &&
     !!startsAtDate &&
     startsAtDate.getTime() > Date.now() + 60 * 60 * 1000 &&
-    capacity >= 2 &&
-    capacity <= 10 &&
+    capacity >= MIN_CAPACITY &&
+    capacity <= MAX_CAPACITY &&
     !submitting
 
   async function handleSubmit() {
@@ -61,7 +56,7 @@ export function BungaeCreatePage() {
       const { error: joinError } = await supabase.rpc('join_bungae', { p_bungae_id: data.id })
       if (joinError) throw joinError
 
-      navigate(`/bungae/${data.id}`)
+      navigate(`/bungae/${data.id}`, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : '소모임을 만들지 못했어요')
     } finally {
@@ -69,65 +64,117 @@ export function BungaeCreatePage() {
     }
   }
 
+  const clampCapacity = (n: number) => Math.min(MAX_CAPACITY, Math.max(MIN_CAPACITY, n))
+
   return (
-    <section className="bungae-create-page clay-card">
-      <h1>{BUNGAE_COPY.createButton.replace('+ ', '')}</h1>
+    <section className="bungae-create-page">
+      <AppBar back title={BUNGAE_COPY.createTitle} />
 
-      <label>
-        {BUNGAE_COPY.titleLabel}
-        <input className="pill-input" value={title} maxLength={30} onChange={(e) => setTitle(e.target.value)} />
-      </label>
+      <div className="glass-panel create-form">
+        <label className="field">
+          <span className="field-label">{BUNGAE_COPY.titleLabel}</span>
+          <input className="field-input" value={title} maxLength={30} onChange={(e) => setTitle(e.target.value)} />
+        </label>
 
-      <label>
-        {BUNGAE_COPY.bodyLabel}
-        <textarea value={body} maxLength={500} rows={4} onChange={(e) => setBody(e.target.value)} />
-      </label>
+        <label className="field">
+          <span className="field-label">{BUNGAE_COPY.bodyLabel}</span>
+          <textarea
+            className="field-textarea"
+            value={body}
+            maxLength={500}
+            rows={4}
+            onChange={(e) => setBody(e.target.value)}
+          />
+        </label>
 
-      <label>
-        {BUNGAE_COPY.startsAtLabel}
-        <input
-          className="pill-input"
-          type="datetime-local"
-          value={startsAt}
-          onChange={(e) => setStartsAt(e.target.value)}
-        />
-      </label>
+        <label className="field">
+          <span className="field-label">{BUNGAE_COPY.startsAtLabel}</span>
+          <div className="input-with-icon">
+            <Icon name="clock-icon" />
+            <input
+              className="field-input"
+              type="datetime-local"
+              value={startsAt}
+              onChange={(e) => setStartsAt(e.target.value)}
+            />
+          </div>
+          <span className="field-hint">{BUNGAE_COPY.startsAtHint}</span>
+        </label>
 
-      <label>
-        {BUNGAE_COPY.placeHintLabel}
-        <input
-          className="pill-input"
-          value={placeHint}
-          maxLength={30}
-          placeholder="예: 부천역"
-          onChange={(e) => setPlaceHint(e.target.value)}
-        />
-      </label>
-      <div className="bungae-chip-row">
-        {BUCHEON_PLACE_CHIPS.map((chip) => (
-          <button type="button" key={chip} className="bungae-chip" onClick={() => setPlaceHint(chip)}>
-            {chip}
-          </button>
-        ))}
+        <div className="field">
+          <label className="field">
+            <span className="field-label">{BUNGAE_COPY.placeHintLabel}</span>
+            <div className="input-with-icon">
+              <Icon name="pin-icon" />
+              <input
+                className="field-input"
+                value={placeHint}
+                maxLength={30}
+                placeholder="예: 부천역"
+                onChange={(e) => setPlaceHint(e.target.value)}
+              />
+            </div>
+          </label>
+          <div className="chip-row">
+            {BUCHEON_PLACE_CHIPS.map((chip) => (
+              <button
+                type="button"
+                key={chip}
+                className="chip"
+                aria-pressed={placeHint === chip}
+                onClick={() => setPlaceHint(chip)}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="field">
+          <label className="field-label" htmlFor="bungae-capacity">
+            {BUNGAE_COPY.capacityLabel}
+          </label>
+          <div className="stepper">
+            <button
+              type="button"
+              className="circle-button circle-button--sm"
+              aria-label="정원 줄이기"
+              disabled={capacity <= MIN_CAPACITY}
+              onClick={() => setCapacity((n) => clampCapacity(n - 1))}
+            >
+              <span aria-hidden="true">−</span>
+            </button>
+            <input
+              id="bungae-capacity"
+              className="stepper__value"
+              type="number"
+              inputMode="numeric"
+              min={MIN_CAPACITY}
+              max={MAX_CAPACITY}
+              value={capacity}
+              onChange={(e) => setCapacity(Number(e.target.value))}
+              onBlur={() => setCapacity((n) => clampCapacity(n || MIN_CAPACITY))}
+            />
+            <button
+              type="button"
+              className="circle-button circle-button--sm"
+              aria-label="정원 늘리기"
+              disabled={capacity >= MAX_CAPACITY}
+              onClick={() => setCapacity((n) => clampCapacity(n + 1))}
+            >
+              <Icon name="plus-icon" />
+            </button>
+          </div>
+        </div>
+
+        {error && <p className="error-text">{error}</p>}
       </div>
 
-      <label>
-        {BUNGAE_COPY.capacityLabel}
-        <input
-          className="pill-input"
-          type="number"
-          min={2}
-          max={10}
-          value={capacity}
-          onChange={(e) => setCapacity(Number(e.target.value))}
-        />
-      </label>
-
-      {error && <p className="bungae-error">{error}</p>}
-
-      <button type="button" className="pill-button" disabled={!canSubmit} onClick={handleSubmit}>
-        {BUNGAE_COPY.submit}
-      </button>
+      <div className="bottom-bar">
+        <button type="button" className="pill-button pill-button--block" disabled={!canSubmit} onClick={handleSubmit}>
+          {BUNGAE_COPY.submit}
+        </button>
+      </div>
     </section>
   )
 }
