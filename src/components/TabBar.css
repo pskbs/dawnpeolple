@@ -7,20 +7,21 @@
   gap: 4px;
   padding: 8px;
   border-radius: 999px;
-  background: #232b63;
+  background: var(--card);
+  border: 1px solid var(--border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
 .tab-bar__item {
   padding: 8px 16px;
   border-radius: 999px;
-  color: #b5b8e0;
+  color: var(--text-sub);
   text-decoration: none;
   font-size: 14px;
 }
 
 .tab-bar__item--active {
-  background: #ffd66b;
-  color: #12173a;
+  background: var(--primary);
+  color: var(--primary-contrast);
   font-weight: 600;
 }

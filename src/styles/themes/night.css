@@ -1,0 +1,16 @@
+/* night 테마: 웹 기본값, 전면 딥네이비 야간 (요청서 10-4) */
+:root[data-theme='night'] {
+  --bg: #12173a;
+  --surface: #1b2250;
+  --card: #232b63;
+  --border: #2f3878;
+  --text: #f4f3ff;
+  --text-sub: #b5b8e0;
+  --moon: #ffd66b;
+  --moon-contrast: #12173a;
+  --star: #fff4c7;
+  --lavender: #a99bff;
+  --peach: #ff9f8a;
+  --primary: var(--moon);
+  --primary-contrast: var(--moon-contrast);
+}

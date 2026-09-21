@@ -1,0 +1,15 @@
+/* hybrid 테마: 앱인토스 제출 기본값, 콘텐츠 면은 밝게 + 히어로만 밤하늘 (요청서 10-4) */
+:root[data-theme='hybrid'] {
+  --bg: #f5f3ff;
+  --card: #fbfaff;
+  --border: #e3ddff;
+  --hero-from: #12173a;
+  --hero-to: #232b63;
+  --text: #1e2247;
+  --text-sub: #6b6f99;
+  --moon: #ffd66b;
+  --moon-contrast: #12173a;
+  --star: #fff4c7;
+  --primary: #6a58f0;
+  --primary-contrast: #ffffff;
+}
