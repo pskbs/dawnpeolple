@@ -34,10 +34,25 @@ export function AuthPage() {
 
   return (
     <section className="auth-page">
-      <h1>{CONCEPT_COPY.tagline}</h1>
-      <h2>{mode === 'login' ? AUTH_COPY.loginTitle : AUTH_COPY.signupTitle}</h2>
+      <div className="night-sky auth-hero">
+        <svg className="night-sky__icon night-sky__moon" aria-hidden="true">
+          <use href="/icons.svg#moon-icon" />
+        </svg>
+        <svg className="night-sky__icon night-sky__star--sm" style={{ top: 20, left: 24, width: 14, height: 14 }} aria-hidden="true">
+          <use href="/icons.svg#star-icon" />
+        </svg>
+        <svg className="night-sky__icon night-sky__star--sm" style={{ bottom: 18, right: 60, width: 10, height: 10 }} aria-hidden="true">
+          <use href="/icons.svg#star-icon" />
+        </svg>
+        <div className="night-sky__content">
+          <h1>{CONCEPT_COPY.tagline}</h1>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="auth-form">
+      <div className="auth-card clay-card">
+        <h2>{mode === 'login' ? AUTH_COPY.loginTitle : AUTH_COPY.signupTitle}</h2>
+
+        <form onSubmit={handleSubmit} className="auth-form">
         <label>
           {AUTH_COPY.emailLabel}
           <input
@@ -60,21 +75,23 @@ export function AuthPage() {
           />
         </label>
 
+        {mode === 'signup' && <p className="auth-hint">가입 다음 화면에서 닉네임·성별·연령대를 설정해요.</p>}
         {error && <p className="auth-error">{error}</p>}
         {notice && <p className="auth-notice">{notice}</p>}
 
-        <button type="submit" disabled={submitting}>
-          {mode === 'login' ? AUTH_COPY.loginSubmit : AUTH_COPY.signupSubmit}
-        </button>
-      </form>
+          <button type="submit" className="pill-button" disabled={submitting}>
+            {mode === 'login' ? AUTH_COPY.loginSubmit : AUTH_COPY.signupSubmit}
+          </button>
+        </form>
 
-      <button
-        type="button"
-        className="auth-switch"
-        onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-      >
-        {mode === 'login' ? AUTH_COPY.switchToSignup : AUTH_COPY.switchToLogin}
-      </button>
+        <button
+          type="button"
+          className="auth-switch"
+          onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+        >
+          {mode === 'login' ? AUTH_COPY.switchToSignup : AUTH_COPY.switchToLogin}
+        </button>
+      </div>
     </section>
   )
 }

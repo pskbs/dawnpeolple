@@ -102,7 +102,68 @@
 
 .feed-card-footer {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   font-size: 12px;
   color: var(--text-sub);
+}
+
+.feed-action {
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.feed-action--active {
+  color: var(--peach, var(--primary));
+  font-weight: 600;
+}
+
+.feed-comments {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feed-comments-empty {
+  font-size: 13px;
+}
+
+.feed-comments-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.feed-comments-list li {
+  font-size: 13px;
+}
+
+.feed-comment-nickname {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.feed-comment-body {
+  color: var(--text);
+}
+
+.feed-comment-form {
+  display: flex;
+  gap: 8px;
+}
+
+.feed-comment-form .pill-input {
+  flex: 1;
+  padding: 8px 14px;
+  font-size: 14px;
 }

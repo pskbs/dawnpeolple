@@ -13,6 +13,12 @@ function adminClient() {
   })
 }
 
+function datetimeLocalIn(hours: number) {
+  const d = new Date(Date.now() + hours * 60 * 60 * 1000)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 let testUserId: string | undefined
 
 test.beforeAll(async () => {
@@ -35,29 +41,42 @@ test.afterAll(async () => {
   }
 })
 
-test('회원가입 로그인 → 온보딩 → 수다방 글쓰기', async ({ page }) => {
+test('비회원 열람 → 로그인/온보딩 → 수다방(좋아요·댓글) → 소모임 개설', async ({ page }) => {
   await page.goto('/')
 
-  // 로그인
+  // 1) 비회원도 수다방을 볼 수 있어요. 글쓰기 입력창은 없고 로그인 유도 문구만 보여요.
+  await expect(page).toHaveURL(/\/feed$/)
+  await expect(page.locator('.feed-composer textarea')).toHaveCount(0)
+  await expect(page.getByText('로그인하고 참여하기')).toBeVisible()
+
+  // 2) 비회원도 소모임 목록을 볼 수 있어요.
+  await page.getByRole('link', { name: '소모임' }).click()
+  await expect(page.getByRole('heading', { name: '소모임' })).toBeVisible()
+
+  // 3) 내정보 탭 = 로그인 진입점
+  await page.getByRole('link', { name: '내정보' }).click()
+  await expect(page.getByLabel('이메일')).toBeVisible()
+
   await page.getByLabel('이메일').fill(TEST_EMAIL)
   await page.getByLabel('비밀번호').fill(TEST_PASSWORD)
   await page.getByRole('button', { name: '로그인' }).click()
 
-  // 온보딩 화면 대기 (자동 생성된 닉네임이 이미 채워져 있음)
+  // 4) 온보딩 (닉네임/성별/연령대는 자동 생성 닉네임 + 기본값 사용, 출생연도만 입력)
   await expect(page.getByRole('heading', { name: '반가워요! 몇 가지만 알려주세요' })).toBeVisible({
     timeout: 10_000,
   })
-
-  await page.screenshot({ path: 'docs/screenshots/onboarding.png', fullPage: true })
-
   await page.getByLabel('출생연도').fill('1995')
   await page.getByLabel('서비스 이용약관에 동의해요').check()
   await page.getByLabel('개인정보 처리방침에 동의해요').check()
   await page.getByLabel('만 19세 이상이에요').check()
-
   await page.getByRole('button', { name: '시작하기' }).click()
 
-  // 수다방(피드) 화면 도달 확인 (글쓰기 입력창이 보이면 온보딩을 통과해 피드에 온 것)
+  // 온보딩 완료 → 내정보 화면(닉네임 표시)
+  await expect(page.locator('.me-card h1')).toBeVisible({ timeout: 10_000 })
+  await page.screenshot({ path: 'docs/screenshots/onboarding.png', fullPage: true })
+
+  // 5) 수다방: 글쓰기 → 좋아요 → 댓글
+  await page.getByRole('link', { name: '수다방' }).click()
   await expect(page.locator('.feed-composer textarea')).toBeVisible({ timeout: 10_000 })
 
   const message = `E2E 테스트 글 ${Date.now()}`
@@ -66,7 +85,34 @@ test('회원가입 로그인 → 온보딩 → 수다방 글쓰기', async ({ pa
 
   const feedList = page.getByTestId('feed-list')
   await expect(feedList).toBeVisible({ timeout: 10_000 })
-  await expect(feedList.getByText(message)).toBeVisible({ timeout: 10_000 })
+  const post = feedList.getByTestId('feed-post').filter({ hasText: message })
+  await expect(post).toBeVisible({ timeout: 10_000 })
+
+  await post.getByRole('button', { name: /좋아요/ }).click()
+  await expect(post.getByRole('button', { name: '좋아요 1' })).toBeVisible()
+
+  await post.getByRole('button', { name: /댓글/ }).click()
+  const commentText = `댓글 테스트 ${Date.now()}`
+  await post.locator('.feed-comment-form input').fill(commentText)
+  await post.locator('.feed-comment-form button').click()
+  await expect(post.getByText(commentText)).toBeVisible({ timeout: 10_000 })
 
   await page.screenshot({ path: 'docs/screenshots/feed-with-post.png', fullPage: true })
+
+  // 6) 소모임 개설 → 상세 화면(리더 배지, 참석 취소 버튼) 확인
+  await page.getByRole('link', { name: '소모임' }).click()
+  await page.getByRole('button', { name: '+ 소모임 만들기' }).click()
+
+  const bungaeTitle = `E2E 소모임 ${Date.now()}`
+  await page.getByLabel('제목').fill(bungaeTitle)
+  await page.getByLabel('소개').fill('테스트로 만든 소모임이에요')
+  await page.locator('input[type="datetime-local"]').fill(datetimeLocalIn(3))
+  await page.getByLabel('정원 (리더 포함 2~10명)').fill('4')
+  await page.getByRole('button', { name: '만들기' }).click()
+
+  await expect(page.getByRole('heading', { name: bungaeTitle })).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByText('리더')).toBeVisible()
+  await expect(page.getByRole('button', { name: '참석 취소' })).toBeVisible()
+
+  await page.screenshot({ path: 'docs/screenshots/bungae-detail.png', fullPage: true })
 })

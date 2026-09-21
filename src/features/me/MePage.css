@@ -1,0 +1,43 @@
+.me-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.me-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.me-card h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.me-sub {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.me-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.me-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+
+.me-info-row span:last-child {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.me-logout {
+  align-self: center;
+}

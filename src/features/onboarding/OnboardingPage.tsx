@@ -65,7 +65,7 @@ export function OnboardingPage() {
   }
 
   return (
-    <section className="onboarding-page">
+    <section className="onboarding-page clay-card">
       <h1>{ONBOARDING_COPY.title}</h1>
 
       <label>
@@ -153,7 +153,7 @@ export function OnboardingPage() {
 
       {error && <p className="onboarding-warning">{error}</p>}
 
-      <button type="button" disabled={!canSubmit} onClick={handleSubmit}>
+      <button type="button" className="pill-button" disabled={!canSubmit} onClick={handleSubmit}>
         {ONBOARDING_COPY.submit}
       </button>
     </section>

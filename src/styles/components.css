@@ -1,0 +1,112 @@
+/* 공용 "클레이(clay) + 알약(pill)" 컴포넌트 스타일 — docs/design-notes.md의 시스템을 전역에 적용.
+   색은 항상 테마 토큰만 사용하고, 그림자(rgba(0,0,0,..))만 예외로 고정값을 써요(깊이감 표현용, 색상 아님). */
+
+.clay-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 18px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+}
+
+.pill-button {
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: none;
+  background: var(--primary);
+  color: var(--primary-contrast);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+}
+
+.pill-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pill-button-ghost {
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-sub);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pill-input {
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface, var(--card));
+  color: var(--text);
+  font-size: 15px;
+}
+
+.squircle-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 18px;
+  background: linear-gradient(160deg, var(--moon), var(--peach, var(--moon)));
+  color: var(--moon-contrast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 밤하늘 히어로: 로그인/인트로·피드 배너 등에서 사용. 달+별 장식은 애니메이션 없이 고정 배치(별 파티클 금지 규칙). */
+.night-sky {
+  position: relative;
+  overflow: hidden;
+  border-radius: 32px;
+  background: linear-gradient(180deg, var(--hero-from, var(--bg)) 0%, var(--hero-to, var(--surface, var(--bg))) 100%);
+  padding: 28px 22px;
+  color: #f4f3ff;
+}
+
+.night-sky__icon {
+  position: absolute;
+  color: var(--star);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.night-sky__moon {
+  top: 16px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  color: var(--moon);
+}
+
+.night-sky__star--sm {
+  width: 12px;
+  height: 12px;
+}
+
+.night-sky__content {
+  position: relative;
+  z-index: 1;
+}
+
+.guest-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 16px;
+}
+
+.guest-cta p {
+  font-size: 14px;
+}
