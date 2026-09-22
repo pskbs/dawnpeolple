@@ -37,6 +37,9 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   if (testUserId) {
     const admin = adminClient()
+    // 유저 삭제 시 글·댓글은 작성자만 비워진 채 남아서, 테스트가 만든 데이터를 먼저 지워요.
+    await admin.from('comments').delete().eq('author_id', testUserId)
+    await admin.from('posts').delete().eq('author_id', testUserId)
     await admin.auth.admin.deleteUser(testUserId)
   }
 })
