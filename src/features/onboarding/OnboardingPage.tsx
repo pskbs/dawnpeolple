@@ -1,28 +1,14 @@
-import { useState } from 'react'
-import { Icon } from '../../components/ui'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Avatar, FullModal, Icon } from '../../components/ui'
 import { ONBOARDING_COPY } from '../../config/copy'
+import { PRIVACY, PRIVACY_VERSION, TERMS, TERMS_VERSION } from '../../config/legal'
 import { NICKNAME_ADJECTIVES, NICKNAME_NOUNS } from '../../config/nickname-words'
 import { useAuth } from '../../lib/auth-context'
+import { removePublicMedia, uploadPublicMedia, validateFile } from '../../lib/media'
+import { BIO_MAX, OFF_TIME_OPTIONS, SIDO_OPTIONS, WORK_TYPE_OPTIONS } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
+import { LegalDocView } from '../legal/LegalPage'
 import './OnboardingPage.css'
-
-const SIDO_OPTIONS = ['경기', '서울', '인천', '기타'] as const
-
-const WORK_TYPE_OPTIONS = [
-  ['nursing', '간호·의료'],
-  ['business', '사장님·자영업'],
-  ['service', '서비스·판매'],
-  ['manufacturing', '제조·물류 교대'],
-  ['freelance', '프리랜서·크리에이터'],
-  ['etc', '기타'],
-] as const
-
-const OFF_TIME_OPTIONS = [
-  ['midnight', '밤 12~3시'],
-  ['dawn', '새벽 3~6시'],
-  ['morning', '아침 6~9시'],
-  ['irregular', '불규칙'],
-] as const
 
 function generateNickname() {
   const adj = NICKNAME_ADJECTIVES[Math.floor(Math.random() * NICKNAME_ADJECTIVES.length)]
@@ -31,8 +17,10 @@ function generateNickname() {
 }
 
 export function OnboardingPage() {
-  const { refreshProfile } = useAuth()
+  const { session, refreshProfile } = useAuth()
   const [nickname, setNickname] = useState(generateNickname)
+  const [bio, setBio] = useState('')
+  const [photo, setPhoto] = useState<File | null>(null)
   const [gender, setGender] = useState<'male' | 'female'>('female')
   const [birthYear, setBirthYear] = useState('')
   const [sido, setSido] = useState<(typeof SIDO_OPTIONS)[number]>('경기')
@@ -42,25 +30,47 @@ export function OnboardingPage() {
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [agreePrivacy, setAgreePrivacy] = useState(false)
   const [agree19, setAgree19] = useState(false)
+  const [legalOpen, setLegalOpen] = useState<'terms' | 'privacy' | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const photoRef = useRef<HTMLInputElement>(null)
+
+  const photoUrl = useMemo(() => (photo ? URL.createObjectURL(photo) : null), [photo])
+  useEffect(() => () => void (photoUrl && URL.revokeObjectURL(photoUrl)), [photoUrl])
 
   const currentYear = new Date().getFullYear()
   const birthYearNum = Number(birthYear)
   const isAdult = birthYear.length === 4 && currentYear - birthYearNum >= 19
-  const canSubmit =
-    nickname.trim().length >= 2 &&
-    birthYear.length === 4 &&
-    isAdult &&
-    agreeTerms &&
-    agreePrivacy &&
-    agree19 &&
-    !submitting
+  const allAgreed = agreeTerms && agreePrivacy && agree19
+  const canSubmit = nickname.trim().length >= 2 && birthYear.length === 4 && isAdult && allAgreed && !submitting
+
+  function toggleAll(checked: boolean) {
+    setAgreeTerms(checked)
+    setAgreePrivacy(checked)
+    setAgree19(checked)
+  }
+
+  function pickPhoto(list: FileList | null) {
+    const file = list?.[0]
+    if (photoRef.current) photoRef.current.value = ''
+    if (!file) return
+    const invalid = validateFile(file)
+    if (invalid) {
+      setError(invalid)
+      return
+    }
+    setError(null)
+    setPhoto(file)
+  }
 
   async function handleSubmit() {
+    const userId = session?.user.id
+    if (!userId) return
     setError(null)
     setSubmitting(true)
+    let avatarUrl: string | null = null
     try {
+      if (photo) avatarUrl = (await uploadPublicMedia(userId, photo)).url ?? null
       const { error: rpcError } = await supabase.rpc('complete_onboarding', {
         p_nickname: nickname.trim(),
         p_gender: gender,
@@ -69,12 +79,15 @@ export function OnboardingPage() {
         p_sigungu: sigungu,
         p_work_type: workType || null,
         p_off_time_band: offTimeBand || null,
-        p_terms_version: 'draft-1',
-        p_privacy_version: 'draft-1',
+        p_terms_version: TERMS_VERSION,
+        p_privacy_version: PRIVACY_VERSION,
+        p_avatar_url: avatarUrl,
+        p_bio: bio.trim() || null,
       })
       if (rpcError) throw rpcError
       await refreshProfile()
     } catch (err) {
+      if (avatarUrl) void removePublicMedia([avatarUrl])
       setError(err instanceof Error ? err.message : '문제가 발생했어요')
     } finally {
       setSubmitting(false)
@@ -89,6 +102,37 @@ export function OnboardingPage() {
       </div>
 
       <div className="glass-panel onboarding-card">
+        <div className="field onboarding-photo">
+          <span className="field-label">{ONBOARDING_COPY.photoLabel}</span>
+          <div className="onboarding-photo__row">
+            <button
+              type="button"
+              className="onboarding-photo__avatar"
+              aria-label={ONBOARDING_COPY.photoPick}
+              onClick={() => photoRef.current?.click()}
+            >
+              <Avatar name={nickname || '새'} seed={session?.user.id} src={photoUrl} size="xl" />
+              <span className="onboarding-photo__badge" aria-hidden="true">
+                <Icon name="camera-icon" />
+              </span>
+            </button>
+            <div className="onboarding-photo__side">
+              <p className="field-hint">{ONBOARDING_COPY.photoHint}</p>
+              <div className="chip-row">
+                <button type="button" className="chip" onClick={() => photoRef.current?.click()}>
+                  {ONBOARDING_COPY.photoPick}
+                </button>
+                {photo && (
+                  <button type="button" className="chip" onClick={() => setPhoto(null)}>
+                    {ONBOARDING_COPY.photoReset}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+          <input ref={photoRef} type="file" accept="image/*" hidden onChange={(e) => pickPhoto(e.target.files)} />
+        </div>
+
         <div className="field">
           <label className="field-label" htmlFor="ob-nickname">
             {ONBOARDING_COPY.nicknameLabel}
@@ -110,6 +154,20 @@ export function OnboardingPage() {
               <Icon name="refresh-icon" />
             </button>
           </div>
+        </div>
+
+        <div className="field">
+          <label className="field-label" htmlFor="ob-bio">
+            {ONBOARDING_COPY.bioLabel}
+          </label>
+          <input
+            id="ob-bio"
+            className="field-input"
+            value={bio}
+            maxLength={BIO_MAX}
+            placeholder={ONBOARDING_COPY.bioPlaceholder}
+            onChange={(e) => setBio(e.target.value)}
+          />
         </div>
 
         <div className="field">
@@ -138,6 +196,7 @@ export function OnboardingPage() {
             onChange={(e) => setBirthYear(e.target.value.slice(0, 4))}
           />
           {birthYear.length === 4 && !isAdult && <p className="error-text">{ONBOARDING_COPY.under19Notice}</p>}
+          <p className="field-hint">{ONBOARDING_COPY.privacyNote}</p>
         </div>
 
         <div className="onboarding-grid">
@@ -208,14 +267,38 @@ export function OnboardingPage() {
       </div>
 
       <div className="glass-panel onboarding-agree">
-        <label className="check-row">
-          <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
-          {ONBOARDING_COPY.agreeTerms}
+        <label className="check-row check-row--all">
+          <input type="checkbox" checked={allAgreed} onChange={(e) => toggleAll(e.target.checked)} />
+          {ONBOARDING_COPY.agreeAll}
         </label>
-        <label className="check-row">
-          <input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} />
-          {ONBOARDING_COPY.agreePrivacy}
-        </label>
+        <div className="agree-row">
+          <label className="check-row">
+            <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
+            {ONBOARDING_COPY.agreeTerms}
+          </label>
+          <button
+            type="button"
+            className="agree-row__view"
+            aria-label={ONBOARDING_COPY.viewTerms}
+            onClick={() => setLegalOpen('terms')}
+          >
+            <Icon name="chevron-right-icon" />
+          </button>
+        </div>
+        <div className="agree-row">
+          <label className="check-row">
+            <input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} />
+            {ONBOARDING_COPY.agreePrivacy}
+          </label>
+          <button
+            type="button"
+            className="agree-row__view"
+            aria-label={ONBOARDING_COPY.viewPrivacy}
+            onClick={() => setLegalOpen('privacy')}
+          >
+            <Icon name="chevron-right-icon" />
+          </button>
+        </div>
         <label className="check-row">
           <input type="checkbox" checked={agree19} onChange={(e) => setAgree19(e.target.checked)} />
           {ONBOARDING_COPY.agree19}
@@ -227,6 +310,13 @@ export function OnboardingPage() {
       <button type="button" className="pill-button pill-button--block" disabled={!canSubmit} onClick={handleSubmit}>
         {ONBOARDING_COPY.submit}
       </button>
+
+      <FullModal open={legalOpen === 'terms'} onClose={() => setLegalOpen(null)} title={TERMS.title}>
+        <LegalDocView doc={TERMS} />
+      </FullModal>
+      <FullModal open={legalOpen === 'privacy'} onClose={() => setLegalOpen(null)} title={PRIVACY.title}>
+        <LegalDocView doc={PRIVACY} />
+      </FullModal>
     </section>
   )
 }

@@ -1,0 +1,196 @@
+/* ---------- 채팅 말풍선(DM) ---------- */
+
+.bungae-chat__title {
+  margin: 6px 4px 12px;
+  font-size: 16px;
+}
+
+.bungae-chat__empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.chat-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chat-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.chat-row--mine {
+  justify-content: flex-end;
+}
+
+.chat-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 78%;
+}
+
+.chat-name {
+  padding-left: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+.chat-bubble {
+  padding: 12px 16px 8px;
+  border-radius: 22px 22px 22px 6px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.chat-bubble p {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-time {
+  display: block;
+  margin-top: 4px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.chat-row--mine .chat-bubble {
+  border-radius: 22px 22px 6px 22px;
+  background: var(--grad-primary);
+  box-shadow: 0 10px 22px rgba(var(--glow), 0.28);
+}
+
+.chat-row--mine .chat-bubble p,
+.chat-row--mine .chat-time {
+  color: var(--primary-contrast);
+}
+
+.chat-row--mine .chat-time {
+  opacity: 0.8;
+}
+
+
+.chat-bubble .media {
+  margin: 6px 0 2px;
+}
+
+.chat-read {
+  align-self: flex-end;
+  padding-right: 6px;
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+/* ---------- DM 공통 ---------- */
+
+.dm-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dm-chat {
+  padding-bottom: 96px;
+}
+
+.dm-chat__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.dm-safety {
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.dm-blocked {
+  padding: 14px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 13px;
+  text-align: center;
+}
+
+.dm-list {
+  list-style: none;
+  margin: 0;
+}
+
+.dm-row {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dm-row__sub--unread {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.dm-row__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.dm-row__time {
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+.dm-row__badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--like);
+  color: var(--primary-contrast);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+}
+
+.dm-form {
+  align-items: flex-end;
+  border-radius: 24px;
+}
+
+.dm-form textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: 120px;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.4;
+  resize: none;
+  field-sizing: content;
+}
+
+.dm-form textarea:focus {
+  outline: none;
+}

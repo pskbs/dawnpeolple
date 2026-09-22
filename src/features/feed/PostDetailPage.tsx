@@ -1,56 +1,39 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppBar, Avatar, Icon, Loading } from '../../components/ui'
+import { AppBar, Loading } from '../../components/ui'
 import { COMMENT_COPY, FEED_COPY, GUEST_COPY } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
-import { formatRelativeTime } from '../../lib/format'
+import { fetchProfileCard, UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
-import {
-  COMMENT_COLUMNS,
-  fetchNicknames,
-  POST_COLUMNS,
-  useLikedPosts,
-  type FeedComment,
-  type FeedPost,
-} from './feed-api'
+import { CommentSection } from '../comments/CommentSection'
+import { normalizePosts, POST_COLUMNS, useLikedPosts, type FeedPost } from './feed-api'
 import { PostItem } from './PostItem'
 import './FeedPage.css'
 
 export function PostDetailPage() {
   const { id } = useParams()
-  const { profile } = useAuth()
+  const { profile, blockedIds } = useAuth()
   const navigate = useNavigate()
   const [post, setPost] = useState<FeedPost | null>(null)
-  const [comments, setComments] = useState<FeedComment[]>([])
-  const [nicknames, setNicknames] = useState<Record<string, string>>({})
+  const [author, setAuthor] = useState<ProfileCard | undefined>()
   const [loading, setLoading] = useState(true)
-  const [draft, setDraft] = useState('')
-  const [sending, setSending] = useState(false)
   const { likedIds, toggle } = useLikedPosts(profile?.id)
 
   useEffect(() => {
     async function load() {
-      setLoading(true)
-      const postId = Number(id)
-      const [{ data: postRow }, { data: commentRows }] = await Promise.all([
-        supabase.from('posts').select(POST_COLUMNS).eq('id', postId).eq('status', 'visible').maybeSingle(),
-        supabase
-          .from('comments')
-          .select(COMMENT_COLUMNS)
-          .eq('post_id', postId)
-          .eq('status', 'visible')
-          .order('created_at', { ascending: true }),
-      ])
-      const list = (commentRows ?? []) as FeedComment[]
-      setPost(postRow as FeedPost | null)
-      setComments(list)
-      setNicknames(await fetchNicknames([postRow?.author_id ?? null, ...list.map((c) => c.author_id)]))
+      const { data } = await supabase
+        .from('posts')
+        .select(POST_COLUMNS)
+        .eq('id', Number(id))
+        .eq('status', 'visible')
+        .maybeSingle()
+      const row = data ? normalizePosts([data])[0] : null
+      setPost(row)
+      if (row?.author_id) setAuthor((await fetchProfileCard(row.author_id)) ?? undefined)
       setLoading(false)
     }
     load()
   }, [id])
-
-  const nick = (authorId: string | null) => (authorId && nicknames[authorId]) || '알 수 없음'
 
   async function handleLike() {
     if (!post) return
@@ -63,23 +46,7 @@ export function PostDetailPage() {
     await toggle(post.id)
   }
 
-  async function submitComment() {
-    if (!profile || !post) return
-    const text = draft.trim()
-    if (!text || sending) return
-    setSending(true)
-    const { data, error } = await supabase
-      .from('comments')
-      .insert({ post_id: post.id, author_id: profile.id, body: text })
-      .select(COMMENT_COLUMNS)
-      .single()
-    setSending(false)
-    if (error || !data) return
-    setComments((prev) => [...prev, data as FeedComment])
-    setPost({ ...post, comment_count: post.comment_count + 1 })
-    setNicknames((prev) => ({ ...prev, [profile.id]: profile.nickname }))
-    setDraft('')
-  }
+  const hidden = !!post?.author_id && blockedIds.has(post.author_id)
 
   return (
     <section className="thread-page">
@@ -87,7 +54,7 @@ export function PostDetailPage() {
 
       {loading ? (
         <Loading />
-      ) : !post ? (
+      ) : !post || hidden ? (
         <div className="empty-state">
           <span className="orb orb--md" aria-hidden="true" />
           <p>{FEED_COPY.notFound}</p>
@@ -96,70 +63,27 @@ export function PostDetailPage() {
         <div className="sheet thread-sheet">
           <PostItem
             post={post}
-            nickname={nick(post.author_id)}
+            author={author}
             liked={likedIds.has(post.id)}
             onLike={handleLike}
+            onDeleted={() => navigate('/feed', { replace: true })}
             variant="detail"
           />
-
-          <div className="thread-divider">
-            <span>{FEED_COPY.repliesTitle}</span>
-            <span className="muted">{comments.length}</span>
-          </div>
-
-          {comments.length === 0 ? (
-            <p className="thread-empty">{COMMENT_COPY.empty}</p>
-          ) : (
-            <ul className="reply-list">
-              {comments.map((c) => (
-                <li key={c.id} className="reply">
-                  <Avatar name={nick(c.author_id)} seed={c.author_id} size="sm" />
-                  <div className="reply__main">
-                    <div className="post__header">
-                      <span className="post__nickname">{nick(c.author_id)}</span>
-                      <span className="post__time">{formatRelativeTime(c.created_at)}</span>
-                    </div>
-                    <p className="reply__body">{c.body}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
-      {post && (
-        <div className="bottom-bar">
-          {profile ? (
-            <form
-              className="composer-bar feed-comment-form"
-              onSubmit={(e) => {
-                e.preventDefault()
-                submitComment()
-              }}
-            >
-              <Avatar name={profile.nickname} seed={profile.id} size="sm" />
-              <input
-                placeholder={FEED_COPY.replyPlaceholder(nick(post.author_id))}
-                aria-label={COMMENT_COPY.placeholder}
-                value={draft}
-                maxLength={300}
-                onChange={(e) => setDraft(e.target.value)}
-              />
-              <button
-                type="submit"
-                className="circle-button circle-button--primary circle-button--sm"
-                disabled={!draft.trim() || sending}
-                aria-label={COMMENT_COPY.submit}
-              >
-                <Icon name="arrow-up-icon" />
+          <CommentSection
+            table="comments"
+            parentColumn="post_id"
+            targetId={post.id}
+            reportType="comment"
+            canWrite={!!profile}
+            placeholder={COMMENT_COPY.placeholderFor(author?.nickname ?? UNKNOWN_NICKNAME)}
+            title={COMMENT_COPY.title}
+            onCountChange={(delta) => setPost((p) => (p ? { ...p, comment_count: p.comment_count + delta } : p))}
+            writeBlocked={
+              <button type="button" className="pill-button pill-button--block" onClick={() => navigate('/me')}>
+                {GUEST_COPY.ctaLogin}
               </button>
-            </form>
-          ) : (
-            <button type="button" className="pill-button pill-button--block" onClick={() => navigate('/me')}>
-              {GUEST_COPY.ctaLogin}
-            </button>
-          )}
+            }
+          />
         </div>
       )}
     </section>

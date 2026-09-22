@@ -1,70 +1,63 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Avatar, Icon, Loading } from '../../components/ui'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { DmButton } from '../../components/DmButton'
+import { Loading } from '../../components/ui'
 import { BRAND_NAME } from '../../config/brand'
-import {
-  CONCEPT_COPY,
-  FEED_COMPOSER_PLACEHOLDER,
-  FEED_COPY,
-  FEED_NATIONWIDE_NOTICE,
-  GUEST_COPY,
-  SORT_COPY,
-} from '../../config/copy'
+import { FEED_COPY, FEED_NATIONWIDE_NOTICE, GUEST_COPY } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
+import { fetchProfileCards, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
-import type { Bungae } from '../bungae/bungae-types'
-import { fetchNicknames, POST_COLUMNS, useLikedPosts, type FeedPost } from './feed-api'
+import { normalizePosts, POST_COLUMNS, useLikedPosts, type FeedPost } from './feed-api'
 import { PostItem } from './PostItem'
 import './FeedPage.css'
 
-type StoryBungae = Pick<Bungae, 'id' | 'title' | 'starts_at'>
+const PAGE_SIZE = 20
 
-function storyTime(iso: string) {
-  const d = new Date(iso)
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}
-
-function storyDay(iso: string) {
-  const d = new Date(iso)
-  return `${d.getMonth() + 1}/${d.getDate()}`
-}
-
+// 수다방: 새벽에 일하는 사람들의 스레드형 SNS 피드. 글쓰기는 탭바의 + 버튼으로만 해요.
 export function FeedPage() {
-  const { profile } = useAuth()
+  const { profile, blockedIds } = useAuth()
   const navigate = useNavigate()
   const [posts, setPosts] = useState<FeedPost[]>([])
-  const [nicknames, setNicknames] = useState<Record<string, string>>({})
-  const [stories, setStories] = useState<StoryBungae[]>([])
+  const [cards, setCards] = useState<Record<string, ProfileCard>>({})
   const [loading, setLoading] = useState(true)
-  const [sortMode, setSortMode] = useState<'latest' | 'popular'>('latest')
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const sentinelRef = useRef<HTMLDivElement>(null)
   const { likedIds, toggle } = useLikedPosts(profile?.id)
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true)
-      const [{ data: postRows }, { data: bungaeRows }] = await Promise.all([
-        supabase
-          .from('posts')
-          .select(POST_COLUMNS)
-          .eq('status', 'visible')
-          .order('created_at', { ascending: false })
-          .limit(50),
-        supabase
-          .from('bungaes')
-          .select('id, title, starts_at')
-          .in('status', ['open', 'full'])
-          .gte('starts_at', new Date().toISOString())
-          .order('starts_at', { ascending: true })
-          .limit(12),
-      ])
-      const list = (postRows ?? []) as FeedPost[]
-      setPosts(list)
-      setStories((bungaeRows ?? []) as StoryBungae[])
-      setNicknames(await fetchNicknames(list.map((p) => p.author_id)))
-      setLoading(false)
-    }
-    load()
+  const loadPage = useCallback(async (before?: string) => {
+    let query = supabase
+      .from('posts')
+      .select(POST_COLUMNS)
+      .eq('status', 'visible')
+      .order('created_at', { ascending: false })
+      .limit(PAGE_SIZE)
+    if (before) query = query.lt('created_at', before)
+    const { data } = await query
+    const list = normalizePosts(data)
+    const newCards = await fetchProfileCards(list.map((p) => p.author_id))
+    setCards((prev) => ({ ...prev, ...newCards }))
+    setPosts((prev) => (before ? [...prev, ...list] : list))
+    setHasMore(list.length === PAGE_SIZE)
   }, [])
+
+  useEffect(() => {
+    loadPage().finally(() => setLoading(false))
+  }, [loadPage])
+
+  // 목록 끝에 닿으면 다음 글을 불러와요.
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el || !hasMore || loading) return
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !loadingMore && posts.length > 0) {
+        setLoadingMore(true)
+        loadPage(posts[posts.length - 1].created_at).finally(() => setLoadingMore(false))
+      }
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore, loading, loadingMore, posts, loadPage])
 
   async function handleLike(postId: number) {
     if (!profile) {
@@ -76,83 +69,18 @@ export function FeedPage() {
     await toggle(postId)
   }
 
-  const sortedPosts = useMemo(() => {
-    const list = [...posts]
-    if (sortMode === 'popular') {
-      list.sort((a, b) => b.like_count - a.like_count || b.created_at.localeCompare(a.created_at))
-    }
-    return list
-  }, [posts, sortMode])
+  const visiblePosts = posts.filter((p) => !p.author_id || !blockedIds.has(p.author_id))
 
   return (
     <section className="feed-page">
-      <header className="app-bar">
+      <header className="app-bar feed-bar">
         <span className="brand-mark">
           <span className="orb" aria-hidden="true" />
           {BRAND_NAME}
         </span>
-        {profile ? (
-          <Link to="/me" className="feed-me-link" aria-label="내정보">
-            <Avatar name={profile.nickname} seed={profile.id} size="sm" />
-          </Link>
-        ) : (
-          <Link to="/me" className="pill-button pill-button--sm">
-            로그인
-          </Link>
-        )}
+        <span className="feed-bar__tagline">{FEED_COPY.headerTagline}</span>
+        <DmButton />
       </header>
-
-      <div className="feed-hero">
-        <p className="feed-hero__greeting">
-          {profile ? FEED_COPY.greeting(profile.nickname) : FEED_COPY.greetingGuest}
-          <Icon name="moon-icon" className="feed-hero__moon" />
-        </p>
-        <h2 className="feed-hero__headline">{CONCEPT_COPY.primary}</h2>
-      </div>
-
-      <button
-        type="button"
-        className="composer-bar feed-composer-trigger"
-        onClick={() => navigate(profile ? '/feed/new' : '/me')}
-      >
-        <span className="orb feed-composer-trigger__orb" aria-hidden="true" />
-        <span className="feed-composer-trigger__text">{FEED_COMPOSER_PLACEHOLDER}</span>
-        <span className="circle-button circle-button--primary circle-button--sm" aria-hidden="true">
-          <Icon name="arrow-right-icon" />
-        </span>
-      </button>
-
-      <div className="stories">
-        <div className="stories__head">
-          <h3>{FEED_COPY.storiesTitle}</h3>
-          <Link to="/bungae" className="stories__all">
-            {FEED_COPY.storiesAll}
-          </Link>
-        </div>
-        <ul className="stories__list">
-          <li>
-            <Link to={profile ? '/bungae/new' : '/me'} className="story story--create">
-              <span className="story__bubble">
-                <Icon name="plus-icon" />
-              </span>
-              <span className="story__label">{FEED_COPY.storiesCreate}</span>
-            </Link>
-          </li>
-          {stories.map((s) => (
-            <li key={s.id}>
-              <Link to={`/bungae/${s.id}`} className="story">
-                <span className="avatar-ring">
-                  <span className="story__bubble story__bubble--time">
-                    <small>{storyDay(s.starts_at)}</small>
-                    {storyTime(s.starts_at)}
-                  </span>
-                </span>
-                <span className="story__label">{s.title}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
 
       {!profile && (
         <div className="guest-strip glass-panel">
@@ -164,41 +92,29 @@ export function FeedPage() {
       )}
 
       <div className="sheet feed-sheet">
-        <div className="feed-tabs" role="tablist" aria-label="정렬">
-          {(['latest', 'popular'] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              role="tab"
-              aria-selected={sortMode === mode}
-              className="feed-tabs__item"
-              onClick={() => setSortMode(mode)}
-            >
-              {SORT_COPY[mode]}
-            </button>
-          ))}
-        </div>
-
         {loading ? (
           <Loading />
-        ) : sortedPosts.length === 0 ? (
+        ) : visiblePosts.length === 0 ? (
           <div className="empty-state">
             <span className="orb orb--md" aria-hidden="true" />
             <p>{FEED_COPY.empty}</p>
           </div>
         ) : (
           <div className="feed-list" data-testid="feed-list">
-            {sortedPosts.map((post) => (
+            {visiblePosts.map((post) => (
               <PostItem
                 key={post.id}
                 post={post}
-                nickname={(post.author_id && nicknames[post.author_id]) || '알 수 없음'}
+                author={post.author_id ? cards[post.author_id] : undefined}
                 liked={likedIds.has(post.id)}
                 onLike={() => handleLike(post.id)}
+                onDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
               />
             ))}
           </div>
         )}
+        <div ref={sentinelRef} />
+        {loadingMore && <Loading />}
       </div>
 
       <p className="feed-footnote">{FEED_NATIONWIDE_NOTICE}</p>

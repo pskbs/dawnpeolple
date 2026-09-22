@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export function Icon({ name, className }: { name: string; className?: string }) {
   return (
@@ -15,19 +16,52 @@ function toneOf(seed: string) {
   return String(Math.abs(h) % 4)
 }
 
+export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+
+// 사진이 없으면 닉네임 첫 글자 + 톤 그라데이션 기본 이미지를 보여줘요.
 export function Avatar({
   name,
   seed,
+  src,
   size = 'md',
 }: {
   name: string
   seed?: string | null
-  size?: 'xs' | 'sm' | 'md' | 'lg'
+  src?: string | null
+  size?: AvatarSize
 }) {
+  if (src) {
+    return <img className={`avatar avatar--${size} avatar--photo`} src={src} alt="" loading="lazy" />
+  }
   return (
     <span className={`avatar avatar--${size}`} data-tone={toneOf(seed ?? name)} aria-hidden="true">
       {name.charAt(0)}
     </span>
+  )
+}
+
+// 아바타·닉네임을 누르면 프로필로 이동해요. 탈퇴 등으로 id가 없으면 링크 없이 보여줘요.
+export function ProfileLink({
+  userId,
+  className,
+  children,
+  label,
+}: {
+  userId: string | null | undefined
+  className?: string
+  children: ReactNode
+  label?: string
+}) {
+  if (!userId) return <span className={className}>{children}</span>
+  return (
+    <Link
+      to={`/u/${userId}`}
+      className={`profile-link${className ? ` ${className}` : ''}`}
+      aria-label={label}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {children}
+    </Link>
   )
 }
 
@@ -70,5 +104,122 @@ export function Loading() {
       <span />
       <span />
     </div>
+  )
+}
+
+function useEscape(open: boolean, onClose: () => void) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [open, onClose])
+}
+
+// 아래에서 올라오는 시트(더보기 메뉴·확인창 등)
+export function BottomSheet({
+  open,
+  onClose,
+  title,
+  children,
+}: {
+  open: boolean
+  onClose: () => void
+  title?: ReactNode
+  children: ReactNode
+}) {
+  useEscape(open, onClose)
+  if (!open) return null
+  return createPortal(
+    <div className="sheet-backdrop" onClick={onClose}>
+      <div className="bottom-sheet" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+        <span className="bottom-sheet__handle" aria-hidden="true" />
+        {title && <h2 className="bottom-sheet__title">{title}</h2>}
+        {children}
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+export type SheetAction = {
+  label: string
+  icon?: string
+  danger?: boolean
+  onSelect: () => void
+}
+
+export function ActionSheet({
+  open,
+  onClose,
+  title,
+  description,
+  actions,
+  cancelLabel = '닫기',
+}: {
+  open: boolean
+  onClose: () => void
+  title?: ReactNode
+  description?: ReactNode
+  actions: SheetAction[]
+  cancelLabel?: string
+}) {
+  return (
+    <BottomSheet open={open} onClose={onClose} title={title}>
+      {description && <p className="bottom-sheet__desc">{description}</p>}
+      <div className="sheet-actions">
+        {actions.map((a) => (
+          <button
+            key={a.label}
+            type="button"
+            className={`sheet-action${a.danger ? ' sheet-action--danger' : ''}`}
+            onClick={() => {
+              onClose()
+              a.onSelect()
+            }}
+          >
+            {a.icon && <Icon name={a.icon} />}
+            {a.label}
+          </button>
+        ))}
+      </div>
+      <button type="button" className="sheet-cancel" onClick={onClose}>
+        {cancelLabel}
+      </button>
+    </BottomSheet>
+  )
+}
+
+// 전체 화면 모달(약관 보기 등)
+export function FullModal({
+  open,
+  onClose,
+  title,
+  children,
+}: {
+  open: boolean
+  onClose: () => void
+  title: ReactNode
+  children: ReactNode
+}) {
+  useEscape(open, onClose)
+  if (!open) return null
+  return createPortal(
+    <div className="full-modal" role="dialog" aria-modal="true" aria-label={typeof title === 'string' ? title : undefined}>
+      <header className="full-modal__bar">
+        <button type="button" className="circle-button circle-button--sm" aria-label="닫기" onClick={onClose}>
+          <Icon name="close-icon" />
+        </button>
+        <h2>{title}</h2>
+        <span className="app-bar__spacer" />
+      </header>
+      <div className="full-modal__body">{children}</div>
+    </div>,
+    document.body,
   )
 }

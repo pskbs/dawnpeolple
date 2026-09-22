@@ -1,32 +1,22 @@
 import { useEffect, useState } from 'react'
+import { asMediaList, type MediaItem } from '../../lib/media'
 import { supabase } from '../../lib/supabase'
 
 export type FeedPost = {
   id: number
   body: string
+  media: MediaItem[]
   like_count: number
   comment_count: number
   created_at: string
+  edited_at: string | null
   author_id: string | null
 }
 
-export type FeedComment = {
-  id: number
-  body: string
-  author_id: string | null
-  created_at: string
-}
+export const POST_COLUMNS = 'id, body, media, like_count, comment_count, created_at, edited_at, author_id'
 
-export const POST_COLUMNS = 'id, body, like_count, comment_count, created_at, author_id'
-export const COMMENT_COLUMNS = 'id, body, author_id, created_at'
-
-export async function fetchNicknames(ids: (string | null)[]): Promise<Record<string, string>> {
-  const unique = [...new Set(ids.filter((id): id is string => !!id))]
-  if (unique.length === 0) return {}
-  const { data } = await supabase.from('profile_cards').select('id, nickname').in('id', unique)
-  const map: Record<string, string> = {}
-  for (const card of data ?? []) map[card.id] = card.nickname
-  return map
+export function normalizePosts(rows: unknown[] | null): FeedPost[] {
+  return ((rows ?? []) as FeedPost[]).map((p) => ({ ...p, media: asMediaList(p.media) }))
 }
 
 export function useLikedPosts(userId: string | undefined) {
@@ -63,4 +53,19 @@ export function useLikedPosts(userId: string | undefined) {
   }
 
   return { likedIds, toggle }
+}
+
+// 공유: 모바일은 시스템 공유 시트, 아니면 링크 복사
+export async function sharePath(path: string): Promise<'shared' | 'copied' | 'failed'> {
+  const url = `${window.location.origin}${path}`
+  try {
+    if (navigator.share) {
+      await navigator.share({ url })
+      return 'shared'
+    }
+    await navigator.clipboard.writeText(url)
+    return 'copied'
+  } catch {
+    return 'failed'
+  }
 }

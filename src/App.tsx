@@ -1,28 +1,43 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { TabBar } from './components/TabBar'
 import { Loading } from './components/ui'
+import { FEATURES } from './config/features'
 import { AuthPage } from './features/auth/AuthPage'
 import { BungaeCreatePage } from './features/bungae/BungaeCreatePage'
 import { BungaeDetailPage } from './features/bungae/BungaeDetailPage'
 import { BungaeListPage } from './features/bungae/BungaeListPage'
+import { DmChatPage } from './features/dm/DmChatPage'
+import { DmInboxPage } from './features/dm/DmInboxPage'
 import { ComposePage } from './features/feed/ComposePage'
 import { FeedPage } from './features/feed/FeedPage'
 import { PostDetailPage } from './features/feed/PostDetailPage'
-import { MePage } from './features/me/MePage'
+import { LegalPage } from './features/legal/LegalPage'
 import { OnboardingPage } from './features/onboarding/OnboardingPage'
+import { FollowListPage } from './features/profile/FollowListPage'
+import { ProfileEditPage } from './features/profile/ProfileEditPage'
+import { ProfilePage, UserProfileRoute } from './features/profile/ProfilePage'
+import { SettingsPage } from './features/profile/SettingsPage'
 import { useAuth } from './lib/auth-context'
 import './App.css'
 
-// 홈(첫 진입 탭)은 수다방이에요. 수다방·소모임은 비회원도 둘러볼 수 있어요(내정보 탭이 로그인 진입점).
+// 홈(첫 진입 탭)은 수다방이에요. 수다방·소모임·다른 사람 프로필은 비회원도 둘러볼 수 있어요(내정보 탭이 로그인 진입점).
 function MeGate() {
   const { session, profile } = useAuth()
   if (!session) return <AuthPage />
   if (!profile) return <OnboardingPage />
-  return <MePage />
+  return <ProfilePage userId={profile.id} />
 }
 
-// 글쓰기·상세처럼 한 가지 일에 집중하는 화면에서는 인스타그램처럼 탭바를 숨겨요.
-const FOCUS_ROUTES = [/^\/feed\/.+/, /^\/bungae\/.+/]
+// 글쓰기·상세·설정처럼 한 가지 일에 집중하는 화면에서는 탭바를 숨겨요.
+const FOCUS_ROUTES = [
+  /^\/feed\/.+/,
+  /^\/bungae\/.+/,
+  /^\/me\/.+/,
+  /^\/u\/[^/]+\/follows/,
+  /^\/dm/,
+  /^\/terms$/,
+  /^\/privacy$/,
+]
 
 function App() {
   const { loading } = useAuth()
@@ -49,6 +64,14 @@ function App() {
           <Route path="/bungae/new" element={<BungaeCreatePage />} />
           <Route path="/bungae/:id" element={<BungaeDetailPage />} />
           <Route path="/me" element={<MeGate />} />
+          <Route path="/me/edit" element={<ProfileEditPage />} />
+          <Route path="/me/settings" element={<SettingsPage />} />
+          <Route path="/u/:id" element={<UserProfileRoute />} />
+          <Route path="/u/:id/follows" element={<FollowListPage />} />
+          {FEATURES.dm && <Route path="/dm" element={<DmInboxPage />} />}
+          {FEATURES.dm && <Route path="/dm/:id" element={<DmChatPage />} />}
+          <Route path="/terms" element={<LegalPage kind="terms" />} />
+          <Route path="/privacy" element={<LegalPage kind="privacy" />} />
           <Route path="*" element={<Navigate to="/feed" replace />} />
         </Routes>
       </main>

@@ -5,6 +5,7 @@ import { BUNGAE_COPY } from '../../config/copy'
 import { BUCHEON_PLACE_CHIPS, OPEN_REGIONS } from '../../config/regions'
 import { useAuth } from '../../lib/auth-context'
 import { supabase } from '../../lib/supabase'
+import { defaultStartsAt } from './bungae-types'
 import './BungaePage.css'
 
 const MIN_CAPACITY = 2
@@ -15,7 +16,7 @@ export function BungaeCreatePage() {
   const navigate = useNavigate()
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
-  const [startsAt, setStartsAt] = useState('')
+  const [startsAt, setStartsAt] = useState(() => defaultStartsAt())
   const [placeHint, setPlaceHint] = useState('')
   const [capacity, setCapacity] = useState(4)
   const [error, setError] = useState<string | null>(null)
@@ -58,7 +59,7 @@ export function BungaeCreatePage() {
 
       navigate(`/bungae/${data.id}`, { replace: true })
     } catch (err) {
-      setError(err instanceof Error ? err.message : '소모임을 만들지 못했어요')
+      setError(err instanceof Error ? err.message : BUNGAE_COPY.createError)
     } finally {
       setSubmitting(false)
     }
@@ -169,6 +170,8 @@ export function BungaeCreatePage() {
 
         {error && <p className="error-text">{error}</p>}
       </div>
+
+      <p className="create-safety">{BUNGAE_COPY.safetyNotice}</p>
 
       <div className="bottom-bar">
         <button type="button" className="pill-button pill-button--block" disabled={!canSubmit} onClick={handleSubmit}>

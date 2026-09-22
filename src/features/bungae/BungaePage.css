@@ -294,94 +294,18 @@
   line-height: 1.5;
 }
 
-/* ---------- 참석자 대화(채팅 말풍선) ---------- */
-
-.bungae-chat__title {
-  margin: 6px 4px 12px;
-  font-size: 16px;
-}
-
-.bungae-chat__empty {
-  padding: 16px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.chat-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.chat-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.chat-row--mine {
-  justify-content: flex-end;
-}
-
-.chat-bubble-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-width: 78%;
-}
-
-.chat-name {
-  padding-left: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-sub);
-}
-
-.chat-bubble {
-  padding: 12px 16px 8px;
-  border-radius: 22px 22px 22px 6px;
-  background: var(--surface);
-  box-shadow: var(--shadow-soft);
-}
-
-.chat-bubble p {
-  color: var(--text);
-  font-size: 15px;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.chat-time {
-  display: block;
-  margin-top: 4px;
-  text-align: right;
-  font-size: 11px;
-  color: var(--text-faint);
-}
-
-.chat-row--mine .chat-bubble {
-  border-radius: 22px 22px 6px 22px;
-  background: var(--grad-primary);
-  box-shadow: 0 10px 22px rgba(var(--glow), 0.28);
-}
-
-.chat-row--mine .chat-bubble p,
-.chat-row--mine .chat-time {
-  color: var(--primary-contrast);
-}
-
-.chat-row--mine .chat-time {
-  opacity: 0.8;
-}
-
 /* ---------- 만들기 ---------- */
 
 .bungae-create-page {
   padding-bottom: 72px;
+}
+
+.create-safety {
+  padding: 0 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-sub);
+  word-break: keep-all;
 }
 
 .create-form {
@@ -436,4 +360,158 @@
 .stepper__value::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* ---------- 다가오는 소모임(스토리 줄) ---------- */
+
+.stories__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 4px 10px;
+}
+
+.stories__head h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.stories__list {
+  list-style: none;
+  display: flex;
+  gap: 14px;
+  margin: 0 -16px;
+  padding: 2px 20px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.stories__list::-webkit-scrollbar {
+  display: none;
+}
+
+.stories__list li {
+  scroll-snap-align: start;
+}
+
+.story {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 72px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.story__bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 66px;
+  height: 66px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.story__bubble small {
+  color: var(--text-sub);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.story__bubble--time {
+  width: 60px;
+  height: 60px;
+  background:
+    radial-gradient(circle at 30% 25%, var(--glass-border), transparent 50%),
+    linear-gradient(160deg, var(--surface), var(--primary-soft));
+}
+
+.story--create .story__bubble {
+  border: 2px dashed var(--primary-light);
+  background: var(--glass-bg);
+}
+
+.story--create .story__bubble svg {
+  width: 24px;
+  height: 24px;
+}
+
+.story__label {
+  width: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bungae-section-title {
+  margin: 4px 4px 0;
+  font-size: 16px;
+}
+
+/* ---------- 참석 현황 집계·참석자 명단 ---------- */
+
+.demographics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+
+.demographics__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.demographics__note {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.participant-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--divider);
+}
+
+.participant {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.participant__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.participant__meta {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+.bungae-chat-sheet {
+  padding-bottom: 4px;
+}
+
+.bungae-detail-page {
+  padding-bottom: 96px;
 }

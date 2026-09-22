@@ -96,3 +96,82 @@
 .check-row input:checked::after {
   transform: rotate(-45deg) scale(1);
 }
+
+/* ---------- 프로필 사진 ---------- */
+
+.onboarding-photo__row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.onboarding-photo__avatar {
+  position: relative;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+}
+
+.onboarding-photo__badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+  background: var(--grad-primary);
+  color: var(--primary-contrast);
+}
+
+.onboarding-photo__badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.onboarding-photo__side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- 약관 동의 ---------- */
+
+.check-row--all {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--divider);
+  font-weight: 700;
+}
+
+.agree-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.agree-row__view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+
+.agree-row__view svg {
+  width: 18px;
+  height: 18px;
+}

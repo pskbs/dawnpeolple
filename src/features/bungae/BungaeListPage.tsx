@@ -1,36 +1,37 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { DmButton } from '../../components/DmButton'
 import { Avatar, Icon, Loading } from '../../components/ui'
 import { REGION_LABEL } from '../../config/brand'
 import { BUNGAE_COPY, CONCEPT_COPY, REGION_NOTICE } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
+import { fetchProfileCards, UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
-import { fetchNicknames } from '../feed/feed-api'
-import { dateTileParts, type Bungae } from './bungae-types'
+import { BUNGAE_COLUMNS, dateTileParts, storyDay, storyTime, type Bungae } from './bungae-types'
 import './BungaePage.css'
 
 export function BungaeListPage() {
-  const { profile } = useAuth()
+  const { profile, blockedIds } = useAuth()
   const [bungaes, setBungaes] = useState<Bungae[]>([])
-  const [nicknames, setNicknames] = useState<Record<string, string>>({})
+  const [cards, setCards] = useState<Record<string, ProfileCard>>({})
   const [remaining, setRemaining] = useState<Record<number, number>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
-      setLoading(true)
       const { data } = await supabase
         .from('bungaes')
-        .select('id, host_id, title, body, starts_at, region_code, place_hint, capacity, status, created_at')
+        .select(BUNGAE_COLUMNS)
         .in('status', ['open', 'full'])
+        .gte('starts_at', new Date().toISOString())
         .order('starts_at', { ascending: true })
         .limit(50)
 
       const list = (data ?? []) as Bungae[]
       setBungaes(list)
 
-      const [names, slots] = await Promise.all([
-        fetchNicknames(list.map((b) => b.host_id)),
+      const [hostCards, slots] = await Promise.all([
+        fetchProfileCards(list.map((b) => b.host_id)),
         Promise.all(
           list.map(async (b) => {
             const { data: n } = await supabase.rpc('get_bungae_remaining_slots', { p_bungae_id: b.id })
@@ -38,12 +39,15 @@ export function BungaeListPage() {
           }),
         ),
       ])
-      setNicknames(names)
+      setCards(hostCards)
       setRemaining(Object.fromEntries(slots))
       setLoading(false)
     }
     load()
   }, [])
+
+  const visible = bungaes.filter((b) => !blockedIds.has(b.host_id))
+  const upcoming = visible.slice(0, 12)
 
   return (
     <section className="bungae-page">
@@ -53,7 +57,37 @@ export function BungaeListPage() {
           <Icon name="pin-icon" />
           {REGION_LABEL}
         </span>
+        <DmButton />
       </header>
+
+      <div className="stories">
+        <div className="stories__head">
+          <h2>{BUNGAE_COPY.upcomingTitle}</h2>
+        </div>
+        <ul className="stories__list">
+          <li>
+            <Link to={profile ? '/bungae/new' : '/me'} className="story story--create">
+              <span className="story__bubble">
+                <Icon name="plus-icon" />
+              </span>
+              <span className="story__label">{BUNGAE_COPY.upcomingCreate}</span>
+            </Link>
+          </li>
+          {upcoming.map((s) => (
+            <li key={s.id}>
+              <Link to={`/bungae/${s.id}`} className="story">
+                <span className="avatar-ring">
+                  <span className="story__bubble story__bubble--time">
+                    <small>{storyDay(s.starts_at)}</small>
+                    {storyTime(s.starts_at)}
+                  </span>
+                </span>
+                <span className="story__label">{s.title}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div className="bungae-hero glass-panel">
         <div className="bungae-hero__text">
@@ -63,9 +97,11 @@ export function BungaeListPage() {
         <span className="orb orb--md bungae-hero__orb" aria-hidden="true" />
       </div>
 
+      <h2 className="bungae-section-title">{BUNGAE_COPY.allTitle}</h2>
+
       {loading ? (
         <Loading />
-      ) : bungaes.length === 0 ? (
+      ) : visible.length === 0 ? (
         <div className="empty-state glass-panel">
           <span className="orb orb--md" aria-hidden="true" />
           <p>{BUNGAE_COPY.empty}</p>
@@ -75,11 +111,12 @@ export function BungaeListPage() {
         </div>
       ) : (
         <ul className="bungae-list">
-          {bungaes.map((b) => {
+          {visible.map((b) => {
             const left = remaining[b.id] ?? 0
             const joined = Math.max(0, b.capacity - left)
             const tile = dateTileParts(b.starts_at)
-            const host = nicknames[b.host_id] ?? '알 수 없음'
+            const host = cards[b.host_id]
+            const hostName = host?.nickname ?? UNKNOWN_NICKNAME
             return (
               <li key={b.id}>
                 <Link to={`/bungae/${b.id}`} className="bungae-card glass-panel">
@@ -107,8 +144,8 @@ export function BungaeListPage() {
 
                   <div className="bungae-card__bottom">
                     <span className="bungae-host">
-                      <Avatar name={host} seed={b.host_id} size="xs" />
-                      {host}
+                      <Avatar name={hostName} seed={b.host_id} src={host?.avatar_url} size="xs" />
+                      {hostName}
                     </span>
                     <span className={`bungae-slots${left <= 0 ? ' bungae-slots--full' : ''}`}>
                       {BUNGAE_COPY.remainingSlots(left)}

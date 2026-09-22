@@ -97,7 +97,7 @@ export function AuthPage() {
             />
           </div>
 
-          {mode === 'signup' && <p className="auth-hint">가입 다음 화면에서 닉네임·성별·연령대를 설정해요.</p>}
+          {mode === 'signup' && <p className="auth-hint">{AUTH_COPY.signupHint}</p>}
           {error && <p className="error-text">{error}</p>}
           {notice && <p className="auth-notice">{notice}</p>}
 

@@ -26,4 +26,8 @@
   --star: #fff4c7;
   --lavender: #a99bff;
   --peach: #ff6f9c;
+  --overlay: rgba(4, 6, 20, 0.55);
+  --viewer-bg: rgba(4, 6, 20, 0.96);
+  --on-media: #ffffff;
+  --media-scrim: rgba(4, 6, 20, 0.6);
 }
