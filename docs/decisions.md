@@ -70,3 +70,8 @@
 - **테스트**: Playwright를 모바일 뷰포트(Pixel 7)로 전환, 새 흐름에 맞게 수정 — 통과. 스크린샷 `docs/screenshots/`.
 - **발견한 데이터 이슈(미처리)**: 과거 E2E 실행이 남긴 테스트 글들이 작성자 삭제 후 "알 수 없음"으로 피드에 남아 있음. 운영 DB 데이터 삭제라 사용자 확인 후 정리 필요. 앞으로는 E2E 테스트가 만든 글도 afterAll에서 지우도록 보강 필요(TODO).
 - **다음 후보**: 신고·차단 UI(글 ··· 메뉴), 답글의 1단계 답글, 무한 스크롤, 마스코트 일러스트.
+## 2026-09-22 — 개발 중 Supabase 메일 인증(Confirm email) 끄기
+
+- **배경**: 가입 테스트 중 "email rate limit exceeded" 발생. Supabase 기본 SMTP는 시간당 약 2통만 발송해 반복 가입 테스트가 막힘.
+- **결정**: 개발 기간 동안 Supabase 대시보드 → Authentication → Sign In / Providers → Email → **Confirm email 끄기**(사용자가 직접 설정). 로그인·가입 에러는 영어 원문 대신 해요체 안내로 표시하도록 수정(`AUTH_ERROR_COPY`).
+- **⚠️ 출시 전 필수 TODO**: Confirm email 다시 켜기 + 커스텀 SMTP(Resend 등) 연결. 새 외부 계정·API 키가 필요하므로 진행 전에 사용자 확인.
