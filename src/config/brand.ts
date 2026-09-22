@@ -5,4 +5,4 @@ export const BRAND_DISPLAY = `${BRAND_NAME} in ${REGION_LABEL}`;
 
 export const COMPANY_NAME = "월백컴퍼니";
 export const PRIVACY_OFFICER_NAME = "김봉수";
-export const CONTACT_EMAIL = "psbongsoo@gmail.com";
+export const CONTACT_EMAIL = "wol100st2@gmail.com";

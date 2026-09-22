@@ -1,6 +1,6 @@
 // 서비스 이용약관·개인정보 처리방침 초안. 출시 전 법률 검토 필요(docs/terms-review-points.md).
 // 수집 항목은 실제 구현(supabase/migrations)과 일치해야 해요. 기능이 바뀌면 이 파일도 함께 고쳐주세요.
-import { BRAND_NAME } from './brand'
+import { BRAND_NAME, CONTACT_EMAIL } from './brand'
 
 export type LegalBlock = string | { items: string[] }
 export type LegalArticle = { title: string; blocks: LegalBlock[] }
@@ -18,15 +18,13 @@ export const COMPANY = {
   name: '월백컴퍼니',
   owner: '김봉수',
   privacyOfficer: '김봉수',
-  email: 'psbongsoo@gmail.com',
-  bizNumber: '[입력 필요]',
-  address: '[입력 필요]',
-  mailOrderNumber: '[입력 필요]',
+  // 약관·방침에 표시되는 모든 문의 이메일(2026-09-22 사용자 요청). 사업자등록번호·주소는 표시하지 않아요.
+  email: CONTACT_EMAIL,
 } as const
 
-export const TERMS_VERSION = 'draft-2'
-export const PRIVACY_VERSION = 'draft-2'
-const EFFECTIVE_DATE = '[입력 필요] (초안 작성일 2026-09-22)'
+export const TERMS_VERSION = 'draft-3'
+export const PRIVACY_VERSION = 'draft-3'
+const EFFECTIVE_DATE = '2026년 9월 22일'
 const DRAFT_NOTICE = '[초안 — 출시 전 법률 검토 필요]'
 
 export const TERMS: LegalDoc = {
@@ -259,7 +257,7 @@ export const TERMS: LegalDoc = {
       title: '부칙',
       blocks: [
         `이 약관은 ${EFFECTIVE_DATE}부터 시행합니다.`,
-        `회사 정보: ${COMPANY.name} · 대표 ${COMPANY.owner} · 사업자등록번호 ${COMPANY.bizNumber} · 주소 ${COMPANY.address} · 문의 ${COMPANY.email}`,
+        `회사 정보: ${COMPANY.name} · 대표 ${COMPANY.owner} · 문의 ${COMPANY.email}`,
       ],
     },
   ],
@@ -296,6 +294,7 @@ export const PRIVACY: LegalDoc = {
         {
           items: [
             '웹 가입: 이메일 주소, 비밀번호(암호화하여 저장) — 로그인 목적',
+            '비밀번호 찾기 요청 시: 요청한 이메일 주소를 되돌릴 수 없게 변환한 값(해시)과 요청 시각 — 반복 요청 방지 목적, 이메일 원문은 저장하지 않음',
             '토스 로그인(토스 앱 안에서 이용하는 경우): 토스 사용자 식별값(userKey), 성별, 생일(출생연도로 변환하여 저장)',
           ],
         },
@@ -309,7 +308,7 @@ export const PRIVACY: LegalDoc = {
         '③ 서비스 이용 과정에서 생성되는 정보',
         {
           items: [
-            '작성한 글·답글과 첨부한 사진·동영상·파일',
+            '작성한 글·답글과 첨부한 사진·파일(동영상은 현재 올릴 수 없음)',
             '좋아요, 팔로우·팔로워 관계',
             '소모임 개설·참석 이력, 참석자 대화',
             '주고받은 메시지 내용과 첨부 사진·파일',
@@ -324,7 +323,7 @@ export const PRIVACY: LegalDoc = {
       title: '제3조 (공개되는 정보)',
       blocks: [
         '① 닉네임, 프로필 사진, 한줄소개, 근무 유형(표시를 선택한 경우), 팔로워·팔로잉 목록, 회원이 올린 글·답글과 첨부 파일은 다른 이용자(비회원 포함)에게 공개됩니다.',
-        '② 성별과 출생연도는 공개하지 않습니다. 다만 소모임 참석 현황에 참석자의 성별·연령대 집계(예: 여성 2명, 20대 2명)가 표시되며, 참석자 본인의 닉네임·성별·세부 연령대(예: 20대 후반)는 같은 소모임의 참석자와 리더에게만 표시됩니다.',
+        '② 성별과 출생연도는 공개하지 않습니다. 다만 소모임 참석 현황에 참석자의 성별·연령대가 닉네임 없이(예: 남성(30대), 여성(20대)) 표시되며, 참석자 본인의 닉네임·성별·세부 연령대(예: 20대 후반)는 같은 소모임의 참석자와 리더에게만 표시됩니다.',
         '③ 메시지는 대화에 참여한 두 회원에게만 표시됩니다.',
       ],
     },
@@ -352,6 +351,7 @@ export const PRIVACY: LegalDoc = {
             'Vercel Inc.: 웹 서비스 호스팅과 접속 기록 처리 / 이전 국가 [확인 필요] / 서비스 이용 시 네트워크를 통해 전송',
             'Anthropic, PBC(도입 시): 게시물 텍스트의 부적절한 내용 자동 필터링 — 게시물 텍스트만 전송 / 미국 [확인 필요] / 게시물 작성 시 네트워크를 통해 전송',
             '주식회사 비바리퍼블리카(토스, 토스 앱 안에서 이용하는 경우): 토스 로그인 / 대한민국',
+            'Google LLC(Gmail): 비밀번호 찾기 메일 발송 — 받는 사람 이메일 주소와 메일 내용 / 미국 [확인 필요] / 비밀번호 찾기 요청 시 네트워크를 통해 전송',
           ],
         },
         '② 회원은 국외 이전을 원하지 않는 경우 회원탈퇴로 개인정보 처리를 중단할 수 있습니다. 다만 이 경우 서비스를 이용할 수 없습니다.',
@@ -388,7 +388,7 @@ export const PRIVACY: LegalDoc = {
     {
       title: '제10조 (쿠키 및 로컬 저장소)',
       blocks: [
-        '서비스는 로그인 상태를 유지하기 위해 브라우저의 로컬 저장소(localStorage)에 인증 정보를 저장합니다. 회원은 브라우저 설정에서 저장된 정보를 삭제할 수 있으며, 삭제하면 다시 로그인해야 합니다. 회사는 광고 목적의 추적 쿠키를 직접 사용하지 않습니다. [확인 필요: 광고 SDK 도입 시 수정]',
+        '서비스는 로그인 상태를 유지하기 위해 브라우저의 로컬 저장소(localStorage)에 인증 정보와 마지막으로 로그인한 이메일 주소(다음 로그인 때 자동 입력용)를 저장합니다. 이 정보는 회원의 기기에만 저장되며 회사 서버로 따로 전송하지 않습니다. 회원은 브라우저 설정에서 저장된 정보를 삭제할 수 있으며, 삭제하면 다시 로그인해야 합니다. 회사는 광고 목적의 추적 쿠키를 직접 사용하지 않습니다. [확인 필요: 광고 SDK 도입 시 수정]',
       ],
     },
     {

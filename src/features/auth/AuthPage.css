@@ -125,3 +125,85 @@
   font-size: 13px;
   color: var(--text-faint);
 }
+
+.auth-switch--strong {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.auth-keep {
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* 로그인 화면 아래 가입 유도 카드: 가입 안 한 사람이 바로 찾을 수 있게 크게 */
+.auth-signup-cta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 18px 18px 20px;
+  border-radius: var(--r-xl);
+  border: 1.5px solid rgba(var(--glow), 0.35);
+}
+
+.auth-signup-cta__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.auth-signup-cta__text strong {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.auth-signup-cta__text span {
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+.auth-signup-cta__button {
+  flex-shrink: 0;
+  padding-inline: 22px;
+}
+
+/* 아이디·비밀번호 찾기 시트 */
+.reset-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.reset-sheet__info {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.reset-sheet__done {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.reset-sheet__warn {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: rgba(var(--glow), 0.12);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--primary);
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppBar, Loading } from '../../components/ui'
+import { useGoBack } from '../../lib/use-go-back'
 import { COMMENT_COPY, FEED_COPY, GUEST_COPY } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
 import { fetchProfileCard, UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
@@ -14,6 +15,7 @@ export function PostDetailPage() {
   const { id } = useParams()
   const { profile, blockedIds } = useAuth()
   const navigate = useNavigate()
+  const goBack = useGoBack('/feed')
   const [post, setPost] = useState<FeedPost | null>(null)
   const [author, setAuthor] = useState<ProfileCard | undefined>()
   const [loading, setLoading] = useState(true)
@@ -66,7 +68,7 @@ export function PostDetailPage() {
             author={author}
             liked={likedIds.has(post.id)}
             onLike={handleLike}
-            onDeleted={() => navigate('/feed', { replace: true })}
+            onDeleted={goBack}
             variant="detail"
           />
           <CommentSection

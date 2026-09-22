@@ -95,10 +95,23 @@ test('비회원 열람 → 가입/온보딩(약관 팝업·사진) → 수다방
   await page.getByRole('link', { name: '소모임', exact: true }).click()
   await expect(page.getByRole('heading', { name: '다가오는 소모임' })).toBeVisible()
   await expect(page.locator('.loading-dots')).toHaveCount(0, { timeout: 10_000 })
+  // 오른쪽 위에는 메시지 아이콘 대신 "부천" 배지
+  await expect(page.locator('.app-bar .bungae-region-badge')).toHaveText('부천')
+  await expect(page.locator('.app-bar a[href="/dm"]')).toHaveCount(0)
   await page.screenshot({ path: 'docs/screenshots/bungae-list.png', fullPage: true })
 
-  // 3) 내정보 = 로그인 진입점
+  // 3) 내정보 = 로그인 진입점. 가입 유도 카드·비밀번호 찾기
   await page.getByRole('link', { name: '내정보', exact: true }).click()
+  await expect(page.getByText('처음 오셨나요?')).toBeVisible()
+  await expect(page.locator('.auth-signup-cta').getByRole('button', { name: '가입하기' })).toBeVisible()
+  await page.getByRole('button', { name: '비밀번호를 잊으셨나요?' }).click()
+  await expect(page.getByText('아이디는 가입할 때 쓴 이메일 주소예요.')).toBeVisible()
+  await page.screenshot({ path: 'docs/screenshots/reset-password.png' })
+  await page.keyboard.press('Escape')
+  await page.screenshot({ path: 'docs/screenshots/login.png', fullPage: true })
+  // 로컬 API 라우팅 확인(잘못된 이메일은 메일 발송 없이 400)
+  const resetRes = await page.request.post('/api/auth/reset-password', { data: { email: 'not-an-email' } })
+  expect(resetRes.status()).toBe(400)
   await page.getByLabel('이메일').fill(TEST_EMAIL)
   await page.getByLabel('비밀번호').fill(TEST_PASSWORD)
   await page.getByRole('button', { name: '로그인' }).click()
@@ -133,7 +146,7 @@ test('비회원 열람 → 가입/온보딩(약관 팝업·사진) → 수다방
 
   // 5) 글쓰기: + 버튼 → 사진 2장 + 500자 넘는 글(글자수 제한 없음)
   await page.locator('.tab-fab').click()
-  const composer = page.getByLabel('우리끼리 무엇이든 공유해요')
+  const composer = page.getByLabel('새벽에 우리끼리 공유해요')
   await expect(composer).toBeVisible()
   const marker = `E2E 긴 글 ${STAMP}`
   const longText = `${marker}\n${'새벽 근무 이야기 '.repeat(60)}끝`
@@ -200,6 +213,18 @@ test('비회원 열람 → 가입/온보딩(약관 팝업·사진) → 수다방
   await page.screenshot({ path: 'docs/screenshots/settings.png', fullPage: true })
   await page.getByRole('link', { name: '서비스 이용약관' }).click()
   await expect(page.getByText('제13조 (소모임 안전 안내와 회사의 지위)')).toBeVisible()
+  await expect(page.getByText('사업자등록번호')).toHaveCount(0)
+  await expect(page.getByText(/wol100st2@gmail\.com/).first()).toBeVisible()
+
+  // 8-1) 비밀번호 변경(메일로 받은 임시 비밀번호를 바꾸는 곳)
+  await page.goto('/me/settings')
+  await page.getByRole('link', { name: '비밀번호 변경' }).click()
+  await page.getByLabel('지금 비밀번호').fill(TEST_PASSWORD)
+  await page.getByLabel('새 비밀번호 (6자 이상)').fill(`${TEST_PASSWORD}-new`)
+  await page.getByLabel('새 비밀번호 확인').fill(`${TEST_PASSWORD}-new`)
+  await page.getByRole('button', { name: '변경하기' }).click()
+  await expect(page.getByText('비밀번호를 바꿨어요.')).toBeVisible({ timeout: 10_000 })
+  await expect(page).toHaveURL(/\/me\/settings$/)
 
   // 9) 다른 사람 프로필 → 팔로우 → 메시지 → 차단/해제
   await page.goto(`/u/${friendId}`)
@@ -216,8 +241,57 @@ test('비회원 열람 → 가입/온보딩(약관 팝업·사진) → 수다방
   await page.getByRole('button', { name: '보내기' }).click()
   await expect(page.locator('.chat-row--mine').filter({ hasText: dmText })).toBeVisible({ timeout: 10_000 })
   await page.screenshot({ path: 'docs/screenshots/dm-chat.png', fullPage: true })
-  await page.goto('/dm')
+  // 뒤로가기: 메시지를 보낸 뒤 뒤로 → 처음 왔던 프로필
+  await page.getByRole('button', { name: '뒤로' }).click()
+  await expect(page).toHaveURL(new RegExp(`/u/${friendId}$`))
+
+  // 메시지함 → 채팅방 → 뒤로(메시지함) → 뒤로(프로필). 채팅방으로 다시 가면 안 돼요.
+  // 설정 화면의 메시지 아이콘으로 메시지함에 들어가요.
+  await page.goto('/me')
+  await page.locator('.app-bar a[href="/dm"]').click()
   await expect(page.getByText(`나: ${dmText}`)).toBeVisible({ timeout: 10_000 })
+  await page.getByText(`나: ${dmText}`).click()
+  await expect(page).toHaveURL(/\/dm\/\d+$/)
+  await page.getByRole('button', { name: '뒤로' }).click()
+  await expect(page).toHaveURL(/\/dm$/)
+  await page.getByRole('button', { name: '뒤로' }).click()
+  await expect(page).toHaveURL(/\/me$/)
+
+  // 신고 "직접 입력" → reports.detail에 저장
+  await page.goto(`/u/${friendId}`)
+  await expect(page.getByRole('heading', { name: FRIEND_NICKNAME })).toBeVisible({ timeout: 10_000 })
+  const customReason = `직접 입력 신고 ${STAMP}`
+  await openMore(page.locator('.app-bar'))
+  await page.getByRole('button', { name: '신고하기' }).click()
+  await page.getByRole('button', { name: '직접 입력' }).click()
+  await page.getByLabel('신고 사유를 적어주세요').fill(customReason)
+  await page.getByRole('dialog').getByRole('button', { name: '신고하기' }).click()
+  await expect(page.getByText('신고가 접수됐어요.', { exact: false })).toBeVisible()
+  const { data: reportRows } = await adminClient().from('reports').select('reason, detail').eq('reporter_id', testUserId!)
+  expect(reportRows).toContainEqual({ reason: '직접 입력', detail: customReason })
+
+  // 어드민: role=admin 계정만 신고 관리 화면을 볼 수 있어요.
+  await adminClient().from('profiles').update({ role: 'admin' }).eq('id', testUserId!)
+  await page.reload()
+  await page.goto('/admin')
+  const adminCard = page.locator('.admin-card').filter({ hasText: customReason })
+  await expect(adminCard).toBeVisible({ timeout: 10_000 })
+  await expect(adminCard).toContainText(FRIEND_NICKNAME)
+  await page.screenshot({ path: 'docs/screenshots/admin-reports.png', fullPage: true })
+  await adminCard.getByRole('button', { name: '기각' }).click()
+  await expect(adminCard).toHaveCount(0)
+  await adminClient().from('profiles').update({ role: 'member' }).eq('id', testUserId!)
+
+  // 상대방이 나를 차단했을 때: 팔로우·메시지 시도 시 안내
+  await adminClient().from('blocks').insert({ blocker_id: friendId, blocked_id: testUserId })
+  await page.goto(`/u/${friendId}`)
+  await expect(page.getByRole('heading', { name: FRIEND_NICKNAME })).toBeVisible({ timeout: 10_000 })
+  await page.getByRole('button', { name: '팔로우', exact: true }).click()
+  await expect(page.getByText('상대방이 차단했어요').first()).toBeVisible()
+  await page.getByRole('button', { name: '메시지 보내기' }).click()
+  await expect(page.getByText('상대방이 차단했어요').first()).toBeVisible()
+  await expect(page).toHaveURL(new RegExp(`/u/${friendId}$`))
+  await adminClient().from('blocks').delete().eq('blocker_id', friendId!).eq('blocked_id', testUserId!)
 
   await page.goto(`/u/${friendId}`)
   await openMore(page.locator('.app-bar'))
@@ -238,8 +312,8 @@ test('비회원 열람 → 가입/온보딩(약관 팝업·사진) → 수다방
 
   await expect(page.getByRole('heading', { name: bungaeTitle })).toBeVisible({ timeout: 10_000 })
   const demographics = page.getByTestId('bungae-demographics')
-  await expect(demographics).toContainText('여성 1')
-  await expect(demographics).toContainText('30대 1')
+  await expect(demographics).toContainText('여성(30대)')
+  await expect(page.locator('.participant__meta').first()).toHaveText(/^여성\(30대/)
   await expect(page.locator('.participant').filter({ hasText: myNickname })).toBeVisible()
   const chatText = `참석자 대화 ${STAMP}`
   await page.getByLabel('답글을 남겨보세요').fill(chatText)

@@ -38,7 +38,7 @@ Vite + React + TypeScript(SPA) · TDS · React Router · Supabase(Postgres/RLS/A
 - 광고: 글 작성 완료·벙개 개설 완료 시 전면형(빈도 제한, 실패해도 진행), 글·벙개 상세 하단 배너. 피드 목록 사이 광고 없음. 리워드 제외.
 - AI: 비속어·불법·선정 1차 필터 + 위기 문구 감지(작성자에게만 안내). 규칙 필터 → AI 순. 텍스트만 전송.
 - 디자인: design concept 그대로 — 연보라 라벤더 배경 + 반투명 글래스 카드 + 보라 그라데이션 알약 버튼 + 유리 구슬(orb). 폰트 Pretendard. 수다방은 스레드/인스타그램식 SNS UX. 캐릭터("새벽이들")는 추후. 참고: `C:\Users\PC\Desktop\claude code\2.dawnpeolple\design concept\`(→ `docs/design-reference/`로 복사). 참고 이미지의 캐릭터·구도는 복제 금지. 별 애니메이션·파티클 금지.
-- 약관: 월백컴퍼니 / 책임자 김봉수 / psbongsoo@gmail.com. 초안 `src/config/legal.ts`(`/terms`, `/privacy`), 검토 포인트 `docs/terms-review-points.md`. 출시 전 법률 검토 필요. 기능이 바뀌면 개인정보 처리방침 수집 항목도 함께 수정.
+- 약관: 월백컴퍼니 / 책임자 김봉수 / 문의·발송 메일 wol100st2@gmail.com(`CONTACT_EMAIL`, 사업자번호·주소 미표시). 초안 `src/config/legal.ts`(`/terms`, `/privacy`), 검토 포인트 `docs/terms-review-points.md`. 출시 전 법률 검토 필요. 기능이 바뀌면 개인정보 처리방침 수집 항목도 함께 수정.
 
 ## Git
 - GitHub `pskbs`, 서비스당 저장소 1개(저장소명 `dawnpeolple`, https://github.com/pskbs/dawnpeolple). 작업 단위마다 **자동 커밋·푸시**(Conventional Commits). `main` 기본, 큰 변경은 `feat/*`.

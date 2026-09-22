@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useGoBack } from '../lib/use-go-back'
 
 export function Icon({ name, className }: { name: string; className?: string }) {
   return (
@@ -76,7 +77,7 @@ export function AppBar({
   left?: ReactNode
   right?: ReactNode
 }) {
-  const navigate = useNavigate()
+  const goBack = useGoBack(typeof back === 'string' ? back : '/feed')
   return (
     <header className="app-bar">
       {back ? (
@@ -84,7 +85,7 @@ export function AppBar({
           type="button"
           className="circle-button"
           aria-label="뒤로"
-          onClick={() => (back === true ? navigate(-1) : navigate(back))}
+          onClick={goBack}
         >
           <Icon name="arrow-left-icon" />
         </button>

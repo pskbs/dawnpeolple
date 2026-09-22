@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useToast } from '../../components/toast'
 import { AppBar, Avatar, Loading } from '../../components/ui'
-import { PROFILE_COPY } from '../../config/copy'
+import { MENU_COPY, PROFILE_COPY } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
 import { fetchProfileCard, fetchProfileCards, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
@@ -14,6 +15,7 @@ export function FollowListPage() {
   const { id } = useParams()
   const { profile, blockedIds } = useAuth()
   const navigate = useNavigate()
+  const toast = useToast()
   const [searchParams, setSearchParams] = useSearchParams()
   const tab: Tab = searchParams.get('tab') === 'following' ? 'following' : 'followers'
   const [owner, setOwner] = useState<ProfileCard | null>(null)
@@ -111,7 +113,13 @@ export function FollowListPage() {
                     <button
                       type="button"
                       className={iFollow ? 'pill-button-ghost' : 'pill-button pill-button--dark'}
-                      onClick={() => (profile ? myFollowing.toggle(c.id) : navigate('/me'))}
+                      onClick={async () => {
+                        if (!profile) {
+                          navigate('/me')
+                          return
+                        }
+                        if ((await myFollowing.toggle(c.id)) === 'blocked') toast.show(MENU_COPY.blockedByOther)
+                      }}
                     >
                       {iFollow ? PROFILE_COPY.unfollow : PROFILE_COPY.follow}
                     </button>

@@ -22,16 +22,19 @@ type Participant = {
   is_host: boolean
 }
 
-// 성별·연령대 집계를 "여성 2 · 남성 1", "20대 2 · 30대 1" 형태로 묶어요.
-function summarize(rows: Demographic[], key: 'gender' | 'age_band') {
-  const counts = new Map<string, number>()
-  for (const r of rows) {
-    const raw = r[key]
-    if (!raw) continue
-    const label = key === 'gender' ? (GENDER_LABELS[raw] ?? raw) : raw
-    counts.set(label, (counts.get(label) ?? 0) + r.cnt)
-  }
-  return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0], 'ko'))
+// "남성(30대)" 형태. 성별이나 연령대가 없으면 있는 것만 보여줘요.
+function demographicLabel(gender: string | null, ageBand: string | null) {
+  const g = gender ? (GENDER_LABELS[gender] ?? gender) : null
+  if (g && ageBand) return `${g}(${ageBand})`
+  return g ?? ageBand ?? ''
+}
+
+// 집계(성별·연령대별 인원)를 한 사람씩 펼쳐 "남성(30대), 여성(20대)…"처럼 나열해요. 닉네임 등 개인 식별 정보는 없어요.
+function expandDemographics(rows: Demographic[]) {
+  return rows
+    .flatMap((r) => Array.from({ length: r.cnt }, () => demographicLabel(r.gender, r.age_band)))
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, 'ko'))
 }
 
 export function BungaeDetailPage() {
@@ -109,9 +112,8 @@ export function BungaeDetailPage() {
   const joined = Math.max(0, bungae.capacity - remaining)
   const tile = dateTileParts(bungae.starts_at)
   const hostName = host?.nickname ?? UNKNOWN_NICKNAME
-  const genderSummary = summarize(demographics, 'gender')
-  const ageSummary = summarize(demographics, 'age_band')
-  const showDemographics = (FEATURES.preJoinDemographics || canSeeInner) && demographics.length > 0
+  const attendeeLabels = expandDemographics(demographics)
+  const showDemographics = (FEATURES.preJoinDemographics || canSeeInner) && attendeeLabels.length > 0
 
   async function runAction(rpc: 'join_bungae' | 'leave_bungae', fallback: string) {
     if (!profile) {
@@ -216,18 +218,7 @@ export function BungaeDetailPage() {
         {showDemographics && (
           <div className="demographics" data-testid="bungae-demographics">
             <span className="demographics__title">{BUNGAE_COPY.demographicsTitle}</span>
-            <div className="chip-row">
-              {genderSummary.map(([label, n]) => (
-                <span key={label} className="badge">
-                  {label} {n}
-                </span>
-              ))}
-              {ageSummary.map(([label, n]) => (
-                <span key={label} className="chip">
-                  {label} {n}
-                </span>
-              ))}
-            </div>
+            <p className="demographics__people">{attendeeLabels.join(', ')}</p>
             {!canSeeInner && <span className="demographics__note">{BUNGAE_COPY.demographicsNote}</span>}
           </div>
         )}
@@ -243,7 +234,7 @@ export function BungaeDetailPage() {
                   {p.nickname}
                 </ProfileLink>
                 <span className="participant__meta">
-                  {[p.gender ? GENDER_LABELS[p.gender] : null, p.age_band].filter(Boolean).join(' · ')}
+                  {demographicLabel(p.gender, p.age_band)}
                 </span>
                 {p.is_host && <span className="badge">{BUNGAE_COPY.hostBadge}</span>}
               </li>

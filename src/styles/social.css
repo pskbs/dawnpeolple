@@ -666,3 +666,11 @@
   color: var(--surface);
   box-shadow: none;
 }
+
+/* 신고 직접 입력 */
+.report-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+}

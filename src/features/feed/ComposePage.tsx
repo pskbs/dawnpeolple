@@ -1,8 +1,10 @@
 import { useRef, useState, type FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { AttachmentTray } from '../../components/media'
 import { Avatar, Icon } from '../../components/ui'
+import { useGoBack } from '../../lib/use-go-back'
 import { FEED_COPY, FEED_NATIONWIDE_NOTICE } from '../../config/copy'
+import { FEATURES } from '../../config/features'
 import { useAuth } from '../../lib/auth-context'
 import { MEDIA_LIMITS, removePublicMedia, uploadPublicMediaList, validateFile } from '../../lib/media'
 import { supabase } from '../../lib/supabase'
@@ -13,7 +15,7 @@ const TECHNICAL_MAX = 20000
 
 export function ComposePage() {
   const { profile } = useAuth()
-  const navigate = useNavigate()
+  const goBack = useGoBack('/feed')
   const [body, setBody] = useState('')
   const [files, setFiles] = useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
@@ -48,7 +50,8 @@ export function ComposePage() {
         await removePublicMedia(media)
         throw new Error(FEED_COPY.submitError)
       }
-      navigate('/feed', { replace: true })
+      // 글쓰기를 연 화면(수다방·프로필 등)으로 돌아가요.
+      goBack()
     } catch (err) {
       setError(err instanceof Error ? err.message : FEED_COPY.submitError)
       setSubmitting(false)
@@ -60,7 +63,7 @@ export function ComposePage() {
   return (
     <form className="compose-page feed-composer" onSubmit={handleSubmit}>
       <header className="app-bar">
-        <button type="button" className="compose-cancel" onClick={() => navigate(-1)}>
+        <button type="button" className="compose-cancel" onClick={goBack}>
           {FEED_COPY.composeCancel}
         </button>
         <h1 className="app-bar__title">{FEED_COPY.composeTitle}</h1>
@@ -109,7 +112,7 @@ export function ComposePage() {
               <input
                 ref={mediaRef}
                 type="file"
-                accept="image/*,video/*"
+                accept={FEATURES.videoUpload ? 'image/*,video/*' : 'image/*'}
                 multiple
                 hidden
                 data-testid="compose-media-input"

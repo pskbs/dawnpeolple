@@ -3,7 +3,27 @@ import { Icon } from '../../components/ui'
 import { BRAND_NAME } from '../../config/brand'
 import { AUTH_COPY, AUTH_ERROR_COPY, AUTH_EXTRA_COPY, CONCEPT_COPY } from '../../config/copy'
 import { supabase } from '../../lib/supabase'
+import { ResetPasswordSheet } from './ResetPasswordSheet'
 import './AuthPage.css'
+
+// 마지막으로 로그인한 이메일을 기억해 다음에 채워줘요(비밀번호는 저장하지 않아요).
+const LAST_EMAIL_KEY = 'dawnpeolple:last-email'
+
+function readLastEmail() {
+  try {
+    return localStorage.getItem(LAST_EMAIL_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function saveLastEmail(email: string) {
+  try {
+    localStorage.setItem(LAST_EMAIL_KEY, email)
+  } catch {
+    // 저장이 막힌 환경(시크릿 모드 등)에서는 그냥 넘어가요.
+  }
+}
 
 // Supabase 원문(영어) 에러를 해요체 안내로 바꿔요. code 우선, 없으면 메시지로 판별.
 function authErrorMessage(err: unknown): string {
@@ -23,11 +43,19 @@ function authErrorMessage(err: unknown): string {
 
 export function AuthPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(readLastEmail)
+  const [resetOpen, setResetOpen] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  function switchMode(next: 'login' | 'signup') {
+    setMode(next)
+    setError(null)
+    setNotice(null)
+    if (next === 'signup') setPassword('')
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -38,9 +66,11 @@ export function AuthPage() {
       if (mode === 'login') {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
         if (signInError) throw signInError
+        saveLastEmail(email.trim())
       } else {
         const { error: signUpError } = await supabase.auth.signUp({ email, password })
         if (signUpError) throw signUpError
+        saveLastEmail(email.trim())
         setNotice(AUTH_COPY.signupSuccess)
       }
     } catch (err) {
@@ -106,10 +136,33 @@ export function AuthPage() {
           </button>
         </form>
 
-        <button type="button" className="auth-switch" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
-          {mode === 'login' ? AUTH_COPY.switchToSignup : AUTH_COPY.switchToLogin}
-        </button>
+        {mode === 'login' ? (
+          <>
+            <p className="auth-keep">{AUTH_COPY.keepLoggedIn}</p>
+            <button type="button" className="auth-switch" onClick={() => setResetOpen(true)}>
+              {AUTH_COPY.forgot}
+            </button>
+          </>
+        ) : (
+          <button type="button" className="auth-switch auth-switch--strong" onClick={() => switchMode('login')}>
+            {AUTH_COPY.switchToLogin}
+          </button>
+        )}
       </div>
+
+      {mode === 'login' && (
+        <div className="auth-signup-cta glass-panel">
+          <div className="auth-signup-cta__text">
+            <strong>{AUTH_COPY.signupPromptTitle}</strong>
+            <span>{AUTH_COPY.signupPromptDesc}</span>
+          </div>
+          <button type="button" className="pill-button auth-signup-cta__button" onClick={() => switchMode('signup')}>
+            {AUTH_COPY.signupPromptButton}
+          </button>
+        </div>
+      )}
+
+      {resetOpen && <ResetPasswordSheet open onClose={() => setResetOpen(false)} initialEmail={email} />}
 
       <p className="auth-tagline">{CONCEPT_COPY.tagline}</p>
     </section>

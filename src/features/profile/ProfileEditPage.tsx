@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { useToast } from '../../components/toast'
 import { AppBar, Avatar } from '../../components/ui'
+import { useGoBack } from '../../lib/use-go-back'
 import { EDIT_PROFILE_COPY } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
 import { removePublicMedia, uploadPublicMedia, validateFile } from '../../lib/media'
@@ -13,7 +14,7 @@ const NICKNAME_CHANGE_DAYS = 7
 
 export function ProfileEditPage() {
   const { profile, refreshProfile } = useAuth()
-  const navigate = useNavigate()
+  const goBack = useGoBack('/me')
   const toast = useToast()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -86,7 +87,7 @@ export function ProfileEditPage() {
       if (avatarUrl !== profile.avatar_url && profile.avatar_url) void removePublicMedia([profile.avatar_url])
       await refreshProfile()
       toast.show(EDIT_PROFILE_COPY.saved)
-      navigate('/me', { replace: true })
+      goBack()
     } catch (err) {
       setError(err instanceof Error ? err.message : EDIT_PROFILE_COPY.saveError)
       setSaving(false)

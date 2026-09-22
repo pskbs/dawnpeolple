@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { DmButton } from '../../components/DmButton'
 import { Avatar, Icon, Loading } from '../../components/ui'
 import { REGION_LABEL } from '../../config/brand'
 import { BUNGAE_COPY, CONCEPT_COPY, REGION_NOTICE } from '../../config/copy'
@@ -53,11 +52,11 @@ export function BungaeListPage() {
     <section className="bungae-page">
       <header className="app-bar">
         <h1 className="bungae-page__title">{BUNGAE_COPY.listTitle}</h1>
-        <span className="badge bungae-region-badge">
+        {/* 오프라인 소모임은 부천에서만 열려요. 오른쪽 위에 지역을 크게 보여줘요. */}
+        <span className="bungae-region-badge" aria-label={`${REGION_LABEL} 지역 소모임`}>
           <Icon name="pin-icon" />
           {REGION_LABEL}
         </span>
-        <DmButton />
       </header>
 
       <div className="stories">

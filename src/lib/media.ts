@@ -1,3 +1,4 @@
+import { FEATURES } from '../config/features'
 import { supabase } from './supabase'
 
 export type MediaType = 'image' | 'video' | 'file'
@@ -44,9 +45,37 @@ export function formatBytes(bytes = 0) {
 // 올릴 수 없는 파일이면 이유(해요체)를, 괜찮으면 null을 돌려줘요.
 export function validateFile(file: File, { dm = false } = {}): string | null {
   const type = mediaTypeOf(file)
+  if (type === 'video' && !FEATURES.videoUpload) return VIDEO_BLOCKED_MESSAGE
   const limit = dm ? MEDIA_LIMITS.dmBytes : limitFor(type)
   if (file.size > limit) return `${file.name}: ${formatBytes(limit)} 이하 파일만 올릴 수 있어요.`
   return null
+}
+
+// 동영상은 저장·전송 비용이 커서 지금은 막아 두었어요(FEATURES.videoUpload, docs/decisions.md 2026-09-22).
+export const VIDEO_BLOCKED_MESSAGE = '지금은 용량 제한으로 동영상은 올릴 수 없어요. 사진만 올려주세요.'
+
+// 큰 사진은 올리기 전에 긴 변 1920px·JPEG로 줄여요(저장 공간·데이터 절약). GIF·작은 사진은 그대로.
+const COMPRESS_MIN_BYTES = 1024 * 1024
+const COMPRESS_MAX_SIDE = 1920
+
+export async function compressImage(file: File): Promise<File> {
+  if (mediaTypeOf(file) !== 'image' || file.type === 'image/gif' || file.size < COMPRESS_MIN_BYTES) return file
+  try {
+    const bitmap = await createImageBitmap(file)
+    const scale = Math.min(1, COMPRESS_MAX_SIDE / Math.max(bitmap.width, bitmap.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(bitmap.width * scale)
+    canvas.height = Math.round(bitmap.height * scale)
+    canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    bitmap.close()
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85))
+    if (!blob || blob.size >= file.size) return file
+    const name = file.name.replace(/\.[^.]+$/, '') + '.jpg'
+    return new File([blob], name, { type: 'image/jpeg' })
+  } catch {
+    // HEIC 등 브라우저가 못 읽는 형식은 원본 그대로 올려요.
+    return file
+  }
 }
 
 function extensionOf(file: File) {
@@ -63,7 +92,8 @@ async function uploadTo(bucket: string, path: string, file: File) {
 }
 
 // 공개 버킷: "{userId}/{uuid}.{ext}"
-export async function uploadPublicMedia(userId: string, file: File): Promise<MediaItem> {
+export async function uploadPublicMedia(userId: string, original: File): Promise<MediaItem> {
+  const file = await compressImage(original)
   const path = `${userId}/${crypto.randomUUID()}.${extensionOf(file)}`
   await uploadTo(MEDIA_BUCKET, path, file)
   const { data } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path)
@@ -75,7 +105,8 @@ export async function uploadPublicMediaList(userId: string, files: File[]): Prom
 }
 
 // 비공개 DM 버킷: "{conversationId}/{senderId}/{uuid}.{ext}"
-export async function uploadDmMedia(conversationId: number, userId: string, file: File): Promise<MediaItem> {
+export async function uploadDmMedia(conversationId: number, userId: string, original: File): Promise<MediaItem> {
+  const file = await compressImage(original)
   const path = `${conversationId}/${userId}/${crypto.randomUUID()}.${extensionOf(file)}`
   await uploadTo(DM_MEDIA_BUCKET, path, file)
   return { type: mediaTypeOf(file), path, name: file.name, size: file.size, mime: file.type }

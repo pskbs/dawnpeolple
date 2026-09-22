@@ -4,6 +4,7 @@ import { useToast } from '../../components/toast'
 import { ActionSheet, AppBar, Avatar, BottomSheet, Icon } from '../../components/ui'
 import { REGION_LABEL } from '../../config/brand'
 import { MENU_COPY, SETTINGS_COPY } from '../../config/copy'
+import { FEATURES } from '../../config/features'
 import { useAuth } from '../../lib/auth-context'
 import { purgeMyStorage } from '../../lib/media'
 import { fetchProfileCards, GENDER_LABELS, type ProfileCard } from '../../lib/profiles'
@@ -12,7 +13,7 @@ import { ageBandOf } from './profile-api'
 import './ProfilePage.css'
 
 export function SettingsPage() {
-  const { profile, blockedIds, unblock } = useAuth()
+  const { session, profile, blockedIds, unblock } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()
   const [sheet, setSheet] = useState<'logout' | 'withdraw' | 'blocked' | null>(null)
@@ -67,6 +68,21 @@ export function SettingsPage() {
           <span className="list-row__label">{SETTINGS_COPY.editProfile}</span>
           <Icon name="chevron-right-icon" className="list-row__chevron" />
         </Link>
+        {/* 이메일로 가입한 계정만 비밀번호가 있어요(토스 로그인은 비밀번호 없음). */}
+        {session?.user.email && (
+          <Link to="/me/password" className="list-row">
+            <Icon name="lock-icon" />
+            <span className="list-row__label">{SETTINGS_COPY.changePassword}</span>
+            <Icon name="chevron-right-icon" className="list-row__chevron" />
+          </Link>
+        )}
+        {FEATURES.admin && profile.role === 'admin' && (
+          <Link to="/admin" className="list-row">
+            <Icon name="flag-icon" />
+            <span className="list-row__label">{SETTINGS_COPY.admin}</span>
+            <Icon name="chevron-right-icon" className="list-row__chevron" />
+          </Link>
+        )}
         <button type="button" className="list-row" onClick={openBlocked}>
           <Icon name="block-icon" />
           <span className="list-row__label">{SETTINGS_COPY.blockedUsers}</span>

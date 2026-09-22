@@ -17,7 +17,7 @@ import { dateTileParts, type Bungae } from '../bungae/bungae-types'
 import { startConversation } from '../dm/dm-api'
 import { normalizePosts, POST_COLUMNS, sharePath, useLikedPosts, type FeedPost } from '../feed/feed-api'
 import { PostItem } from '../feed/PostItem'
-import { useFollowState } from './profile-api'
+import { isBlockedByUser, useFollowState } from './profile-api'
 import './ProfilePage.css'
 
 type Tab = 'posts' | 'replies' | 'bungaes'
@@ -164,16 +164,33 @@ export function ProfilePage({ userId }: { userId: string }) {
     await toggle(postId)
   }
 
+  async function handleFollow() {
+    if (!profile) {
+      navigate('/me')
+      return
+    }
+    if (!follow.iFollow && (await isBlockedByUser(userId))) {
+      toast.show(MENU_COPY.blockedByOther)
+      return
+    }
+    await follow.toggle()
+  }
+
   async function handleMessage() {
     if (!profile) {
       navigate('/me')
       return
     }
+    if (await isBlockedByUser(userId)) {
+      toast.show(DM_COPY.blockedByOther)
+      return
+    }
     try {
       const conversationId = await startConversation(userId)
       navigate(`/dm/${conversationId}`)
-    } catch {
-      toast.show(DM_COPY.startError)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ''
+      toast.show(message.includes('차단') ? message : DM_COPY.startError)
     }
   }
 
@@ -278,7 +295,7 @@ export function ProfilePage({ userId }: { userId: string }) {
                 type="button"
                 className={follow.iFollow ? 'pill-button-ghost' : 'pill-button pill-button--dark'}
                 disabled={follow.busy}
-                onClick={() => (profile ? follow.toggle() : navigate('/me'))}
+                onClick={handleFollow}
               >
                 {followLabel}
               </button>

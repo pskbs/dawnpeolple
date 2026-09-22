@@ -34,6 +34,40 @@ export const AUTH_COPY = {
   switchToLogin: '이미 계정이 있으신가요? 로그인',
   signupSuccess: '가입 확인 메일을 보냈어요. 메일함을 확인해 주세요.',
   signupHint: '가입 다음 화면에서 프로필을 설정해요.',
+  // 로그인 화면 아래 가입 유도 카드
+  signupPromptTitle: '처음 오셨나요?',
+  signupPromptDesc: '이메일만 있으면 1분이면 가입해요.',
+  signupPromptButton: '가입하기',
+  keepLoggedIn: '한 번 로그인하면 로그아웃하기 전까지 로그인 상태가 유지돼요.',
+  forgot: '비밀번호를 잊으셨나요?',
+} as const
+
+// 아이디(이메일) 확인·새 비밀번호 발송
+export const RESET_COPY = {
+  title: '아이디·비밀번호 찾기',
+  idInfo: '아이디는 가입할 때 쓴 이메일 주소예요.',
+  desc: '가입한 이메일을 입력하면 새 비밀번호를 메일로 보내드려요.',
+  submit: '새 비밀번호 받기',
+  sending: '보내는 중이에요…',
+  done: '가입된 이메일이라면 새 비밀번호를 보냈어요. 메일함(스팸함 포함)을 확인해 주세요.',
+  afterLogin: '새 비밀번호로 로그인한 뒤 꼭 [내정보 → 설정 → 비밀번호 변경]에서 비밀번호를 바꿔주세요.',
+  tooMany: '요청이 너무 잦아요. 10분 뒤에 다시 시도해 주세요.',
+  error: '메일을 보내지 못했어요. 잠시 후 다시 시도해 주세요.',
+  close: '로그인하러 가기',
+} as const
+
+export const PASSWORD_COPY = {
+  title: '비밀번호 변경',
+  current: '지금 비밀번호',
+  next: '새 비밀번호 (6자 이상)',
+  confirm: '새 비밀번호 확인',
+  submit: '변경하기',
+  mismatch: '새 비밀번호가 서로 달라요.',
+  same: '지금 비밀번호와 다른 비밀번호를 입력해 주세요.',
+  wrongCurrent: '지금 비밀번호가 맞지 않아요.',
+  done: '비밀번호를 바꿨어요.',
+  error: '비밀번호를 바꾸지 못했어요. 잠시 후 다시 시도해 주세요.',
+  hint: '메일로 받은 임시 비밀번호로 로그인했다면 여기서 새 비밀번호로 바꿔주세요.',
 } as const
 
 export const AUTH_ERROR_COPY = {
@@ -80,8 +114,8 @@ export const FEED_COPY = {
   composeTitle: '새 글',
   composeCancel: '취소',
   composeSubmit: '게시',
-  composePlaceholder: '우리끼리 무엇이든 공유해요',
-  composeAddMedia: '사진·동영상 추가',
+  composePlaceholder: '새벽에 우리끼리 공유해요',
+  composeAddMedia: '사진 추가',
   composeAddFile: '파일 추가',
   composeLimit: (max: number) => `첨부는 최대 ${max}개까지 올릴 수 있어요.`,
   composeUploading: '올리는 중이에요…',
@@ -146,6 +180,10 @@ export const MENU_COPY = {
     '불법 행위·위험한 모임',
     '기타 부적절한 내용',
   ],
+  reportCustom: '직접 입력',
+  reportCustomTitle: '신고 사유를 적어주세요',
+  reportCustomPlaceholder: '어떤 점이 불편했는지 알려주세요 (500자 이내)',
+  reportSubmit: '신고하기',
   reportDone: '신고가 접수됐어요. 확인 후 조치할게요.',
   reportFailed: '신고를 접수하지 못했어요. 잠시 후 다시 시도해 주세요.',
   blockTitle: (nickname: string) => `${nickname}님을 차단할까요?`,
@@ -153,6 +191,7 @@ export const MENU_COPY = {
   blockDone: '차단했어요.',
   blockFailed: '차단하지 못했어요.',
   unblockDone: '차단을 해제했어요.',
+  blockedByOther: '상대방이 차단했어요',
 } as const
 
 export const BUNGAE_COPY = {
@@ -252,6 +291,8 @@ export const SETTINGS_COPY = {
   sectionAccount: '계정',
   sectionInfo: '정보',
   editProfile: '프로필 편집',
+  changePassword: '비밀번호 변경',
+  admin: '신고 관리(운영자)',
   blockedUsers: '차단한 사용자',
   blockedEmpty: '차단한 사용자가 없어요.',
   terms: '서비스 이용약관',
@@ -289,6 +330,7 @@ export const DM_COPY = {
   startError: '대화를 시작하지 못했어요.',
   sendError: '메시지를 보내지 못했어요.',
   blocked: '차단한 사용자와는 메시지를 주고받을 수 없어요.',
+  blockedByOther: '상대방이 차단했어요',
   safety: '처음 대화하는 사람에게 개인정보나 금전을 보내지 마세요. 불편한 메시지는 신고해 주세요.',
   read: '읽음',
   notFound: '대화를 찾을 수 없어요.',
@@ -308,4 +350,37 @@ export const AUTH_EXTRA_COPY = {
   subtitle: '새벽에 일하는 사람들의 SNS',
   emailPlaceholder: '이메일 주소',
   passwordPlaceholder: '비밀번호 (6자 이상)',
+} as const
+
+// 운영자 신고 관리(/admin). profiles.role = 'admin' 계정에만 보여요.
+export const ADMIN_COPY = {
+  title: '신고 관리',
+  notice: '운영자만 볼 수 있는 화면이에요. Supabase 대시보드의 reports_overview 뷰에서도 같은 내용을 볼 수 있어요.',
+  statusLabels: {
+    pending: '대기',
+    reviewing: '확인 중',
+    resolved: '조치 완료',
+    dismissed: '기각',
+    all: '전체',
+  },
+  targetLabels: {
+    post: '수다글',
+    comment: '답글',
+    bungae: '소모임',
+    bungae_comment: '소모임 대화',
+    user: '사용자',
+  },
+  reporter: '신고한 사람',
+  detail: '직접 입력 내용',
+  sameTarget: (n: number) => `같은 대상 신고 ${n}건`,
+  open: '보러 가기',
+  hide: '숨기기',
+  unhide: '다시 보이기',
+  hidden: '숨김 처리됨',
+  deleted: '삭제되었거나 찾을 수 없어요',
+  markReviewing: '확인 중',
+  markResolved: '조치 완료',
+  markDismissed: '기각',
+  empty: '해당하는 신고가 없어요.',
+  updateError: '처리하지 못했어요. 잠시 후 다시 시도해 주세요.',
 } as const

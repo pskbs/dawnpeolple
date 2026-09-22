@@ -10,6 +10,7 @@ import { formatRelativeTime } from '../../lib/format'
 import { asMediaList, signDmMedia, uploadDmMedia, validateFile, type MediaItem } from '../../lib/media'
 import { fetchProfileCard, UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
+import { isBlockedByUser } from '../profile/profile-api'
 import { otherUserOf, type Conversation } from './dm-api'
 import './DmPage.css'
 
@@ -39,6 +40,7 @@ export function DmChatPage() {
   const [files, setFiles] = useState<File[]>([])
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [blockedByOther, setBlockedByOther] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const myId = profile?.id
@@ -64,7 +66,7 @@ export function DmChatPage() {
         return
       }
       const c = conv as Conversation
-      const [{ data: rows }, otherCard] = await Promise.all([
+      const [{ data: rows }, otherCard, otherBlockedMe] = await Promise.all([
         supabase
           .from('messages')
           .select(MESSAGE_COLUMNS)
@@ -72,11 +74,13 @@ export function DmChatPage() {
           .order('created_at', { ascending: false })
           .limit(200),
         fetchProfileCard(otherUserOf(c, me)),
+        isBlockedByUser(otherUserOf(c, me)),
       ])
       const list = ((rows ?? []) as Message[]).map((m) => ({ ...m, media: asMediaList(m.media) })).reverse()
       if (!alive) return
       setConversation(c)
       setOther(otherCard)
+      setBlockedByOther(otherBlockedMe)
       setMessages(list)
       setLoading(false)
       await signFor(list)
@@ -146,7 +150,14 @@ export function DmChatPage() {
         .insert({ conversation_id: conversation.id, sender_id: profile.id, body: text, media })
         .select(MESSAGE_COLUMNS)
         .single()
-      if (insertError || !data) throw new Error(DM_COPY.sendError)
+      if (insertError || !data) {
+        // 대화 중에 상대방이 차단했다면 입력창 대신 안내를 보여줘요.
+        if (otherId && (await isBlockedByUser(otherId))) {
+          setBlockedByOther(true)
+          throw new Error(DM_COPY.blockedByOther)
+        }
+        throw new Error(DM_COPY.sendError)
+      }
       const msg = { ...(data as Message), media: asMediaList(data.media) }
       setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]))
       await signFor([msg])
@@ -215,6 +226,8 @@ export function DmChatPage() {
         <div className="bottom-bar">
           {iBlocked ? (
             <p className="dm-blocked">{DM_COPY.blocked}</p>
+          ) : blockedByOther ? (
+            <p className="dm-blocked">{DM_COPY.blockedByOther}</p>
           ) : (
             <div className="comment-composer">
               <AttachmentTray files={files} onRemove={(i) => setFiles((prev) => prev.filter((_, idx) => idx !== i))} />

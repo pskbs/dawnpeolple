@@ -5,4 +5,9 @@ export const FEATURES = {
   dm: true,
   // 소모임 참석 전에도 성별·연령대 "집계"를 보여줘요(개인 식별 정보는 참석 후에만).
   preJoinDemographics: true,
+  // 동영상 업로드. 저장·전송 비용 때문에 우선 끄고 사진·파일만 받아요(2026-09-22).
+  // 다시 켜면 supabase storage 'media' 버킷 file_size_limit도 함께 올려야 해요.
+  videoUpload: false,
+  // 운영자 신고 관리 화면(/admin). profiles.role = 'admin'인 계정에만 보여요.
+  admin: true,
 } as const

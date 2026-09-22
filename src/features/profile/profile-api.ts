@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
+// 상대방이 나를 차단했는지(true/false만 알려주는 서버 함수). 팔로우·메시지 시도 때 안내용이에요.
+export async function isBlockedByUser(otherId: string): Promise<boolean> {
+  const { data } = await supabase.rpc('blocked_me', { p_other: otherId })
+  return data === true
+}
+
 export type FollowState = {
   followers: number
   following: number
@@ -66,17 +72,26 @@ export function useMyFollowing(myId: string | undefined) {
       .then(({ data }) => setIds(new Set((data ?? []).map((r) => r.following_id as string))))
   }, [myId])
 
-  async function toggle(targetId: string) {
-    if (!myId || targetId === myId) return
+  // 'blocked': 상대방이 나를 차단해서 팔로우할 수 없어요.
+  async function toggle(targetId: string): Promise<'ok' | 'blocked' | 'error'> {
+    if (!myId || targetId === myId) return 'error'
     const has = ids.has(targetId)
-    setIds((prev) => {
+    if (!has && (await isBlockedByUser(targetId))) return 'blocked'
+    const flip = (prev: Set<string>) => {
       const next = new Set(prev)
-      if (has) next.delete(targetId)
+      if (next.has(targetId)) next.delete(targetId)
       else next.add(targetId)
       return next
-    })
-    if (has) await supabase.from('follows').delete().eq('follower_id', myId).eq('following_id', targetId)
-    else await supabase.from('follows').insert({ follower_id: myId, following_id: targetId })
+    }
+    setIds(flip)
+    const { error } = has
+      ? await supabase.from('follows').delete().eq('follower_id', myId).eq('following_id', targetId)
+      : await supabase.from('follows').insert({ follower_id: myId, following_id: targetId })
+    if (error) {
+      setIds(flip)
+      return 'error'
+    }
+    return 'ok'
   }
 
   return { ids: myId ? ids : new Set<string>(), toggle }

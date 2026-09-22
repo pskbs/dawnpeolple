@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { TabBar } from './components/TabBar'
 import { Loading } from './components/ui'
 import { FEATURES } from './config/features'
+import { AdminReportsPage } from './features/admin/AdminReportsPage'
 import { AuthPage } from './features/auth/AuthPage'
 import { BungaeCreatePage } from './features/bungae/BungaeCreatePage'
 import { BungaeDetailPage } from './features/bungae/BungaeDetailPage'
@@ -14,6 +15,7 @@ import { PostDetailPage } from './features/feed/PostDetailPage'
 import { LegalPage } from './features/legal/LegalPage'
 import { OnboardingPage } from './features/onboarding/OnboardingPage'
 import { FollowListPage } from './features/profile/FollowListPage'
+import { PasswordChangePage } from './features/profile/PasswordChangePage'
 import { ProfileEditPage } from './features/profile/ProfileEditPage'
 import { ProfilePage, UserProfileRoute } from './features/profile/ProfilePage'
 import { SettingsPage } from './features/profile/SettingsPage'
@@ -37,6 +39,7 @@ const FOCUS_ROUTES = [
   /^\/dm/,
   /^\/terms$/,
   /^\/privacy$/,
+  /^\/admin/,
 ]
 
 function App() {
@@ -66,10 +69,12 @@ function App() {
           <Route path="/me" element={<MeGate />} />
           <Route path="/me/edit" element={<ProfileEditPage />} />
           <Route path="/me/settings" element={<SettingsPage />} />
+          <Route path="/me/password" element={<PasswordChangePage />} />
           <Route path="/u/:id" element={<UserProfileRoute />} />
           <Route path="/u/:id/follows" element={<FollowListPage />} />
           {FEATURES.dm && <Route path="/dm" element={<DmInboxPage />} />}
           {FEATURES.dm && <Route path="/dm/:id" element={<DmChatPage />} />}
+          {FEATURES.admin && <Route path="/admin" element={<AdminReportsPage />} />}
           <Route path="/terms" element={<LegalPage kind="terms" />} />
           <Route path="/privacy" element={<LegalPage kind="privacy" />} />
           <Route path="*" element={<Navigate to="/feed" replace />} />

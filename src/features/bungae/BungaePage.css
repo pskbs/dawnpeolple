@@ -13,9 +13,23 @@
 }
 
 .bungae-region-badge {
-  padding: 7px 12px;
-  background: var(--surface);
-  box-shadow: var(--shadow-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 8px 14px 8px 11px;
+  border-radius: 999px;
+  background: var(--grad-primary);
+  color: var(--primary-contrast);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  box-shadow: 0 8px 20px rgba(var(--glow), 0.35);
+}
+
+.bungae-region-badge svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* ---------- 히어로 ---------- */
@@ -473,6 +487,14 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--text);
+}
+
+.demographics__people {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--text-sub);
 }
 
 .demographics__note {
