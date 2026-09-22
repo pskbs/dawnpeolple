@@ -14,7 +14,7 @@ export const CONCEPT_COPY = {
   bungaeIntro: '새벽에 일하는 사람들, 여기 모여요',
 } as const
 
-export const REGION_NOTICE = '전국 어디서나 소모임을 열 수 있어요. 내 동네와 가까운 소모임부터 보여드려요.'
+export const REGION_NOTICE = '전국 어디서나 소모임을 열 수 있어요. 내 활동지역과 가까운 소모임부터 보여드려요.'
 
 export const GUEST_COPY = {
   browseNotice: '둘러보는 중이에요. 글쓰기·좋아요·소모임 참여는 로그인 후 이용할 수 있어요.',
@@ -95,6 +95,7 @@ export const ONBOARDING_COPY = {
   under19Notice: '만 19세 이상만 가입할 수 있어요.',
   sidoLabel: '시/도',
   sigunguLabel: '시/군/구',
+  locationLabelLabel: '이 지역 이름 (예: 집, 회사)',
   workTypeLabel: '근무 유형 (선택)',
   offTimeBandLabel: '퇴근 시간대 (선택)',
   agreeAll: '모두 동의해요',
@@ -107,22 +108,22 @@ export const ONBOARDING_COPY = {
   privacyNote: '성별·출생연도는 다른 사람에게 공개되지 않아요. 소모임 참석 현황에서만 연령대로 표시돼요.',
 } as const
 
-// 내 동네 설정(당근마켓 "동네 설정"과 비슷한 개념). 최대 3개까지 저장, 이름 지정 가능(집/회사 등).
+// 내 활동지역 설정(당근마켓 "동네 설정"과 비슷한 개념, 2026-09-22 "동네"→"활동지역" 표현 변경). 최대 3개까지 저장, 이름 지정 가능(집/회사 등).
 export const LOCATION_COPY = {
-  sheetTitle: '내 동네 설정',
-  current: '현재 동네',
-  savedTitle: '저장한 동네',
-  switchTo: '이 동네로 보기',
-  add: '동네 추가',
-  addTitle: '동네 추가하기',
+  sheetTitle: '내 활동지역 설정',
+  current: '현재 활동지역',
+  savedTitle: '저장한 활동지역',
+  switchTo: '이 활동지역으로 보기',
+  add: '활동지역 추가',
+  addTitle: '활동지역 추가하기',
   labelPlaceholder: '이름 (예: 집, 회사)',
   sidoLabel: '시/도',
   sigunguLabel: '시/군/구',
   save: '저장',
   cancel: '취소',
-  full: (max: number) => `동네는 최대 ${max}개까지 저장할 수 있어요.`,
+  full: (max: number) => `활동지역은 최대 ${max}개까지 저장할 수 있어요.`,
   delete: '삭제',
-  empty: '아직 저장한 동네가 없어요.',
+  empty: '아직 저장한 활동지역이 없어요.',
   unset: '지역 미설정',
 } as const
 
@@ -224,14 +225,14 @@ export const BUNGAE_COPY = {
   startsAtHint: '기본은 새벽 6시(오전 6시)예요. 지금부터 1시간 이후로 정할 수 있어요.',
   sidoLabel: '시/도',
   sigunguLabel: '시/군/구',
-  eupmyeondongLabel: '동/읍/면 (선택)',
-  placeHintLabel: '만나는 장소 (선택, 역·동 단위)',
+  eupmyeondongLabel: '동/읍/면',
+  placeHintLabel: '만나는 장소 (선택)',
   capacityLabel: '정원 (리더 포함 2~10명)',
   safetyNotice: '공개된 장소에서 만나요. 낯선 사람에게 개인정보나 금전을 보내지 마세요.',
   submit: '만들기',
   remainingSlots: (n: number) => (n > 0 ? `${n}자리 남았어요` : '정원이 가득 찼어요'),
   hideFullToggle: '마감된 모임 제외',
-  regionBadgeGuest: '지역 설정',
+  regionBadgeGuest: '활동지역 설정',
   joinButton: '참석 신청',
   leaveButton: '참석 취소',
   hostBadge: '리더',

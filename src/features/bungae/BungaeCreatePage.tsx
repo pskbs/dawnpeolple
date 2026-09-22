@@ -35,6 +35,7 @@ export function BungaeCreatePage() {
     !!startsAtDate &&
     startsAtDate.getTime() > Date.now() + 60 * 60 * 1000 &&
     !!sigungu &&
+    eupmyeondong.trim().length > 0 &&
     capacity >= MIN_CAPACITY &&
     capacity <= MAX_CAPACITY &&
     !submitting

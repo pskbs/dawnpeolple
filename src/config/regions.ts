@@ -24,7 +24,8 @@ export const SIDO_LIST = [
 ] as const
 export type Sido = (typeof SIDO_LIST)[number]
 
-export const SIGUNGU_BY_SIDO: Record<Sido, readonly string[]> = {
+// 원본 목록(입력 순서는 상관없어요, 아래에서 가나다순으로 정렬해요).
+const RAW_SIGUNGU_BY_SIDO: Record<Sido, readonly string[]> = {
   서울: [
     '종로구', '중구', '용산구', '성동구', '광진구', '동대문구', '중랑구', '성북구', '강북구', '도봉구',
     '노원구', '은평구', '서대문구', '마포구', '양천구', '강서구', '구로구', '금천구', '영등포구', '동작구',
@@ -74,6 +75,11 @@ export const SIGUNGU_BY_SIDO: Record<Sido, readonly string[]> = {
   ],
   제주: ['제주시', '서귀포시'],
 } as const
+
+// 가입·소모임 개설 화면의 시/군/구 선택은 가나다순으로 보여줘요.
+export const SIGUNGU_BY_SIDO: Record<Sido, readonly string[]> = Object.fromEntries(
+  SIDO_LIST.map((sido) => [sido, [...RAW_SIGUNGU_BY_SIDO[sido]].sort((a, b) => a.localeCompare(b, 'ko'))]),
+) as unknown as Record<Sido, readonly string[]>
 
 export const DEFAULT_SIDO: Sido = '경기'
 export const DEFAULT_SIGUNGU = '부천시'

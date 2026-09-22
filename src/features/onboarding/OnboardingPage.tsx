@@ -5,7 +5,14 @@ import { PRIVACY, PRIVACY_VERSION, TERMS, TERMS_VERSION } from '../../config/leg
 import { NICKNAME_ADJECTIVES, NICKNAME_NOUNS } from '../../config/nickname-words'
 import { useAuth } from '../../lib/auth-context'
 import { removePublicMedia, uploadPublicMedia, validateFile } from '../../lib/media'
-import { BIO_MAX, OFF_TIME_OPTIONS, SIDO_OPTIONS, sigunguOptionsFor, WORK_TYPE_OPTIONS } from '../../lib/profiles'
+import {
+  BIO_MAX,
+  LOCATION_LABEL_PRESETS,
+  OFF_TIME_OPTIONS,
+  SIDO_OPTIONS,
+  sigunguOptionsFor,
+  WORK_TYPE_OPTIONS,
+} from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
 import { LegalDocView } from '../legal/LegalPage'
 import './OnboardingPage.css'
@@ -25,6 +32,7 @@ export function OnboardingPage() {
   const [birthYear, setBirthYear] = useState('')
   const [sido, setSido] = useState<(typeof SIDO_OPTIONS)[number]>('경기')
   const [sigungu, setSigungu] = useState('부천시')
+  const [locationLabel, setLocationLabel] = useState('')
   const [workType, setWorkType] = useState('')
   const [offTimeBand, setOffTimeBand] = useState('')
   const [agreeTerms, setAgreeTerms] = useState(false)
@@ -83,6 +91,7 @@ export function OnboardingPage() {
         p_privacy_version: PRIVACY_VERSION,
         p_avatar_url: avatarUrl,
         p_bio: bio.trim() || null,
+        p_location_label: locationLabel.trim() || null,
       })
       if (rpcError) throw rpcError
       await refreshProfile()
@@ -233,6 +242,33 @@ export function OnboardingPage() {
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="field">
+          <label className="field-label" htmlFor="ob-location-label">
+            {ONBOARDING_COPY.locationLabelLabel}
+          </label>
+          <div className="chip-row">
+            {LOCATION_LABEL_PRESETS.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                className="chip"
+                aria-pressed={locationLabel === preset}
+                onClick={() => setLocationLabel(preset)}
+              >
+                {preset}
+              </button>
+            ))}
+          </div>
+          <input
+            id="ob-location-label"
+            className="field-input"
+            value={locationLabel}
+            maxLength={10}
+            placeholder="예: 집"
+            onChange={(e) => setLocationLabel(e.target.value)}
+          />
         </div>
 
         <div className="field">

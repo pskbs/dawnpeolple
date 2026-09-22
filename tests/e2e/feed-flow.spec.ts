@@ -95,8 +95,8 @@ test('비회원 열람 → 가입/온보딩(약관 팝업·사진) → 수다방
   await page.getByRole('link', { name: '소모임', exact: true }).click()
   await expect(page.getByRole('heading', { name: '다가오는 소모임' })).toBeVisible()
   await expect(page.locator('.loading-dots')).toHaveCount(0, { timeout: 10_000 })
-  // 오른쪽 위에는 메시지 아이콘 대신 지역 배지(비회원은 "지역 설정")
-  await expect(page.locator('.app-bar .bungae-region-badge')).toHaveText('지역 설정')
+  // 오른쪽 위에는 메시지 아이콘 대신 지역 배지(비회원은 "활동지역 설정")
+  await expect(page.locator('.app-bar .bungae-region-badge')).toHaveText('활동지역 설정')
   await expect(page.locator('.app-bar a[href="/dm"]')).toHaveCount(0)
   await page.screenshot({ path: 'docs/screenshots/bungae-list.png', fullPage: true })
 
@@ -307,6 +307,7 @@ test('비회원 열람 → 가입/온보딩(약관 팝업·사진) → 수다방
   const bungaeTitle = `E2E 소모임 ${String(STAMP).slice(-5)}`
   await page.getByLabel('제목').fill(bungaeTitle)
   await page.getByLabel('소개').fill('테스트로 만든 소모임이에요')
+  await page.getByLabel('동/읍/면').fill('중동')
   await page.screenshot({ path: 'docs/screenshots/bungae-create.png', fullPage: true })
   await page.getByRole('button', { name: '만들기', exact: true }).click()
 
