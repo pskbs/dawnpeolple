@@ -14,7 +14,7 @@
 
 ## 절대 규칙 (비협상)
 1. 앱인토스 **검수 기준**을 항상 우선: TDS(Navigation·플로팅 탭바), 해요체, 토스 로그인만(앱인토스 안), 광고 규칙, **라이트 모드만(다크모드 금지)**.
-2. **테마 2종**: `hybrid`(**앱인토스·웹 공통 기본**, design concept의 라벤더 글래스 팔레트) / `night`(선택형 딥네이비 변형). 2026-09-21 사용자 요청으로 기본 변경(docs/decisions.md). `VITE_THEME`로 전환, 색은 CSS 토큰만 사용, OS 다크모드 무시.
+2. **테마는 `hybrid` 하나로 확정**(design concept의 라벤더 글래스 팔레트, 앱인토스·웹 모든 사용자 동일, 2026-09-22 결정 — docs/decisions.md). 사용자 테마 선택 기능 없음. `night`(딥네이비) CSS는 보관만 하고 배포에 쓰지 않아요(다크모드로 보일 검수 위험). 색은 CSS 토큰만 사용, OS 다크모드 무시.
 3. **소개팅·만남으로 보이지 않게**: 앱 문구에 소개팅/연애/짝/썸/이성/매칭 금지, 성별·연령 기반 매칭·필터 금지. 성별·연령대는 벙개 참석 현황 안내로만 사용.
 4. **개인정보 최소 수집**: 실명·전화번호·이메일 원문·토스 CI 저장 금지. 닉네임 익명. 탈퇴/토스 연결 해제 시 데이터 삭제.
 5. **비밀값 커밋 금지**: `.env*`, service role 키, mTLS 인증서/개인키, 복호화 키, Anthropic 키. `.env.example`만 커밋.
@@ -28,7 +28,7 @@ Vite + React + TypeScript(SPA) · TDS · React Router · Supabase(Postgres/RLS/A
 
 ## 명령어 (사용자 PC는 Windows, PowerShell 기준)
 - `pnpm dev` / `pnpm build:web` / `pnpm build:toss` / `pnpm test` / `pnpm lint` / `pnpm typecheck`
-- `VITE_PLATFORM=web|toss`, `VITE_THEME=night|hybrid`, `AI_PROVIDER=mock|claude-cli|anthropic`(`claude-cli`는 production 차단)
+- `VITE_PLATFORM=web|toss`, `VITE_THEME=hybrid`(night는 보관용, 배포 금지), `AI_PROVIDER=mock|claude-cli|anthropic`(`claude-cli`는 production 차단)
 
 ## 주요 결정
 - 로그인: 1단계 Supabase Auth(웹), 2단계 토스 로그인. 토스 로그인은 **mTLS 필요** → Supabase Edge Function 불가 → `api/`(Vercel Node) PoC 후 구현, 안 되면 소형 서버(비용 발생 시 사용자 확인).
