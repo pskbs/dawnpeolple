@@ -12,8 +12,8 @@ const BRAND_NAME = '새벽사람들'
 const COOLDOWN_MINUTES = 10
 const GLOBAL_HOURLY_LIMIT = 200
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-// 헷갈리는 글자(0/O, 1/l/I)는 빼요.
-const PASSWORD_CHARS = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+// 소문자+숫자만 써서 외우기 쉽게 하고, 헷갈리는 글자(0/o, 1/l)는 빼요.
+const PASSWORD_CHARS = 'abcdefghjkmnpqrstuvwxyz23456789'
 
 function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), {
@@ -22,7 +22,7 @@ function json(status: number, body: Record<string, unknown>) {
   })
 }
 
-function tempPassword(length = 10) {
+function tempPassword(length = 6) {
   let out = ''
   for (let i = 0; i < length; i++) out += PASSWORD_CHARS[randomInt(PASSWORD_CHARS.length)]
   return out
