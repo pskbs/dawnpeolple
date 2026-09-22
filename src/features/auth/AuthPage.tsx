@@ -7,7 +7,7 @@ import { ResetPasswordSheet } from './ResetPasswordSheet'
 import './AuthPage.css'
 
 // 마지막으로 로그인한 이메일을 기억해 다음에 채워줘요(비밀번호는 저장하지 않아요).
-const LAST_EMAIL_KEY = 'dawnpeolple:last-email'
+const LAST_EMAIL_KEY = 'dawnpeople:last-email'
 
 function readLastEmail() {
   try {

@@ -19,13 +19,7 @@
 
   연애나 소개팅을 위한 서비스가 아니라, 같은 시간대에 일하는 사람들끼리 소통하고 오프라인에서 만나는 커뮤니티예요.
   ```
-- **appName**(서비스 식별자, 영문 소문자): **사용자 확인 필요** — 아래 참고
+- **appName**(서비스 식별자, 영문 소문자): `dawnpeople` (2026-09-23 확정)
 - **사용 연령**: 만 19세 이상 (CLAUDE.md 대상 연령과 일치, 드롭다운에서 선택)
 - **고객문의 이메일**: `wol100st2@gmail.com` (`CONTACT_EMAIL`, `src/config/legal.ts`와 동일하게)
 
-### ⚠️ appName 확인 필요
-콘솔 placeholder 예시가 `dawnpeople`(오타 없음)인데, 실제 GitHub 저장소명은 `dawnpeolple`(수정된 이름, `docs/decisions.md` 2026-09-21 기록)이에요. `appName`은 한번 정하면 나중에 바꾸기 어려운 식별자일 가능성이 높아서, 둘 중 뭘 쓸지 확인하고 싶어요:
-- `dawnpeople` (오타 없는 원래 의도, 콘솔 placeholder와 동일)
-- `dawnpeolple` (실제 저장소명과 통일)
-
-어느 쪽이든 상관없으면 저장소명과 통일된 `dawnpeolple`을 추천해요(나중에 코드에서 앱 식별자 찾을 때 헷갈리지 않음).

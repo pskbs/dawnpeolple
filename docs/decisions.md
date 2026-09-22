@@ -19,7 +19,8 @@
 
 ## 2026-09-21 — Phase 0: 초기 설정
 
-- 저장소명: `dawnpeolple` (GitHub `pskbs` 계정, https://github.com/pskbs/dawnpeolple) — 최초 논의 시 `dawnpeople`로 제안했으나 실제 생성된 저장소명(및 로컬 프로젝트 폴더명)에 맞춰 `dawnpeolple`로 통일
+- 저장소명: `dawnpeolple` (GitHub `pskbs` 계정) — 최초 논의 시 `dawnpeople`로 제안했으나 실제 생성된 저장소명(및 로컬 프로젝트 폴더명)에 맞춰 `dawnpeolple`로 통일 (2026-09-21)
+  - **2026-09-23 정정**: `dawnpeolple`은 오타였고 원래 의도한 이름이 `dawnpeople`이 맞다고 확인(사용자). GitHub 저장소를 `pskbs/dawnpeople`로 리네임, `package.json` name, 로컬 스토리지 키(`dawnpeople:last-email`), CLAUDE.md 반영 완료. 로컬 프로젝트 폴더명(`2.dawnpeolple`)은 그대로 둠(리네임 요청 없었음, 경로 참조가 많아 별도 확인 후 변경).
 - 패키지 매니저: pnpm (사용자 PC에 corepack 활성화가 관리자 권한 문제로 실패해 `npm install -g pnpm`으로 대체 설치)
 - Vite 스캐폴드: `create-vite` 최신 버전이 기본적으로 ESLint 대신 **oxlint**를 사용함 — 요청서에 특정 린터 지정이 없어 그대로 채택. 문제 발생 시 ESLint로 교체 가능.
 - `build:toss` 스크립트는 현재 `build:web`과 동일한 placeholder임. Phase 2에서 `ait build`/`ait deploy`를 반영해 교체 예정.
