@@ -36,6 +36,17 @@ export const AUTH_COPY = {
   signupSuccess: '가입 확인 메일을 보냈어요. 메일함을 확인해 주세요.',
 } as const
 
+export const AUTH_ERROR_COPY = {
+  emailRateLimit: '지금은 가입 메일을 보낼 수 없어요. 잠시 후 다시 시도해 주세요.',
+  requestRateLimit: '요청이 너무 많아요. 잠시 후 다시 시도해 주세요.',
+  alreadyRegistered: '이미 가입된 이메일이에요. 로그인해 주세요.',
+  invalidCredentials: '이메일 또는 비밀번호가 맞지 않아요.',
+  emailNotConfirmed: '메일함에서 가입 확인을 먼저 완료해 주세요.',
+  weakPassword: '비밀번호가 너무 쉬워요. 더 길고 복잡하게 만들어 주세요.',
+  invalidEmail: '이메일 주소를 다시 확인해 주세요.',
+  unknown: '문제가 발생했어요. 잠시 후 다시 시도해 주세요.',
+} as const
+
 export const ONBOARDING_COPY = {
   title: '반가워요! 몇 가지만 알려주세요',
   nicknameLabel: '닉네임',

@@ -1,9 +1,25 @@
 import { useState, type FormEvent } from 'react'
 import { Icon } from '../../components/ui'
 import { BRAND_NAME } from '../../config/brand'
-import { AUTH_COPY, AUTH_EXTRA_COPY, CONCEPT_COPY } from '../../config/copy'
+import { AUTH_COPY, AUTH_ERROR_COPY, AUTH_EXTRA_COPY, CONCEPT_COPY } from '../../config/copy'
 import { supabase } from '../../lib/supabase'
 import './AuthPage.css'
+
+// Supabase 원문(영어) 에러를 해요체 안내로 바꿔요. code 우선, 없으면 메시지로 판별.
+function authErrorMessage(err: unknown): string {
+  const code = typeof err === 'object' && err !== null && 'code' in err ? String(err.code) : ''
+  const message = err instanceof Error ? err.message.toLowerCase() : ''
+  if (code === 'over_email_send_rate_limit' || message.includes('email rate limit')) return AUTH_ERROR_COPY.emailRateLimit
+  if (code === 'over_request_rate_limit' || message.includes('rate limit')) return AUTH_ERROR_COPY.requestRateLimit
+  if (code === 'user_already_exists' || code === 'email_exists' || message.includes('already registered'))
+    return AUTH_ERROR_COPY.alreadyRegistered
+  if (code === 'invalid_credentials' || message.includes('invalid login credentials')) return AUTH_ERROR_COPY.invalidCredentials
+  if (code === 'email_not_confirmed' || message.includes('email not confirmed')) return AUTH_ERROR_COPY.emailNotConfirmed
+  if (code === 'weak_password' || message.includes('password should')) return AUTH_ERROR_COPY.weakPassword
+  if (code === 'email_address_invalid' || (message.includes('email address') && message.includes('invalid')))
+    return AUTH_ERROR_COPY.invalidEmail
+  return AUTH_ERROR_COPY.unknown
+}
 
 export function AuthPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
@@ -28,7 +44,7 @@ export function AuthPage() {
         setNotice(AUTH_COPY.signupSuccess)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '문제가 발생했어요')
+      setError(authErrorMessage(err))
     } finally {
       setSubmitting(false)
     }
