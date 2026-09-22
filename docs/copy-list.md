@@ -34,3 +34,11 @@
     - `screenshot-2-feed.png`, `screenshot-3-bungae-list.png`, `screenshot-4-bungae-detail.png` — 실제 앱 화면 캡처(수다방/소모임 목록/소모임 상세). 화면에 보이는 닉네임·글·소모임은 스크린샷 촬영용으로 만들었다가 지운 임시 데모 계정(실사용자 데이터 아님).
 - **앱 검색 키워드**(추천, 필요한 만큼 골라 쓰기): `새벽사람들, 야간근무, 교대근무, 야간알바, 새벽모임, 소모임, 야간근무자, 새벽커뮤니티, 새벽친구, 벙개`
 
+## 토스 로그인 연동 — 약관 링크 (2026-09-22 작성)
+
+Notion 대신 Claude Docs로 바로 게시한 링크. 앱인토스 콘솔의 토스 로그인 동의 항목 URL 칸에 그대로 붙여넣으면 돼요. 원본은 `src/config/legal.ts`(TERMS/PRIVACY/MARKETING)이고, 문구를 바꾸면 같은 내용으로 다시 게시해야 해요.
+
+- 서비스 이용약관: https://claude.ai/artifact/8HsdvcqzxJy9CmKiRChySW
+- 개인정보 처리방침: https://claude.ai/artifact/9bmBQMYj3Y4gXzm5PD6atV
+- 마케팅 정보 수신 동의: https://claude.ai/artifact/NSUkUqHVh7aVqRZq3iKN5S
+
