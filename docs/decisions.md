@@ -146,3 +146,14 @@
 - **처리**: `LegalDoc` 타입에서 `draftNotice`/`version`/`effectiveDate` 필드를 제거하고 `/terms`·`/privacy`·`/marketing` 화면·`docs/legal-notion/*.md`에서 해당 배너·버전 줄을 뺌(시행일 문구는 각 문서 "부칙" 조항에 이미 있어서 정보 손실 없음). `COMPANY.owner` → `COMPANY.manager`로 이름 변경, 본문의 "대표" → "책임자"로 교체. 앞서 게시해둔 Claude Docs 3개도 같은 링크를 유지한 채 내용만 수정.
 - **주의(그대로 유지한 것)**: 문서 안에 남아 있는 `[확인 필요: ...]` 표시(개인정보 처리방침의 국외 이전 국가, 로그 보관 기간 등)는 지우지 않음 — 이건 "메모"가 아니라 아직 실제로 확인되지 않은 항목이라, 지우면 이미 확인된 것처럼 보여 법적으로 더 위험함. 출시 전 실제 값으로 채워야 함(`docs/terms-review-points.md` 참고).
 - **내부 버전 추적은 유지**: `TERMS_VERSION`/`PRIVACY_VERSION`/`MARKETING_VERSION` 상수는 코드에 남겨둠(가입 동의 시 `terms_agreements`에 저장되는 값이라 화면 표시 여부와 무관하게 필요).
+
+## 2026-09-23 — 광고 연동 + 토스 로그인 서버 연동 착수 + 푸시 알림 보류 해제
+
+- **광고(구현 완료)**: `@apps-in-toss/web-framework` 설치. 글쓰기·벙개 개설 완료 시 전면 광고(`src/platform/toss/ads.ts` → `src/platform/index.ts`의 `showCompletionAd()`). 앱인토스 밖(웹)에서는 `isSupported()`로 자동 no-op. `VITE_AD_INTERSTITIAL_ID` 미설정 시 정책 위반 방지를 위해 테스트 ID(`ait-ad-test-interstitial-id`)로 동작. 같은 광고 5분 내 재노출 금지(빈도 제한, 임의로 정한 기본값 — 필요시 조정). 상세 화면 하단 배너는 아직 미구현.
+- **푸시 알림(보류 해제, 2026-09-22 결정 갱신)**: 공식 문서 확인 결과 서버 트리거 가능 — `POST https://apps-in-toss-api.toss.im/api-partner/v1/apps-in-toss/messenger/send-message`(`x-toss-user-key`/`x-anon-key`, **mTLS 필요**). 앱당 분당 15,000건·사용자당 분당 10건 제한. **콘솔에서 메시지 템플릿 등록 + 검수 승인 필요**(사용자가 콘솔에서 직접 해야 하는 일). mTLS가 로그인과 공용 인프라라 로그인 PoC 완료 후 이어서 구현 예정. 아직 코드 미작성.
+- **토스 로그인(서버 연동 착수, 미검증)**: `api/_lib/toss.ts`(mTLS `https.Agent` + generate-token/login-me 호출 + AES-256-GCM 복호화), `api/auth/toss/login.ts`(userKey 기반 결정론적 내부용 이메일로 Supabase Auth 사용자 생성/조회 → 매직링크 토큰 발급 → 클라이언트가 `verifyOtp`로 세션 완료). `src/platform/toss/login.ts` + `AuthPage.tsx`에서 `VITE_PLATFORM=toss`일 때 이메일 폼 대신 토스 로그인 버튼만 노출. 온보딩(`complete_onboarding`, 0012 마이그레이션, 원격 적용 완료)이 `auth.users` 메타데이터의 `toss_user_key`를 `profiles.toss_user_key`로 옮김.
+  - **실제 이메일 저장 안 함**: Supabase Auth의 `email` 필드에는 `toss-<userKey 해시>@toss.dawnpeople.internal` 같은 내부용 가짜 이메일만 씀(발송 안 함, 사람이 못 씀) — 규칙 4(이메일 원문 저장 금지) 준수.
+  - **아직 못 채운 값**: `TOSS_APP_KEY`/`TOSS_CLIENT_ID`/`TOSS_CLIENT_SECRET`/`TOSS_MTLS_CERT_BASE64`/`TOSS_MTLS_KEY_BASE64`/`TOSS_DECRYPT_AAD` — 전부 콘솔에서 사용자가 가져와야 함. 채워지기 전까지 실제 로그인 테스트 불가.
+  - **AES-256-GCM 복호화 AAD 값은 아직 확보 못함**: 복호화 키는 "이메일로 복호화 키 받기"로 이미 받았지만(`.env`의 `TOSS_DECRYPTION_KEY`), AAD는 별도 값이라고 공식 문서에 명시됨 — 콘솔 화면에서 직접 찾아야 함(같은 화면 어딘가이거나 별도 항목일 가능성). `decryptTossField()`는 실제 데이터로 검증 전.
+  - **동의 스코프 재검토 필요**: 현재 콘솔 스코프가 "이름"으로 설정돼 있는데, `userKey`는 스코프 없이도 내려오고 구현에서 이름을 저장하지 않으므로(규칙 4) **"이름" 스코프를 콘솔에서 빼는 걸 권장** — 동의 화면이 가벼워지고 개인정보 요청도 줄어듦.
+  - `TossAuth.login()`(v3 SDK, `appLogin()`은 deprecated)을 사용.
