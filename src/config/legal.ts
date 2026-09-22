@@ -5,7 +5,7 @@ import { BRAND_NAME, CONTACT_EMAIL } from './brand'
 export type LegalBlock = string | { items: string[] }
 export type LegalArticle = { title: string; blocks: LegalBlock[] }
 export type LegalDoc = {
-  key: 'terms' | 'privacy'
+  key: 'terms' | 'privacy' | 'marketing'
   title: string
   version: string
   effectiveDate: string
@@ -24,6 +24,7 @@ export const COMPANY = {
 
 export const TERMS_VERSION = 'draft-3'
 export const PRIVACY_VERSION = 'draft-3'
+export const MARKETING_VERSION = 'draft-1'
 const EFFECTIVE_DATE = '2026년 9월 22일'
 const DRAFT_NOTICE = '[초안 — 출시 전 법률 검토 필요]'
 
@@ -422,6 +423,58 @@ export const PRIVACY: LegalDoc = {
         '이 개인정보 처리방침은 법령이나 서비스 변경에 따라 바뀔 수 있으며, 변경 시 시행 7일 전부터(중요한 변경은 30일 전부터) 서비스 안에 공지합니다.',
         `이 방침은 ${EFFECTIVE_DATE}부터 시행합니다.`,
       ],
+    },
+  ],
+}
+
+// 토스 로그인 연동 시 선택 동의 항목으로 노출. 이용약관·개인정보 처리방침과 달리 동의하지 않아도
+// 가입·서비스 이용에 제한이 없어요(선택 동의).
+export const MARKETING: LegalDoc = {
+  key: 'marketing',
+  title: '마케팅 정보 수신 동의',
+  version: MARKETING_VERSION,
+  effectiveDate: EFFECTIVE_DATE,
+  draftNotice: DRAFT_NOTICE,
+  intro: `이 동의는 선택 사항입니다. 동의하지 않아도 ${BRAND_NAME} 회원가입과 서비스 이용에 아무런 제한이 없습니다.`,
+  articles: [
+    {
+      title: '1. 수집·이용 목적',
+      blocks: ['이벤트, 혜택, 새로운 기능, 공지사항 등 서비스와 관련된 마케팅 정보를 안내하기 위해 이용합니다.'],
+    },
+    {
+      title: '2. 수집 항목',
+      blocks: [
+        {
+          items: [
+            '웹 가입 회원: 가입 시 등록한 이메일 주소',
+            '토스 로그인으로 가입한 회원: 서비스 안 알림(추후 제공 예정)',
+          ],
+        },
+      ],
+    },
+    {
+      title: '3. 이용 방법',
+      blocks: ['이메일 발송, 서비스 안 알림(추후 도입 시) 등의 방법으로 안내합니다. 문자·전화를 이용한 마케팅은 하지 않습니다.'],
+    },
+    {
+      title: '4. 보유·이용 기간',
+      blocks: ['동의일부터 동의를 철회하거나 회원탈퇴하는 날까지 보유·이용하며, 그 이후에는 지체 없이 파기합니다.'],
+    },
+    {
+      title: '5. 동의 거부 권리 및 거부 시 불이익',
+      blocks: [
+        '회원은 이 동의를 거부할 권리가 있습니다. 동의하지 않거나 이후에 철회하더라도 회원가입, 로그인 등 서비스 이용에는 제한이 없으며, 다만 이벤트·혜택 등 마케팅 정보를 받을 수 없습니다.',
+      ],
+    },
+    {
+      title: '6. 동의 철회 방법',
+      blocks: [
+        `"내정보 > 설정"에서 언제든지 철회할 수 있고, 이메일(${COMPANY.email})로도 철회를 요청할 수 있습니다. [확인 필요: 설정 화면에 마케팅 수신 동의 토글 구현 여부]`,
+      ],
+    },
+    {
+      title: '부칙',
+      blocks: [`이 동의서는 ${EFFECTIVE_DATE}부터 시행합니다.`, `회사 정보: ${COMPANY.name} · 대표 ${COMPANY.owner} · 문의 ${COMPANY.email}`],
     },
   ],
 }

@@ -1,6 +1,6 @@
 import { AppBar } from '../../components/ui'
 import { LEGAL_COPY } from '../../config/copy'
-import { PRIVACY, TERMS, type LegalDoc } from '../../config/legal'
+import { MARKETING, PRIVACY, TERMS, type LegalDoc } from '../../config/legal'
 import './LegalPage.css'
 
 export function LegalDocView({ doc }: { doc: LegalDoc }) {
@@ -29,9 +29,9 @@ export function LegalDocView({ doc }: { doc: LegalDoc }) {
   )
 }
 
-// /terms, /privacy — 앱인토스 콘솔에 등록할 공개 URL로도 써요(로그인 없이 열람).
-export function LegalPage({ kind }: { kind: 'terms' | 'privacy' }) {
-  const doc = kind === 'terms' ? TERMS : PRIVACY
+// /terms, /privacy, /marketing — 앱인토스 콘솔에 등록할 공개 URL로도 써요(로그인 없이 열람).
+export function LegalPage({ kind }: { kind: 'terms' | 'privacy' | 'marketing' }) {
+  const doc = kind === 'terms' ? TERMS : kind === 'privacy' ? PRIVACY : MARKETING
   return (
     <section className="legal-page">
       <AppBar back title={doc.title} />

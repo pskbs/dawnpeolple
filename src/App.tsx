@@ -39,6 +39,7 @@ const FOCUS_ROUTES = [
   /^\/dm/,
   /^\/terms$/,
   /^\/privacy$/,
+  /^\/marketing$/,
   /^\/admin/,
 ]
 
@@ -77,6 +78,7 @@ function App() {
           {FEATURES.admin && <Route path="/admin" element={<AdminReportsPage />} />}
           <Route path="/terms" element={<LegalPage kind="terms" />} />
           <Route path="/privacy" element={<LegalPage kind="privacy" />} />
+          <Route path="/marketing" element={<LegalPage kind="marketing" />} />
           <Route path="*" element={<Navigate to="/feed" replace />} />
         </Routes>
       </main>
