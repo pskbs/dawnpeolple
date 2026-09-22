@@ -33,6 +33,7 @@ dist-toss
 *.crt
 *.p12
 supabase/.temp/
+tossemailsecreat/
 
 # Test artifacts
 coverage/

@@ -6,6 +6,7 @@ import { BUCHEON_PLACE_CHIPS, DEFAULT_SIDO, DEFAULT_SIGUNGU, SIDO_LIST } from '.
 import { useAuth } from '../../lib/auth-context'
 import { sigunguOptionsFor } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
+import { showCompletionAd } from '../../platform'
 import { defaultStartsAt } from './bungae-types'
 import './BungaePage.css'
 
@@ -65,6 +66,7 @@ export function BungaeCreatePage() {
       const { error: joinError } = await supabase.rpc('join_bungae', { p_bungae_id: data.id })
       if (joinError) throw joinError
 
+      showCompletionAd()
       navigate(`/bungae/${data.id}`, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : BUNGAE_COPY.createError)
