@@ -39,6 +39,9 @@ export const AUTH_COPY = {
   signupPromptButton: '가입하기',
   keepLoggedIn: '한 번 로그인하면 로그아웃하기 전까지 로그인 상태가 유지돼요.',
   forgot: '비밀번호를 잊으셨나요?',
+  tossLoginTitle: '토스 계정으로 시작해요',
+  tossLoginButton: '토스로 로그인',
+  tossLoginError: '토스 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.',
 } as const
 
 // 아이디(이메일) 확인·새 비밀번호 발송

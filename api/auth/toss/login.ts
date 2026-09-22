@@ -1,0 +1,83 @@
+// POST /api/auth/toss/login  { authorizationCode, referrer }
+// 앱인토스 미니앱에서 TossAuth.login()으로 받은 인가 코드를 세션으로 바꿔줘요.
+// 1) mTLS로 generate-token → login-me 호출해 userKey를 확인하고
+// 2) userKey로부터 결정론적인 내부용(가짜) 이메일을 만들어 그 이메일의 Supabase Auth 사용자를 찾거나 새로 만든 뒤
+// 3) 매직링크 토큰을 발급해 돌려줘요 — 클라이언트는 이 토큰으로 supabase.auth.verifyOtp()를 호출해 로그인을 완료해요.
+// 실제 이메일 발송은 하지 않고(그래서 실제 개인 이메일이 전혀 필요 없어요), 토큰만 서버 간에 주고받아요.
+// CLAUDE.md 규칙 4(개인정보 최소 수집): 이름·전화번호·이메일 원문·CI는 절대 저장하지 않아요. 성별만 필요 시 참고용으로 넘겨요.
+import { createHash } from 'node:crypto'
+import { createClient } from '@supabase/supabase-js'
+import { decryptTossField, generateToken, loginMe } from '../../_lib/toss.js'
+
+function json(status: number, body: Record<string, unknown>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+  })
+}
+
+function syntheticEmailFor(userKey: number) {
+  const hash = createHash('sha256').update(String(userKey)).digest('hex').slice(0, 32)
+  return `toss-${hash}@toss.dawnpeople.internal`
+}
+
+export async function POST(request: Request): Promise<Response> {
+  let authorizationCode = ''
+  let referrer = ''
+  try {
+    const body = (await request.json()) as { authorizationCode?: unknown; referrer?: unknown }
+    authorizationCode = typeof body.authorizationCode === 'string' ? body.authorizationCode : ''
+    referrer = typeof body.referrer === 'string' ? body.referrer : ''
+  } catch {
+    return json(400, { error: 'invalid_request' })
+  }
+  if (!authorizationCode) return json(400, { error: 'invalid_request' })
+
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseUrl || !serviceKey) {
+    console.error('[toss/login] SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY가 없어요')
+    return json(500, { error: 'not_configured' })
+  }
+
+  let userKey: number
+  let gender: string | null = null
+  try {
+    const token = await generateToken(authorizationCode, referrer)
+    const me = await loginMe(token.accessToken)
+    userKey = me.userKey
+    if (me.gender) {
+      try {
+        gender = decryptTossField(me.gender).toLowerCase().startsWith('m') ? 'male' : 'female'
+      } catch (err) {
+        // 복호화는 참고용(성별 사전 채움)일 뿐이라 실패해도 로그인은 계속 진행해요.
+        console.error('[toss/login] 성별 복호화 실패', err instanceof Error ? err.message : err)
+      }
+    }
+  } catch (err) {
+    console.error('[toss/login] 토스 API 호출 실패', err instanceof Error ? err.message : err)
+    return json(502, { error: 'toss_api_failed' })
+  }
+
+  const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } })
+  const email = syntheticEmailFor(userKey)
+
+  const { error: createError } = await admin.auth.admin.createUser({
+    email,
+    email_confirm: true,
+    user_metadata: { toss_user_key: String(userKey), ...(gender ? { toss_gender: gender } : {}) },
+  })
+  // 이미 있는 사용자면 무시하고 계속 진행(재로그인). 그 외 오류만 실패 처리.
+  if (createError && !/already.*registed|already.*exists/i.test(createError.message)) {
+    console.error('[toss/login] 사용자 생성 실패', createError.message)
+    return json(500, { error: 'server_error' })
+  }
+
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({ type: 'magiclink', email })
+  if (linkError || !linkData) {
+    console.error('[toss/login] 로그인 토큰 발급 실패', linkError?.message)
+    return json(500, { error: 'server_error' })
+  }
+
+  return json(200, { email, tokenHash: linkData.properties.hashed_token })
+}

@@ -3,6 +3,7 @@ import { Icon } from '../../components/ui'
 import { BRAND_NAME } from '../../config/brand'
 import { AUTH_COPY, AUTH_ERROR_COPY, AUTH_EXTRA_COPY, CONCEPT_COPY } from '../../config/copy'
 import { supabase } from '../../lib/supabase'
+import { isTossLoginAvailable, loginWithToss } from '../../platform'
 import { ResetPasswordSheet } from './ResetPasswordSheet'
 import './AuthPage.css'
 
@@ -41,7 +42,59 @@ function authErrorMessage(err: unknown): string {
   return AUTH_ERROR_COPY.unknown
 }
 
+// 앱인토스 미니앱 빌드에서는 로그인 수단이 토스 로그인 하나뿐이에요(대체 로그인 수단 금지).
+function TossAuthPage() {
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  async function handleLogin() {
+    setError(null)
+    setSubmitting(true)
+    try {
+      await loginWithToss()
+    } catch {
+      setError(AUTH_COPY.tossLoginError)
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <section className="auth-page">
+      <div className="auth-backdrop" aria-hidden="true">
+        <span className="orb auth-backdrop__orb auth-backdrop__orb--a" />
+        <span className="orb auth-backdrop__orb auth-backdrop__orb--b" />
+      </div>
+
+      <div className="auth-card glass-panel">
+        <div className="app-icon" aria-hidden="true">
+          <Icon name="moon-icon" className="app-icon__moon" />
+          <Icon name="sparkle-icon" className="app-icon__sparkle" />
+        </div>
+
+        <h2>{AUTH_COPY.tossLoginTitle}</h2>
+        <p className="auth-sub">
+          {BRAND_NAME} · {AUTH_EXTRA_COPY.subtitle}
+        </p>
+
+        {error && <p className="error-text">{error}</p>}
+
+        <button type="button" className="pill-button pill-button--block" disabled={submitting} onClick={handleLogin}>
+          {AUTH_COPY.tossLoginButton}
+        </button>
+      </div>
+
+      <p className="auth-tagline">{CONCEPT_COPY.tagline}</p>
+    </section>
+  )
+}
+
 export function AuthPage() {
+  if (isTossLoginAvailable()) return <TossAuthPage />
+
+  return <EmailAuthPage />
+}
+
+function EmailAuthPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState(readLastEmail)
   const [resetOpen, setResetOpen] = useState(false)
