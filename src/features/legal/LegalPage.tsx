@@ -1,13 +1,10 @@
 import { AppBar } from '../../components/ui'
-import { LEGAL_COPY } from '../../config/copy'
 import { MARKETING, PRIVACY, TERMS, type LegalDoc } from '../../config/legal'
 import './LegalPage.css'
 
 export function LegalDocView({ doc }: { doc: LegalDoc }) {
   return (
     <article className="legal-doc">
-      <p className="legal-doc__draft">{doc.draftNotice}</p>
-      <p className="legal-doc__version">{LEGAL_COPY.version(doc.version, doc.effectiveDate)}</p>
       {doc.intro && <p className="legal-doc__intro">{doc.intro}</p>}
       {doc.articles.map((a) => (
         <section key={a.title} className="legal-doc__article">

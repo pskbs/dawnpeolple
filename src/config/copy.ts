@@ -360,12 +360,6 @@ export const DM_COPY = {
   notFound: '대화를 찾을 수 없어요.',
 } as const
 
-export const LEGAL_COPY = {
-  terms: '서비스 이용약관',
-  privacy: '개인정보 처리방침',
-  marketing: '마케팅 정보 수신 동의',
-  version: (v: string, date: string) => `버전 ${v} · 시행일 ${date}`,
-} as const
 
 export const FAB_COPY = {
   post: '새 글 쓰기',

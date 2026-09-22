@@ -7,33 +7,28 @@ export type LegalArticle = { title: string; blocks: LegalBlock[] }
 export type LegalDoc = {
   key: 'terms' | 'privacy' | 'marketing'
   title: string
-  version: string
-  effectiveDate: string
-  draftNotice: string
   intro?: string
   articles: LegalArticle[]
 }
 
 export const COMPANY = {
   name: '월백컴퍼니',
-  owner: '김봉수',
+  // 사업자 대표자는 별도(배우자 명의)라 "대표"가 아니라 "책임자"로 표시해요(2026-09-22 사용자 요청).
+  manager: '김봉수',
   privacyOfficer: '김봉수',
   // 약관·방침에 표시되는 모든 문의 이메일(2026-09-22 사용자 요청). 사업자등록번호·주소는 표시하지 않아요.
   email: CONTACT_EMAIL,
 } as const
 
+// 가입 시 terms_agreements에 저장되는 동의 버전(문서 자체에는 표시하지 않아요 — 2026-09-22 최종본 정리).
 export const TERMS_VERSION = 'draft-3'
 export const PRIVACY_VERSION = 'draft-3'
 export const MARKETING_VERSION = 'draft-1'
 const EFFECTIVE_DATE = '2026년 9월 22일'
-const DRAFT_NOTICE = '[초안 — 출시 전 법률 검토 필요]'
 
 export const TERMS: LegalDoc = {
   key: 'terms',
   title: '서비스 이용약관',
-  version: TERMS_VERSION,
-  effectiveDate: EFFECTIVE_DATE,
-  draftNotice: DRAFT_NOTICE,
   articles: [
     {
       title: '제1조 (목적)',
@@ -258,7 +253,7 @@ export const TERMS: LegalDoc = {
       title: '부칙',
       blocks: [
         `이 약관은 ${EFFECTIVE_DATE}부터 시행합니다.`,
-        `회사 정보: ${COMPANY.name} · 대표 ${COMPANY.owner} · 문의 ${COMPANY.email}`,
+        `회사 정보: ${COMPANY.name} · 책임자 ${COMPANY.manager} · 문의 ${COMPANY.email}`,
       ],
     },
   ],
@@ -267,9 +262,6 @@ export const TERMS: LegalDoc = {
 export const PRIVACY: LegalDoc = {
   key: 'privacy',
   title: '개인정보 처리방침',
-  version: PRIVACY_VERSION,
-  effectiveDate: EFFECTIVE_DATE,
-  draftNotice: DRAFT_NOTICE,
   intro: `${COMPANY.name}(이하 "회사")는 ${BRAND_NAME} 서비스를 이용하는 회원의 개인정보를 소중히 여기며, 「개인정보 보호법」 등 관련 법령을 지킵니다. 회사는 서비스에 꼭 필요한 최소한의 정보만 처리합니다.`,
   articles: [
     {
@@ -432,9 +424,6 @@ export const PRIVACY: LegalDoc = {
 export const MARKETING: LegalDoc = {
   key: 'marketing',
   title: '마케팅 정보 수신 동의',
-  version: MARKETING_VERSION,
-  effectiveDate: EFFECTIVE_DATE,
-  draftNotice: DRAFT_NOTICE,
   intro: `이 동의는 선택 사항입니다. 동의하지 않아도 ${BRAND_NAME} 회원가입과 서비스 이용에 아무런 제한이 없습니다.`,
   articles: [
     {
@@ -474,7 +463,7 @@ export const MARKETING: LegalDoc = {
     },
     {
       title: '부칙',
-      blocks: [`이 동의서는 ${EFFECTIVE_DATE}부터 시행합니다.`, `회사 정보: ${COMPANY.name} · 대표 ${COMPANY.owner} · 문의 ${COMPANY.email}`],
+      blocks: [`이 동의서는 ${EFFECTIVE_DATE}부터 시행합니다.`, `회사 정보: ${COMPANY.name} · 책임자 ${COMPANY.manager} · 문의 ${COMPANY.email}`],
     },
   ],
 }
