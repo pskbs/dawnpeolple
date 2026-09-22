@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AppBar, Icon } from '../../components/ui'
 import { BUNGAE_COPY } from '../../config/copy'
-import { BUCHEON_PLACE_CHIPS, OPEN_REGIONS } from '../../config/regions'
+import { BUCHEON_PLACE_CHIPS, DEFAULT_SIDO, DEFAULT_SIGUNGU, SIDO_LIST } from '../../config/regions'
 import { useAuth } from '../../lib/auth-context'
+import { sigunguOptionsFor } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
 import { defaultStartsAt } from './bungae-types'
 import './BungaePage.css'
@@ -17,6 +18,9 @@ export function BungaeCreatePage() {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [startsAt, setStartsAt] = useState(() => defaultStartsAt())
+  const [sido, setSido] = useState<string>(profile?.sido || DEFAULT_SIDO)
+  const [sigungu, setSigungu] = useState<string>(profile?.sigungu || DEFAULT_SIGUNGU)
+  const [eupmyeondong, setEupmyeondong] = useState('')
   const [placeHint, setPlaceHint] = useState('')
   const [capacity, setCapacity] = useState(4)
   const [error, setError] = useState<string | null>(null)
@@ -30,6 +34,7 @@ export function BungaeCreatePage() {
     body.trim().length > 0 &&
     !!startsAtDate &&
     startsAtDate.getTime() > Date.now() + 60 * 60 * 1000 &&
+    !!sigungu &&
     capacity >= MIN_CAPACITY &&
     capacity <= MAX_CAPACITY &&
     !submitting
@@ -46,7 +51,9 @@ export function BungaeCreatePage() {
           title: title.trim(),
           body: body.trim(),
           starts_at: startsAtDate.toISOString(),
-          region_code: OPEN_REGIONS[0],
+          sido,
+          sigungu,
+          eupmyeondong: eupmyeondong.trim() || null,
           place_hint: placeHint.trim() || null,
           capacity,
         })
@@ -102,6 +109,47 @@ export function BungaeCreatePage() {
           <span className="field-hint">{BUNGAE_COPY.startsAtHint}</span>
         </label>
 
+        <div className="onboarding-grid">
+          <label className="field">
+            <span className="field-label">{BUNGAE_COPY.sidoLabel}</span>
+            <select
+              className="field-select"
+              value={sido}
+              onChange={(e) => {
+                setSido(e.target.value)
+                setSigungu(sigunguOptionsFor(e.target.value)[0] ?? '')
+              }}
+            >
+              {SIDO_LIST.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span className="field-label">{BUNGAE_COPY.sigunguLabel}</span>
+            <select className="field-select" value={sigungu} onChange={(e) => setSigungu(e.target.value)}>
+              {sigunguOptionsFor(sido).map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <label className="field">
+          <span className="field-label">{BUNGAE_COPY.eupmyeondongLabel}</span>
+          <input
+            className="field-input"
+            value={eupmyeondong}
+            maxLength={20}
+            placeholder="예: 역곡동"
+            onChange={(e) => setEupmyeondong(e.target.value)}
+          />
+        </label>
+
         <div className="field">
           <label className="field">
             <span className="field-label">{BUNGAE_COPY.placeHintLabel}</span>
@@ -116,19 +164,21 @@ export function BungaeCreatePage() {
               />
             </div>
           </label>
-          <div className="chip-row">
-            {BUCHEON_PLACE_CHIPS.map((chip) => (
-              <button
-                type="button"
-                key={chip}
-                className="chip"
-                aria-pressed={placeHint === chip}
-                onClick={() => setPlaceHint(chip)}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
+          {sigungu === '부천시' && (
+            <div className="chip-row">
+              {BUCHEON_PLACE_CHIPS.map((chip) => (
+                <button
+                  type="button"
+                  key={chip}
+                  className="chip"
+                  aria-pressed={placeHint === chip}
+                  onClick={() => setPlaceHint(chip)}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="field">

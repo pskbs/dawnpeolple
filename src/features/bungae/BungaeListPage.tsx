@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Avatar, Icon, Loading } from '../../components/ui'
-import { REGION_LABEL } from '../../config/brand'
-import { BUNGAE_COPY, CONCEPT_COPY, REGION_NOTICE } from '../../config/copy'
+import { BUNGAE_COPY, CONCEPT_COPY, LOCATION_COPY, REGION_NOTICE } from '../../config/copy'
+import { LocationSheet } from '../location/LocationSheet'
 import { useAuth } from '../../lib/auth-context'
-import { fetchProfileCards, UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
+import { fetchProfileCards, regionRank, UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
 import { BUNGAE_COLUMNS, dateTileParts, storyDay, storyTime, type Bungae } from './bungae-types'
 import './BungaePage.css'
@@ -15,6 +15,8 @@ export function BungaeListPage() {
   const [cards, setCards] = useState<Record<string, ProfileCard>>({})
   const [remaining, setRemaining] = useState<Record<number, number>>({})
   const [loading, setLoading] = useState(true)
+  const [locationSheetOpen, setLocationSheetOpen] = useState(false)
+  const [hideFull, setHideFull] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -45,19 +47,49 @@ export function BungaeListPage() {
     load()
   }, [])
 
-  const visible = bungaes.filter((b) => !blockedIds.has(b.host_id))
+  const myLocation = useMemo(
+    () => (profile?.sido && profile.sigungu ? { sido: profile.sido, sigungu: profile.sigungu } : null),
+    [profile],
+  )
+
+  // 지역을 잠그지 않고 전국을 다 보여주되, 내 동네와 가까운 순으로 먼저 정렬해요(2026-09-22, docs/decisions.md).
+  const sorted = useMemo(
+    () =>
+      [...bungaes].sort((a, b) => {
+        const rankDiff = regionRank(a, myLocation) - regionRank(b, myLocation)
+        if (rankDiff !== 0) return rankDiff
+        return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
+      }),
+    [bungaes, myLocation],
+  )
+
+  const visible = sorted.filter((b) => {
+    if (blockedIds.has(b.host_id)) return false
+    if (hideFull && (remaining[b.id] ?? 0) <= 0) return false
+    return true
+  })
   const upcoming = visible.slice(0, 12)
+
+  const regionBadgeLabel = profile
+    ? [profile.sido, profile.sigungu].filter(Boolean).join(' ') || LOCATION_COPY.unset
+    : BUNGAE_COPY.regionBadgeGuest
 
   return (
     <section className="bungae-page">
       <header className="app-bar">
         <h1 className="bungae-page__title">{BUNGAE_COPY.listTitle}</h1>
-        {/* 오프라인 소모임은 부천에서만 열려요. 오른쪽 위에 지역을 크게 보여줘요. */}
-        <span className="bungae-region-badge" aria-label={`${REGION_LABEL} 지역 소모임`}>
+        <button
+          type="button"
+          className="bungae-region-badge"
+          aria-label={LOCATION_COPY.sheetTitle}
+          onClick={() => (profile ? setLocationSheetOpen(true) : undefined)}
+        >
           <Icon name="pin-icon" />
-          {REGION_LABEL}
-        </span>
+          {regionBadgeLabel}
+        </button>
       </header>
+
+      {profile && <LocationSheet open={locationSheetOpen} onClose={() => setLocationSheetOpen(false)} />}
 
       <div className="stories">
         <div className="stories__head">
@@ -96,7 +128,13 @@ export function BungaeListPage() {
         <span className="orb orb--md bungae-hero__orb" aria-hidden="true" />
       </div>
 
-      <h2 className="bungae-section-title">{BUNGAE_COPY.allTitle}</h2>
+      <div className="bungae-list-head">
+        <h2 className="bungae-section-title">{BUNGAE_COPY.allTitle}</h2>
+        <label className="toggle-row toggle-row--sm">
+          {BUNGAE_COPY.hideFullToggle}
+          <input type="checkbox" checked={hideFull} onChange={(e) => setHideFull(e.target.checked)} />
+        </label>
+      </div>
 
       {loading ? (
         <Loading />
@@ -133,7 +171,7 @@ export function BungaeListPage() {
                         </span>
                         <span>
                           <Icon name="pin-icon" />
-                          {b.place_hint ?? REGION_LABEL}
+                          {b.place_hint ?? `${b.sigungu} ${b.eupmyeondong ?? ''}`.trim()}
                         </span>
                       </div>
                     </div>

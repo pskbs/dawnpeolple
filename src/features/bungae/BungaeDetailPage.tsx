@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MoreMenu } from '../../components/MoreMenu'
 import { AppBar, Avatar, Icon, Loading, ProfileLink } from '../../components/ui'
-import { REGION_LABEL } from '../../config/brand'
 import { BUNGAE_COPY, GUEST_COPY } from '../../config/copy'
 import { FEATURES } from '../../config/features'
 import { useAuth } from '../../lib/auth-context'
@@ -174,7 +173,7 @@ export function BungaeDetailPage() {
               </span>
               <span>
                 <Icon name="pin-icon" />
-                {bungae.place_hint ?? REGION_LABEL}
+                {bungae.place_hint ?? `${bungae.sido} ${bungae.sigungu} ${bungae.eupmyeondong ?? ''}`.trim()}
               </span>
             </div>
           </div>

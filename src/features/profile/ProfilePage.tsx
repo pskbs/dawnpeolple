@@ -5,8 +5,7 @@ import { ExpandableText, MediaGallery } from '../../components/media'
 import { MoreMenu } from '../../components/MoreMenu'
 import { useToast } from '../../components/toast'
 import { AppBar, Avatar, Icon, Loading } from '../../components/ui'
-import { REGION_LABEL } from '../../config/brand'
-import { BUNGAE_COPY, DM_COPY, MENU_COPY, PROFILE_COPY } from '../../config/copy'
+import { BUNGAE_COPY, DM_COPY, LOCATION_COPY, MENU_COPY, PROFILE_COPY } from '../../config/copy'
 import { FEATURES } from '../../config/features'
 import { useAuth } from '../../lib/auth-context'
 import { formatRelativeTime } from '../../lib/format'
@@ -31,7 +30,9 @@ type ReplyRow = {
   posts: { id: number; body: string } | null
 }
 
-type BungaeRow = Pick<Bungae, 'id' | 'title' | 'starts_at' | 'place_hint' | 'status'> & { role: 'host' | 'joined' }
+type BungaeRow = Pick<Bungae, 'id' | 'title' | 'starts_at' | 'place_hint' | 'sigungu' | 'status'> & {
+  role: 'host' | 'joined'
+}
 
 // /u/:id — 다른 사람 프로필. 내 id면 /me로 보내요.
 export function UserProfileRoute() {
@@ -120,7 +121,7 @@ export function ProfilePage({ userId }: { userId: string }) {
           .limit(50)
         if (alive) setReplies(((data ?? []) as unknown as ReplyRow[]).map((r) => ({ ...r, media: asMediaList(r.media) })))
       } else {
-        const columns = 'id, title, starts_at, place_hint, status'
+        const columns = 'id, title, starts_at, place_hint, sigungu, status'
         const [{ data: hosted }, { data: joinedRows }] = await Promise.all([
           supabase.from('bungaes').select(columns).eq('host_id', userId).order('starts_at', { ascending: false }).limit(30),
           // 참석 기록은 본인만 조회할 수 있어요(RLS). 다른 사람 프로필에서는 연 소모임만 보여요.
@@ -259,7 +260,7 @@ export function ProfilePage({ userId }: { userId: string }) {
         {isMe && profile && (
           <p className="profile-head__region">
             <Icon name="pin-icon" />
-            {profile.sigungu || REGION_LABEL}
+            {profile.sigungu || LOCATION_COPY.unset}
           </p>
         )}
         <div className="profile-head__follows">
@@ -392,7 +393,7 @@ export function ProfilePage({ userId }: { userId: string }) {
                       <span className="profile-bungae__text">
                         <strong>{b.title}</strong>
                         <span className="muted">
-                          {tile.time} · {b.place_hint ?? REGION_LABEL}
+                          {tile.time} · {b.place_hint ?? b.sigungu}
                         </span>
                       </span>
                       <span className="badge">

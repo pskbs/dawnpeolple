@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useToast } from '../../components/toast'
 import { ActionSheet, AppBar, Avatar, BottomSheet, Icon } from '../../components/ui'
-import { REGION_LABEL } from '../../config/brand'
 import { MENU_COPY, SETTINGS_COPY } from '../../config/copy'
 import { FEATURES } from '../../config/features'
+import { LocationSheet } from '../location/LocationSheet'
 import { useAuth } from '../../lib/auth-context'
 import { purgeMyStorage } from '../../lib/media'
-import { fetchProfileCards, GENDER_LABELS, type ProfileCard } from '../../lib/profiles'
+import { fetchProfileCards, GENDER_LABELS, parseSavedLocations, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
 import { ageBandOf } from './profile-api'
 import './ProfilePage.css'
@@ -16,7 +16,7 @@ export function SettingsPage() {
   const { session, profile, blockedIds, unblock } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()
-  const [sheet, setSheet] = useState<'logout' | 'withdraw' | 'blocked' | null>(null)
+  const [sheet, setSheet] = useState<'logout' | 'withdraw' | 'blocked' | 'location' | null>(null)
   const [blockedCards, setBlockedCards] = useState<ProfileCard[]>([])
   const [withdrawChecked, setWithdrawChecked] = useState(false)
   const [withdrawing, setWithdrawing] = useState(false)
@@ -100,10 +100,14 @@ export function SettingsPage() {
           <span>{SETTINGS_COPY.ageBand}</span>
           <span>{ageBandOf(profile.birth_year) ?? '-'}</span>
         </div>
-        <div className="settings-info__row">
+        <button type="button" className="settings-info__row settings-info__row--button" onClick={() => setSheet('location')}>
           <span>{SETTINGS_COPY.region}</span>
-          <span>{[profile.sido, profile.sigungu].filter(Boolean).join(' ') || REGION_LABEL}</span>
-        </div>
+          <span>
+            {[profile.sido, profile.sigungu].filter(Boolean).join(' ') || '-'}
+            {parseSavedLocations(profile.saved_locations).length > 0 &&
+              ` · 저장 ${parseSavedLocations(profile.saved_locations).length}`}
+          </span>
+        </button>
         <p className="settings-info__note">{SETTINGS_COPY.myInfoNote}</p>
       </div>
 
@@ -137,6 +141,8 @@ export function SettingsPage() {
         actions={[{ label: SETTINGS_COPY.logout, danger: true, onSelect: logout }]}
         cancelLabel={MENU_COPY.cancel}
       />
+
+      <LocationSheet open={sheet === 'location'} onClose={() => setSheet(null)} />
 
       <BottomSheet open={sheet === 'blocked'} onClose={() => setSheet(null)} title={SETTINGS_COPY.blockedUsers}>
         {blockedCards.length === 0 ? (

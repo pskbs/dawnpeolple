@@ -4,14 +4,17 @@ export type Bungae = {
   title: string
   body: string
   starts_at: string
-  region_code: string
+  sido: string
+  sigungu: string
+  eupmyeondong: string | null
   place_hint: string | null
   capacity: number
   status: string
   created_at: string
 }
 
-export const BUNGAE_COLUMNS = 'id, host_id, title, body, starts_at, region_code, place_hint, capacity, status, created_at'
+export const BUNGAE_COLUMNS =
+  'id, host_id, title, body, starts_at, sido, sigungu, eupmyeondong, place_hint, capacity, status, created_at'
 
 // 새벽에 일하는 사람들 기준 기본 모임 시각: 새벽 6시(오전 6시)
 export const DEFAULT_MEET_HOUR = 6

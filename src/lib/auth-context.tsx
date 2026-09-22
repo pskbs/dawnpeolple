@@ -10,6 +10,7 @@ export type Profile = {
   birth_year: number | null
   sido: string | null
   sigungu: string | null
+  saved_locations: unknown
   work_type: string | null
   show_work_badge: boolean
   off_time_band: string | null

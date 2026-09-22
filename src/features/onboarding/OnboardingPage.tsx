@@ -5,7 +5,7 @@ import { PRIVACY, PRIVACY_VERSION, TERMS, TERMS_VERSION } from '../../config/leg
 import { NICKNAME_ADJECTIVES, NICKNAME_NOUNS } from '../../config/nickname-words'
 import { useAuth } from '../../lib/auth-context'
 import { removePublicMedia, uploadPublicMedia, validateFile } from '../../lib/media'
-import { BIO_MAX, OFF_TIME_OPTIONS, SIDO_OPTIONS, WORK_TYPE_OPTIONS } from '../../lib/profiles'
+import { BIO_MAX, OFF_TIME_OPTIONS, SIDO_OPTIONS, sigunguOptionsFor, WORK_TYPE_OPTIONS } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
 import { LegalDocView } from '../legal/LegalPage'
 import './OnboardingPage.css'
@@ -208,7 +208,11 @@ export function OnboardingPage() {
               id="ob-sido"
               className="field-select"
               value={sido}
-              onChange={(e) => setSido(e.target.value as (typeof SIDO_OPTIONS)[number])}
+              onChange={(e) => {
+                const next = e.target.value as (typeof SIDO_OPTIONS)[number]
+                setSido(next)
+                setSigungu(sigunguOptionsFor(next)[0] ?? '')
+              }}
             >
               {SIDO_OPTIONS.map((s) => (
                 <option key={s} value={s}>
@@ -221,13 +225,13 @@ export function OnboardingPage() {
             <label className="field-label" htmlFor="ob-sigungu">
               {ONBOARDING_COPY.sigunguLabel}
             </label>
-            <input
-              id="ob-sigungu"
-              className="field-input"
-              value={sigungu}
-              onChange={(e) => setSigungu(e.target.value)}
-              placeholder="부천시"
-            />
+            <select id="ob-sigungu" className="field-select" value={sigungu} onChange={(e) => setSigungu(e.target.value)}>
+              {sigunguOptionsFor(sido).map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

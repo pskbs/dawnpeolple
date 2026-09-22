@@ -332,6 +332,15 @@
   font-weight: 600;
 }
 
+.settings-info__row--button {
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .settings-info__note {
   color: var(--text-faint);
   font-size: 12px;

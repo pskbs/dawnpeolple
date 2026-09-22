@@ -95,8 +95,8 @@ test('비회원 열람 → 가입/온보딩(약관 팝업·사진) → 수다방
   await page.getByRole('link', { name: '소모임', exact: true }).click()
   await expect(page.getByRole('heading', { name: '다가오는 소모임' })).toBeVisible()
   await expect(page.locator('.loading-dots')).toHaveCount(0, { timeout: 10_000 })
-  // 오른쪽 위에는 메시지 아이콘 대신 "부천" 배지
-  await expect(page.locator('.app-bar .bungae-region-badge')).toHaveText('부천')
+  // 오른쪽 위에는 메시지 아이콘 대신 지역 배지(비회원은 "지역 설정")
+  await expect(page.locator('.app-bar .bungae-region-badge')).toHaveText('지역 설정')
   await expect(page.locator('.app-bar a[href="/dm"]')).toHaveCount(0)
   await page.screenshot({ path: 'docs/screenshots/bungae-list.png', fullPage: true })
 

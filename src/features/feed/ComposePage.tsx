@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom'
 import { AttachmentTray } from '../../components/media'
 import { Avatar, Icon } from '../../components/ui'
 import { useGoBack } from '../../lib/use-go-back'
-import { FEED_COPY, FEED_NATIONWIDE_NOTICE } from '../../config/copy'
+import { FEED_COPY } from '../../config/copy'
 import { FEATURES } from '../../config/features'
 import { useAuth } from '../../lib/auth-context'
 import { MEDIA_LIMITS, removePublicMedia, uploadPublicMediaList, validateFile } from '../../lib/media'
@@ -127,9 +127,6 @@ export function ComposePage() {
               />
             </div>
           </div>
-        </div>
-        <div className="compose-footer">
-          <span className="muted">{FEED_NATIONWIDE_NOTICE}</span>
         </div>
       </div>
 

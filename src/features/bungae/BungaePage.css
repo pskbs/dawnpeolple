@@ -18,6 +18,7 @@
   gap: 4px;
   margin-left: auto;
   padding: 8px 14px 8px 11px;
+  border: none;
   border-radius: 999px;
   background: var(--grad-primary);
   color: var(--primary-contrast);
@@ -25,11 +26,24 @@
   font-weight: 800;
   letter-spacing: -0.01em;
   box-shadow: 0 8px 20px rgba(var(--glow), 0.35);
+  cursor: pointer;
 }
 
 .bungae-region-badge svg {
   width: 16px;
   height: 16px;
+}
+
+.bungae-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.toggle-row--sm {
+  font-size: 13px;
+  gap: 6px;
 }
 
 /* ---------- 히어로 ---------- */

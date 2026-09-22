@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { DmButton } from '../../components/DmButton'
 import { Loading } from '../../components/ui'
 import { BRAND_NAME } from '../../config/brand'
-import { FEED_COPY, FEED_NATIONWIDE_NOTICE, GUEST_COPY } from '../../config/copy'
+import { FEED_COPY, GUEST_COPY } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
 import { fetchProfileCards, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
@@ -116,8 +116,6 @@ export function FeedPage() {
         <div ref={sentinelRef} />
         {loadingMore && <Loading />}
       </div>
-
-      <p className="feed-footnote">{FEED_NATIONWIDE_NOTICE}</p>
     </section>
   )
 }

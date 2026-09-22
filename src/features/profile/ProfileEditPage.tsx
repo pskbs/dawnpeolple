@@ -6,7 +6,7 @@ import { useGoBack } from '../../lib/use-go-back'
 import { EDIT_PROFILE_COPY } from '../../config/copy'
 import { useAuth } from '../../lib/auth-context'
 import { removePublicMedia, uploadPublicMedia, validateFile } from '../../lib/media'
-import { BIO_MAX, OFF_TIME_OPTIONS, SIDO_OPTIONS, WORK_TYPE_OPTIONS } from '../../lib/profiles'
+import { BIO_MAX, OFF_TIME_OPTIONS, SIDO_OPTIONS, sigunguOptionsFor, WORK_TYPE_OPTIONS } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
 import './ProfilePage.css'
 
@@ -24,7 +24,7 @@ export function ProfileEditPage() {
   const [showWorkBadge, setShowWorkBadge] = useState(profile?.show_work_badge ?? true)
   const [offTime, setOffTime] = useState(profile?.off_time_band ?? '')
   const [sido, setSido] = useState(profile?.sido ?? '경기')
-  const [sigungu, setSigungu] = useState(profile?.sigungu ?? '')
+  const [sigungu, setSigungu] = useState(profile?.sigungu ?? sigunguOptionsFor(profile?.sido ?? '경기')[0] ?? '')
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoRemoved, setPhotoRemoved] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -201,14 +201,28 @@ export function ProfileEditPage() {
         <div className="field">
           <span className="field-label">{EDIT_PROFILE_COPY.region}</span>
           <div className="edit-region">
-            <select className="field-select" value={sido} onChange={(e) => setSido(e.target.value)} aria-label={EDIT_PROFILE_COPY.region}>
+            <select
+              className="field-select"
+              value={sido}
+              onChange={(e) => {
+                setSido(e.target.value)
+                setSigungu(sigunguOptionsFor(e.target.value)[0] ?? '')
+              }}
+              aria-label={EDIT_PROFILE_COPY.region}
+            >
               {SIDO_OPTIONS.map((s) => (
                 <option key={s} value={s}>
                   {s}
                 </option>
               ))}
             </select>
-            <input className="field-input" value={sigungu} placeholder="부천시" onChange={(e) => setSigungu(e.target.value)} />
+            <select className="field-select" value={sigungu} onChange={(e) => setSigungu(e.target.value)}>
+              {sigunguOptionsFor(sido).map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
