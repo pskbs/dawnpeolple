@@ -29,7 +29,8 @@
 - **앱 로고 / 다크모드 앱 로고 / 스크린샷**: `docs/store-assets/`에 생성해둠(아래 파일 목록 참고). 라벤더 글래스 팔레트(`src/styles/themes/hybrid.css`)와 달·별 아이콘(`public/icons.svg`의 moon-icon·star-icon)을 그대로 사용해 앱 UI와 톤이 일치해요. 참고 이미지(`design concept/`)의 캐릭터·구도는 복제하지 않고 새로 그린 기하학적 심볼만 사용.
   - `logo-light.png` (600×600) — 앱 로고
   - `logo-dark.png` (600×600) — 다크모드 앱 로고
-  - `screenshot-1-feed.png`, `screenshot-2-bungae-list.png`, `screenshot-3-bungae-detail.png` (각 636×1048) — 세로형 스크린샷 3장. 실제 앱 화면을 캡처한 것이며, 화면에 보이는 닉네임·글·소모임은 스크린샷 촬영용으로 만들었다가 지운 임시 데모 계정(실사용자 데이터 아님).
-  - `screenshot-4-landscape.png` (1504×741) — 가로형 스크린샷 1장. 실제 앱 목업 + 태그라인으로 구성한 합성 이미지.
+  - 스크린샷은 세로형(636×1048)만 등록 가능해 4장 모두 세로형으로 통일(2026-09-22 수정):
+    - `screenshot-1-intro.png` — 서비스 소개(로고·태그라인·수다방/소모임/내정보 기능 요약). 실제 화면 캡처가 아니라 합성 이미지.
+    - `screenshot-2-feed.png`, `screenshot-3-bungae-list.png`, `screenshot-4-bungae-detail.png` — 실제 앱 화면 캡처(수다방/소모임 목록/소모임 상세). 화면에 보이는 닉네임·글·소모임은 스크린샷 촬영용으로 만들었다가 지운 임시 데모 계정(실사용자 데이터 아님).
 - **앱 검색 키워드**(추천, 필요한 만큼 골라 쓰기): `새벽사람들, 야간근무, 교대근무, 야간알바, 새벽모임, 소모임, 야간근무자, 새벽커뮤니티, 새벽친구, 벙개`
 
