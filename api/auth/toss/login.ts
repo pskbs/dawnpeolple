@@ -59,6 +59,9 @@ export async function POST(request: Request): Promise<Response> {
       hasViteSupabaseUrl: Boolean(process.env.VITE_SUPABASE_URL),
       hasServiceKey: Boolean(serviceKey),
       vercelEnv: process.env.VERCEL_ENV,
+      // 이름만(값은 안 남김) — SUPABASE/VITE/TOSS로 시작하는 env가 이 함수에 아예 하나도 안 들어오는지 확인용
+      matchingEnvKeys: Object.keys(process.env).filter((k) => /^(SUPABASE|VITE_|TOSS_)/.test(k)),
+      totalEnvKeyCount: Object.keys(process.env).length,
     })
     return json(500, { error: 'not_configured' })
   }
