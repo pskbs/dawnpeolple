@@ -66,7 +66,7 @@ export function BungaeCreatePage() {
       const { error: joinError } = await supabase.rpc('join_bungae', { p_bungae_id: data.id })
       if (joinError) throw joinError
 
-      showCompletionAd()
+      showCompletionAd('bungae')
       navigate(`/bungae/${data.id}`, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : BUNGAE_COPY.createError)

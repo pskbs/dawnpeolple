@@ -51,7 +51,7 @@ export function ComposePage() {
         await removePublicMedia(media)
         throw new Error(FEED_COPY.submitError)
       }
-      showCompletionAd()
+      showCompletionAd('feed')
       // 글쓰기를 연 화면(수다방·프로필 등)으로 돌아가요.
       goBack()
     } catch (err) {

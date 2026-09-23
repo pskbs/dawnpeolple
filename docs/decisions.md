@@ -189,3 +189,10 @@
   - **처리**: `src/lib/apiBase.ts`(`apiUrl()`) 신설, `VITE_API_BASE_URL` 환경변수로 절대 URL 구성. 웹 빌드는 빈 값(상대경로 유지), 앱인토스 빌드(`.env.toss`)는 `https://dawnpeople.vercel.app`으로 고정.
   - `api/auth/toss/login.ts`에 CORS 허용 추가(`access-control-allow-origin: *` + `OPTIONS` 핸들러) — authorizationCode가 실제 토스 로그인에서만 나오는 10분 만료·1회용 값이라 origin 제한이 보안상 의미가 크지 않아 와일드카드로 단순화.
 - **확인 필요(TODO)**: 이번 수정 후 실제 토스 로그인 재테스트 필요(여전히 이 환경에서는 진짜 `TossAuth.login()` 호출을 검증할 수 없음 — 디바이스/샌드박스에서만 확인 가능). 배포 URL이 바뀌면(커스텀 도메인 연결 등) `.env.toss`의 `VITE_API_BASE_URL`도 같이 갱신해야 함.
+
+## 2026-09-23 — 전면 광고 그룹 ID를 메뉴별로 분리(수다방/소모임)
+
+- **배경**: 사용자가 앱인토스 콘솔에서 전면 광고그룹 2개를 발급받음 — 수다방 글쓰기 완료용(`ait.v2.live.9cfbaa73c3194289`), 소모임 개설 완료용(`ait.v2.live.c1ee80aa8e1846c4`). 기존 코드는 두 완료 이벤트가 광고그룹 ID 하나(`VITE_AD_INTERSTITIAL_ID`)를 공유하고 있었음.
+- **처리**: `src/platform/toss/ads.ts`를 슬롯(`'feed' | 'bungae'`)별로 광고그룹 ID·로드 상태·5분 빈도 제한을 따로 관리하도록 변경. `showCompletionAd()`가 `showCompletionAd(slot)`으로 바뀌어 `ComposePage.tsx`는 `'feed'`, `BungaeCreatePage.tsx`는 `'bungae'`를 넘김. 환경변수 `VITE_AD_INTERSTITIAL_ID` → `VITE_AD_INTERSTITIAL_FEED_ID`/`VITE_AD_INTERSTITIAL_BUNGAE_ID`로 분리(`.env.example`, 로컬 `.env`에 실제 값 반영 완료).
+- **⚠️ 사용자가 해야 할 일**: Vercel 프로젝트 환경변수에 있던 `VITE_AD_INTERSTITIAL_ID`를 지우고 `VITE_AD_INTERSTITIAL_FEED_ID`/`VITE_AD_INTERSTITIAL_BUNGAE_ID` 두 개로 새로 등록(값은 위 두 ID). 등록 후 재배포해야 반영됨.
+- **다음**: 상세 화면 하단 배너 광고(`VITE_AD_BANNER_ID`)는 여전히 미구현.
