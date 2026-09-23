@@ -157,3 +157,4 @@
   - **AES-256-GCM 복호화 AAD 값은 아직 확보 못함**: 복호화 키는 "이메일로 복호화 키 받기"로 이미 받았지만(`.env`의 `TOSS_DECRYPTION_KEY`), AAD는 별도 값이라고 공식 문서에 명시됨 — 콘솔 화면에서 직접 찾아야 함(같은 화면 어딘가이거나 별도 항목일 가능성). `decryptTossField()`는 실제 데이터로 검증 전.
   - **동의 스코프 재검토 필요**: 현재 콘솔 스코프가 "이름"으로 설정돼 있는데, `userKey`는 스코프 없이도 내려오고 구현에서 이름을 저장하지 않으므로(규칙 4) **"이름" 스코프를 콘솔에서 빼는 걸 권장** — 동의 화면이 가벼워지고 개인정보 요청도 줄어듦.
   - `TossAuth.login()`(v3 SDK, `appLogin()`은 deprecated)을 사용.
+- **mTLS PoC 성공(핵심 아키텍처 리스크 해소)**: 사용자가 콘솔에서 발급받은 mTLS 인증서/키를 `.env`에 넣은 뒤, `node:https`의 `Agent({cert, key})`로 실제 토스 API(`generate-token`)에 가짜 인가 코드로 요청 → **TLS 핸드셰이크 성공 + 정상 JSON 에러 응답**(`invalid_grant`, 코드가 가짜라서 나는 정상적인 응답) 확인. 이전까지 "Supabase Edge Function이 mTLS를 지원하지 않아 Vercel Node에서 될지 안 될지 PoC 필요"였던 부분(`docs/apps-in-toss-notes.md` 불명확한 점 2번)이 **해소됨** — 별도 mTLS 지원 서버(비용 발생)는 필요 없고, 기존 `api/`(Vercel Node 런타임) 그대로 쓰면 됨.

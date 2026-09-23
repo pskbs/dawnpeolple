@@ -31,7 +31,7 @@ Vite + React + TypeScript(SPA) · TDS · React Router · Supabase(Postgres/RLS/A
 - `VITE_PLATFORM=web|toss`, `VITE_THEME=hybrid`(night는 보관용, 배포 금지), `AI_PROVIDER=mock|claude-cli|anthropic`(`claude-cli`는 production 차단)
 
 ## 주요 결정
-- 로그인: 1단계 Supabase Auth(웹), 2단계 토스 로그인. 토스 로그인은 **mTLS 필요** → Supabase Edge Function 불가 → `api/`(Vercel Node) PoC 후 구현, 안 되면 소형 서버(비용 발생 시 사용자 확인).
+- 로그인: 1단계 Supabase Auth(웹), 2단계 토스 로그인. 토스 로그인은 **mTLS 필요** → Supabase Edge Function 불가 → `api/`(Vercel Node)로 구현(2026-09-23 PoC 통과, 별도 서버 불필요 — docs/decisions.md 참고).
 - 벙개: 누구나 개설(`bungae_create_role=all`), 하루 2건·동시 3건 한도, 신고 3건 누적 시 자동 비노출. 소통은 참석자 전용 댓글(대댓글) + 회원 간 1:1 DM(2026-09-22 추가, `src/config/features.ts`로 끌 수 있음). 리더 포함 최대 인원 2~10명. 기본 모이는 시각 새벽 6시.
 - 참석자 표시: 닉네임 + 성별 + **세부 연령대**(참석 신청 후에만). 미참석자는 "N자리 남았어요" + 성별·연령대 집계만.
 - 닉네임: 야간 테마 자동 생성(`nickname-words.ts`), 변경 가능(7일 1회).

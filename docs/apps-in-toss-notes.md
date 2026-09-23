@@ -131,7 +131,7 @@
 
 1. **"Vite+React+TypeScript(SPA)로 순수 정적 번들을 만들면 된다"는 가정은 절반만 맞음.** 실제로는 Vite+React+TS가 내부 빌드 도구로 쓰이는 것은 맞지만, **`@apps-in-toss/web-framework` SDK와 `@apps-in-toss/devtools`가 제공하는 `ait` CLI(`ait init` / `ait build` / `ait deploy`)를 반드시 사용**해야 하며, `granite.config.ts` 같은 전용 설정 파일이 필요함. "그냥 아무 Vite 프로젝트를 빌드해서 zip으로 올리면 끝"이라는 식의 접근은 문서/예제 어디서도 확인되지 않음. → **요청서에 이 전용 CLI/프레임워크 의존성이 빠져 있다면 반드시 반영 필요.**
 
-2. **"Supabase Edge Function이 mTLS를 지원하지 않는다"는 커뮤니티 정보 자체를 공식 문서로 확인/반증하지 못함.** 앱인토스 공식 문서는 "토스 로그인 서버 API는 mTLS 클라이언트 인증서 설정이 필수"라고 명확히 규정하며, 서버리스/엣지 함수 환경(Supabase Edge Functions, Vercel, Cloudflare Workers 등)을 위한 대안이나 예외 규정은 **어디에도 없음**. 즉 공식 문서는 mTLS를 무조건적 요건으로만 제시하고 있어, "Supabase Edge Function이 클라이언트 인증서 통신을 지원하지 않는다"는 주장이 사실이라면(이 부분은 Supabase 자체 문서를 별도로 확인해야 함 — 이번 조사 범위 밖), **Supabase Edge Function을 그대로 토스 로그인 서버 연동에 쓸 수 없고 별도의 mTLS 지원 서버(예: 별도 VM/컨테이너, Node.js 서버 등)가 필요할 가능성이 높음.** 이는 요청서의 백엔드 아키텍처 가정에 중대한 영향을 줄 수 있는 항목이므로, 실제 구현 전 Supabase Edge Function이 client certificate(mTLS)를 지원하는지 Supabase 공식 문서로 별도 검증 필요.
+2. ~~**"Supabase Edge Function이 mTLS를 지원하지 않는다"는 커뮤니티 정보 자체를 공식 문서로 확인/반증하지 못함.**~~ **[2026-09-23 해소]** 실제 mTLS 인증서 발급받아 `api/`(Vercel Node 런타임)에서 `node:https`의 `Agent({cert, key})`로 토스 API에 요청 → TLS 핸드셰이크 성공 확인(PoC 통과, `docs/decisions.md` 2026-09-23 참고). Vercel Node 런타임이면 되고, 별도 mTLS 지원 서버는 필요 없음. (Supabase Edge Function을 쓸지 여부는 애초에 무관해짐 — `api/`로 충분.)
 
 3. **"미니앱에서는 토스 로그인만 허용된다"는 제약은 문서로 확인됨** — "미니앱에서는 로그인 기능으로 토스 로그인만 쓸 수 있어요."로 명시. 요청서가 이 전제를 갖고 있었다면 일치함.
 
