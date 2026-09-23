@@ -72,7 +72,7 @@ export function PostDetailPage() {
             onDeleted={goBack}
             variant="detail"
           />
-          <BannerAd />
+          <BannerAd slot="feed" />
           <CommentSection
             table="comments"
             parentColumn="post_id"

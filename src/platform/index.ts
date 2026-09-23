@@ -1,6 +1,8 @@
 // 플랫폼 어댑터(CLAUDE.md 규칙 8) — 앱인토스 전용 코드는 ./toss/에만 두고, 나머지 코드는 이 파일을 거쳐요.
-import type { AdSlot } from './toss/ads'
+import type { AdSlot, BannerSlot } from './toss/ads'
 import { attachTossBanner, isTossAdSupported, isTossBannerSupported, showTossInterstitialAd } from './toss/ads'
+
+export type { BannerSlot }
 import { isTossLoginSupported, signInWithToss } from './toss/login'
 import { isTossShareSupported, shareTossPath } from './toss/share'
 
@@ -14,15 +16,15 @@ export function showCompletionAd(slot: AdSlot) {
   }
 }
 
-// 글·벙개 상세 화면 하단 배너. 앱인토스 밖(웹)에서는 아무 것도 붙이지 않아요.
+// 수다방 글 상세(댓글 위)·소모임 상세(참석 영역 위) 배너. 앱인토스 밖(웹)에서는 아무 것도 붙이지 않아요.
 export function isBannerAdSupported() {
   return isTossBannerSupported()
 }
 
 // 반환하는 함수를 호출하면 배너를 정리해요(컴포넌트 언마운트 시).
-export function attachBannerAd(target: HTMLElement): () => void {
+export function attachBannerAd(target: HTMLElement, slot: BannerSlot): () => void {
   try {
-    return attachTossBanner(target)
+    return attachTossBanner(target, slot)
   } catch {
     return () => {}
   }

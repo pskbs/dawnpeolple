@@ -260,7 +260,7 @@ export function BungaeDetailPage() {
         {actionError && <p className="error-text">{actionError}</p>}
       </div>
 
-      <BannerAd />
+      <BannerAd slot="bungae" />
 
       {!canSeeInner ? (
         <>
