@@ -82,9 +82,17 @@ export function BungaeCreatePage() {
       <AppBar back title={BUNGAE_COPY.createTitle} />
 
       <div className="glass-panel create-form">
+        <p className="create-safety">{BUNGAE_COPY.contentGuide}</p>
+
         <label className="field">
           <span className="field-label">{BUNGAE_COPY.titleLabel}</span>
-          <input className="field-input" value={title} maxLength={30} onChange={(e) => setTitle(e.target.value)} />
+          <input
+            className="field-input"
+            value={title}
+            maxLength={30}
+            placeholder={BUNGAE_COPY.titlePlaceholder}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </label>
 
         <label className="field">
@@ -94,6 +102,7 @@ export function BungaeCreatePage() {
             value={body}
             maxLength={500}
             rows={4}
+            placeholder={BUNGAE_COPY.bodyPlaceholder}
             onChange={(e) => setBody(e.target.value)}
           />
         </label>

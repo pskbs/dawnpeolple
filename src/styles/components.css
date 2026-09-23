@@ -328,6 +328,13 @@ textarea::placeholder {
   flex-shrink: 0;
 }
 
+.app-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .brand-mark {
   display: inline-flex;
   align-items: center;

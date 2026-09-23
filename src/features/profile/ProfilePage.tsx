@@ -12,9 +12,10 @@ import { formatRelativeTime } from '../../lib/format'
 import { asMediaList, type MediaItem } from '../../lib/media'
 import { fetchProfileCard, WORK_TYPE_LABELS, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
+import { shareAppPath } from '../../platform'
 import { dateTileParts, type Bungae } from '../bungae/bungae-types'
 import { startConversation } from '../dm/dm-api'
-import { normalizePosts, POST_COLUMNS, sharePath, useLikedPosts, type FeedPost } from '../feed/feed-api'
+import { normalizePosts, POST_COLUMNS, useLikedPosts, type FeedPost } from '../feed/feed-api'
 import { PostItem } from '../feed/PostItem'
 import { isBlockedByUser, useFollowState } from './profile-api'
 import './ProfilePage.css'
@@ -196,7 +197,7 @@ export function ProfilePage({ userId }: { userId: string }) {
   }
 
   async function handleShare() {
-    const result = await sharePath(`/u/${userId}`)
+    const result = await shareAppPath(`/u/${userId}`)
     if (result === 'copied') toast.show(PROFILE_COPY.shareCopied)
   }
 

@@ -54,18 +54,3 @@ export function useLikedPosts(userId: string | undefined) {
 
   return { likedIds, toggle }
 }
-
-// 공유: 모바일은 시스템 공유 시트, 아니면 링크 복사
-export async function sharePath(path: string): Promise<'shared' | 'copied' | 'failed'> {
-  const url = `${window.location.origin}${path}`
-  try {
-    if (navigator.share) {
-      await navigator.share({ url })
-      return 'shared'
-    }
-    await navigator.clipboard.writeText(url)
-    return 'copied'
-  } catch {
-    return 'failed'
-  }
-}

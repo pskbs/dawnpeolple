@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { BannerAd } from '../../components/BannerAd'
 import { MoreMenu } from '../../components/MoreMenu'
+import { useToast } from '../../components/toast'
 import { AppBar, Avatar, Icon, Loading, ProfileLink } from '../../components/ui'
 import { BUNGAE_COPY, GUEST_COPY } from '../../config/copy'
 import { FEATURES } from '../../config/features'
 import { useAuth } from '../../lib/auth-context'
 import { fetchProfileCard, GENDER_LABELS, UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
+import { shareAppPath } from '../../platform'
 import { CommentSection } from '../comments/CommentSection'
 import { BUNGAE_COLUMNS, dateTileParts, type Bungae } from './bungae-types'
 import './BungaePage.css'
@@ -41,6 +43,7 @@ export function BungaeDetailPage() {
   const { id } = useParams()
   const { profile } = useAuth()
   const navigate = useNavigate()
+  const toast = useToast()
 
   const [bungae, setBungae] = useState<Bungae | null>(null)
   const [host, setHost] = useState<ProfileCard | null>(null)
@@ -133,6 +136,11 @@ export function BungaeDetailPage() {
     }
   }
 
+  async function handleShare() {
+    const result = await shareAppPath(`/bungae/${bungae!.id}`)
+    if (result === 'copied') toast.show(BUNGAE_COPY.shareCopied)
+  }
+
   const joinBar = (
     <button
       type="button"
@@ -150,12 +158,17 @@ export function BungaeDetailPage() {
         back="/bungae"
         title={BUNGAE_COPY.listTitle}
         right={
-          <MoreMenu
-            isMine={isHost}
-            authorId={bungae.host_id}
-            authorName={hostName}
-            report={{ type: 'bungae', id: bungae.id }}
-          />
+          <div className="app-bar__actions">
+            <button type="button" className="circle-button" aria-label={BUNGAE_COPY.share} onClick={handleShare}>
+              <Icon name="share-icon" />
+            </button>
+            <MoreMenu
+              isMine={isHost}
+              authorId={bungae.host_id}
+              authorName={hostName}
+              report={{ type: 'bungae', id: bungae.id }}
+            />
+          </div>
         }
       />
 

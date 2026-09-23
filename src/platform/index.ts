@@ -2,6 +2,7 @@
 import type { AdSlot } from './toss/ads'
 import { attachTossBanner, isTossAdSupported, isTossBannerSupported, showTossInterstitialAd } from './toss/ads'
 import { isTossLoginSupported, signInWithToss } from './toss/login'
+import { isTossShareSupported, shareTossPath } from './toss/share'
 
 // 글 작성·벙개 개설 완료 시 호출해요. 앱인토스 밖(웹)에서는 아무 일도 하지 않아요.
 export function showCompletionAd(slot: AdSlot) {
@@ -34,4 +35,27 @@ export function isTossLoginAvailable() {
 
 export function loginWithToss() {
   return signInWithToss()
+}
+
+// 글·소모임·프로필 공유. 앱인토스 안에서는 intoss:// 딥링크를, 웹에서는 일반 URL을 공유해요.
+export async function shareAppPath(path: string): Promise<'shared' | 'copied' | 'failed'> {
+  if (isTossShareSupported()) {
+    try {
+      await shareTossPath(path)
+      return 'shared'
+    } catch {
+      return 'failed'
+    }
+  }
+  const url = `${window.location.origin}${path}`
+  try {
+    if (navigator.share) {
+      await navigator.share({ url })
+      return 'shared'
+    }
+    await navigator.clipboard.writeText(url)
+    return 'copied'
+  } catch {
+    return 'failed'
+  }
 }

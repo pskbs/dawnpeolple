@@ -11,7 +11,8 @@ import { formatRelativeTime } from '../../lib/format'
 import { removePublicMedia } from '../../lib/media'
 import { UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
 import { supabase } from '../../lib/supabase'
-import { sharePath, type FeedPost } from './feed-api'
+import { shareAppPath } from '../../platform'
+import { type FeedPost } from './feed-api'
 
 type Props = {
   post: FeedPost
@@ -67,7 +68,7 @@ export function PostItem({ post, author, liked, onLike, onDeleted, variant = 'li
   }
 
   async function handleShare() {
-    const result = await sharePath(`/feed/${post.id}`)
+    const result = await shareAppPath(`/feed/${post.id}`)
     if (result === 'copied') toast.show(FEED_COPY.shareCopied)
   }
 
