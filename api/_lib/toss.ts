@@ -22,7 +22,11 @@ function mtlsAgent() {
 
 // node:https는 fetch(undici)와 별개의 TLS 소켓 계층이라 mTLS(client cert)를 직접 넘길 수 있어요.
 // (Vercel Edge 런타임의 global fetch는 이 옵션을 지원하지 않아 Node 런타임에서만 동작해요.)
-function tossRequest<T>(method: 'GET' | 'POST', path: string, opts: { bearer?: string; body?: unknown }): Promise<T> {
+function tossRequest<T>(
+  method: 'GET' | 'POST',
+  path: string,
+  opts: { bearer?: string; body?: unknown; headers?: Record<string, string> },
+): Promise<T> {
   const body = opts.body ? JSON.stringify(opts.body) : undefined
   return new Promise((resolve, reject) => {
     const req = httpsRequest(
@@ -32,6 +36,7 @@ function tossRequest<T>(method: 'GET' | 'POST', path: string, opts: { bearer?: s
         agent: mtlsAgent(),
         headers: {
           'content-type': 'application/json',
+          ...opts.headers,
           ...(opts.bearer ? { authorization: `Bearer ${opts.bearer}` } : {}),
           ...(body ? { 'content-length': Buffer.byteLength(body) } : {}),
         },
@@ -102,10 +107,34 @@ export async function loginMe(accessToken: string) {
   return res.success
 }
 
+type SendMessageResult = { resultType: 'SUCCESS' | 'FAIL'; error?: { errorCode: string; reason: string } }
+
+// 스마트 발송(기능성 메시지) — 콘솔에서 문구 검수 승인된 templateSetCode로만 보낼 수 있어요.
+// deploymentId를 넘기면 출시 전 테스트용 엔드포인트(send-test-message)를 써요.
+export async function sendTossMessage(params: {
+  userKey: string
+  templateSetCode: string
+  context: Record<string, string>
+  deploymentId?: string
+}) {
+  const path = params.deploymentId
+    ? '/api-partner/v1/apps-in-toss/messenger/send-test-message'
+    : '/api-partner/v1/apps-in-toss/messenger/send-message'
+  const res = await tossRequest<SendMessageResult>('POST', path, {
+    headers: { 'x-toss-user-key': params.userKey },
+    body: {
+      templateSetCode: params.templateSetCode,
+      context: params.context,
+      ...(params.deploymentId ? { deploymentId: params.deploymentId } : {}),
+    },
+  })
+  // HTTP 200이어도 resultType이 FAIL일 수 있어요.
+  if (res.resultType !== 'SUCCESS') throw new Error(`toss_push_failed:${res.error?.errorCode ?? 'unknown'}`)
+}
+
 // login-me의 이름/전화/생일 등 동의 필드는 AES-256-GCM으로 암호화되어 내려와요.
 // 앞 12바이트가 IV, 마지막 16바이트가 인증 태그, 그 사이가 암호문이에요.
 // AAD는 콘솔에서 복호화 키와 별도로 전달되는 값이라 TOSS_DECRYPT_AAD로 채워야 해요.
-// ⚠️ 아직 실제 데이터로 검증 못 했어요 — 실 계정으로 첫 로그인 테스트할 때 형식이 맞는지 확인 필요.
 export function decryptTossField(encrypted: string): string {
   const key = process.env.TOSS_DECRYPTION_KEY
   const aad = process.env.TOSS_DECRYPT_AAD

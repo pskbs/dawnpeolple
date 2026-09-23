@@ -29,6 +29,7 @@ import {
   UNKNOWN_NICKNAME,
   type ProfileCard,
 } from "../../lib/profiles";
+import { dispatchPush } from "../../lib/push";
 import { supabase } from "../../lib/supabase";
 import "./CommentSection.css";
 
@@ -180,6 +181,7 @@ export function CommentSection({
         await removePublicMedia(media);
         throw new Error(COMMENT_COPY.submitError);
       }
+      if (table === "comments") dispatchPush();
       setRows((prev) => [
         ...prev,
         { ...(data as CommentRow), media: asMediaList(data.media) },

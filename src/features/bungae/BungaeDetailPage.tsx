@@ -8,6 +8,7 @@ import { BUNGAE_COPY, GUEST_COPY } from '../../config/copy'
 import { FEATURES } from '../../config/features'
 import { useAuth } from '../../lib/auth-context'
 import { fetchProfileCard, GENDER_LABELS, UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
+import { dispatchPush } from '../../lib/push'
 import { supabase } from '../../lib/supabase'
 import { shareAppPath } from '../../platform'
 import { CommentSection } from '../comments/CommentSection'
@@ -128,6 +129,7 @@ export function BungaeDetailPage() {
     try {
       const { error } = await supabase.rpc(rpc, { p_bungae_id: bungae!.id })
       if (error) throw error
+      if (rpc === 'join_bungae') dispatchPush()
       await load()
     } catch (err) {
       setActionError(err instanceof Error ? err.message : fallback)

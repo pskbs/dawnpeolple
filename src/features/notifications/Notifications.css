@@ -1,0 +1,174 @@
+/* ---------- 알림 목록 ---------- */
+
+.notification-list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notification-list__mark-all {
+  align-self: flex-end;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.notification-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notification-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  border: none;
+  border-bottom: 1px solid var(--divider);
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.notification-list li:last-child .notification-row {
+  border-bottom: none;
+}
+
+.notification-row--unread {
+  background: color-mix(in srgb, var(--primary-soft) 55%, transparent);
+}
+
+.notification-row__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.notification-row__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.notification-row__text {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notification-row__title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.notification-row__body {
+  color: var(--text-sub);
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.notification-row__time {
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+.notification-row__dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--primary);
+}
+
+/* ---------- 알림 설정 ---------- */
+
+.notification-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notification-settings__row {
+  cursor: pointer;
+}
+
+.notification-settings__text {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  padding: 10px 0;
+}
+
+.notification-settings__desc {
+  color: var(--text-faint);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.notification-settings__note {
+  padding: 0 8px;
+  color: var(--text-faint);
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+/* ---------- 메시지/알림 탭 ---------- */
+
+.inbox-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+
+.inbox-tabs__tab {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-sub);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inbox-tabs__tab[aria-selected='true'] {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.inbox-tabs__count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--like);
+  color: var(--primary-contrast);
+  font-size: 11px;
+  line-height: 18px;
+}

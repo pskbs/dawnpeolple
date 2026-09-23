@@ -9,7 +9,9 @@ import { useAuth } from '../../lib/auth-context'
 import { formatRelativeTime } from '../../lib/format'
 import { asMediaList, signDmMedia, uploadDmMedia, validateFile, type MediaItem } from '../../lib/media'
 import { fetchProfileCard, UNKNOWN_NICKNAME, type ProfileCard } from '../../lib/profiles'
+import { dispatchPush } from '../../lib/push'
 import { supabase } from '../../lib/supabase'
+import { markNotificationsReadByLink } from '../notifications/notifications-api'
 import { isBlockedByUser } from '../profile/profile-api'
 import { otherUserOf, type Conversation } from './dm-api'
 import './DmPage.css'
@@ -85,6 +87,7 @@ export function DmChatPage() {
       setLoading(false)
       await signFor(list)
       await supabase.rpc('mark_conversation_read', { p_conversation_id: conversationId })
+      await markNotificationsReadByLink(`/dm/${conversationId}`)
     }
     load(myId)
 
@@ -158,6 +161,7 @@ export function DmChatPage() {
         }
         throw new Error(DM_COPY.sendError)
       }
+      dispatchPush()
       const msg = { ...(data as Message), media: asMediaList(data.media) }
       setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]))
       await signFor([msg])

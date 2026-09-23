@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useToast } from '../../components/toast'
 import { ActionSheet, AppBar, Avatar, BottomSheet, Icon } from '../../components/ui'
-import { MENU_COPY, SETTINGS_COPY } from '../../config/copy'
+import { MENU_COPY, NOTIFICATION_COPY, SETTINGS_COPY } from '../../config/copy'
 import { FEATURES } from '../../config/features'
 import { LocationSheet } from '../location/LocationSheet'
+import { NotificationSettingsSection } from '../notifications/NotificationSettingsSection'
 import { useAuth } from '../../lib/auth-context'
 import { purgeMyStorage } from '../../lib/media'
 import { fetchProfileCards, GENDER_LABELS, parseSavedLocations, type ProfileCard } from '../../lib/profiles'
@@ -90,6 +91,9 @@ export function SettingsPage() {
           <Icon name="chevron-right-icon" className="list-row__chevron" />
         </button>
       </div>
+
+      <h2 className="settings-section-title">{NOTIFICATION_COPY.settingsTitle}</h2>
+      <NotificationSettingsSection />
 
       <div className="sheet settings-info">
         <div className="settings-info__row">

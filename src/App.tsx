@@ -73,6 +73,8 @@ function App() {
           <Route path="/me/password" element={<PasswordChangePage />} />
           <Route path="/u/:id" element={<UserProfileRoute />} />
           <Route path="/u/:id/follows" element={<FollowListPage />} />
+          {/* 푸시를 누르면 여기로 와요(콘솔 템플릿의 이동 URL: intoss://dawnpeople/notifications). */}
+          <Route path="/notifications" element={<Navigate to="/dm?tab=notifications" replace />} />
           {FEATURES.dm && <Route path="/dm" element={<DmInboxPage />} />}
           {FEATURES.dm && <Route path="/dm/:id" element={<DmChatPage />} />}
           {FEATURES.admin && <Route path="/admin" element={<AdminReportsPage />} />}
