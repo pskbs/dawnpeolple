@@ -28,6 +28,7 @@ dist-toss
 .env
 .env.*
 !.env.example
+!.env.toss
 *.pem
 *.key
 *.crt
