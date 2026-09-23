@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { BannerAd } from '../../components/BannerAd'
 import { MoreMenu } from '../../components/MoreMenu'
 import { AppBar, Avatar, Icon, Loading, ProfileLink } from '../../components/ui'
 import { BUNGAE_COPY, GUEST_COPY } from '../../config/copy'
@@ -243,6 +244,8 @@ export function BungaeDetailPage() {
 
         {actionError && <p className="error-text">{actionError}</p>}
       </div>
+
+      <BannerAd />
 
       {!canSeeInner ? (
         <>

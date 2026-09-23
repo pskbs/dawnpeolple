@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { BannerAd } from '../../components/BannerAd'
 import { AppBar, Loading } from '../../components/ui'
 import { useGoBack } from '../../lib/use-go-back'
 import { COMMENT_COPY, FEED_COPY, GUEST_COPY } from '../../config/copy'
@@ -71,6 +72,7 @@ export function PostDetailPage() {
             onDeleted={goBack}
             variant="detail"
           />
+          <BannerAd />
           <CommentSection
             table="comments"
             parentColumn="post_id"

@@ -1,5 +1,5 @@
 // 앱인토스 전용 코드(CLAUDE.md 규칙 8) — 여기서만 @apps-in-toss/web-framework를 직접 사용해요.
-import { loadFullScreenAd, showFullScreenAd } from '@apps-in-toss/web-framework'
+import { loadFullScreenAd, showFullScreenAd, TossAds } from '@apps-in-toss/web-framework'
 
 export type AdSlot = 'feed' | 'bungae'
 
@@ -66,4 +66,53 @@ export function showTossInterstitialAd(slot: AdSlot) {
       requestLoad(slot)
     },
   })
+}
+
+// --- 배너(글·벙개 상세 하단) ---
+// 실제 배너 그룹 ID를 받으면 VITE_AD_BANNER_ID로 채우고, 없으면 테스트 ID로 동작해요.
+const BANNER_AD_GROUP_ID = import.meta.env.VITE_AD_BANNER_ID || 'ait-ad-test-banner-id'
+
+let bannerInitState: 'idle' | 'pending' | 'ready' | 'failed' = 'idle'
+let bannerInitWaiters: Array<() => void> = []
+
+function ensureBannerInitialized(): Promise<void> {
+  if (bannerInitState === 'ready') return Promise.resolve()
+  return new Promise((resolve) => {
+    bannerInitWaiters.push(resolve)
+    if (bannerInitState === 'pending') return
+    bannerInitState = 'pending'
+    TossAds.initialize({
+      callbacks: {
+        onInitialized: () => {
+          bannerInitState = 'ready'
+          bannerInitWaiters.forEach((w) => w())
+          bannerInitWaiters = []
+        },
+        onInitializationFailed: () => {
+          bannerInitState = 'failed'
+          bannerInitWaiters.forEach((w) => w())
+          bannerInitWaiters = []
+        },
+      },
+    })
+  })
+}
+
+export function isTossBannerSupported() {
+  return TossAds.attachBanner.isSupported()
+}
+
+// 언마운트 시 호출할 정리 함수를 반환해요. 초기화 전에 언마운트되면 아무 것도 붙이지 않아요.
+export function attachTossBanner(target: HTMLElement): () => void {
+  if (!isTossBannerSupported()) return () => {}
+  let unmounted = false
+  let attached: { destroy: () => void } | null = null
+  ensureBannerInitialized().then(() => {
+    if (unmounted || bannerInitState !== 'ready') return
+    attached = TossAds.attachBanner(BANNER_AD_GROUP_ID, target, { theme: 'auto' })
+  })
+  return () => {
+    unmounted = true
+    attached?.destroy()
+  }
 }

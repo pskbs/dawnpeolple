@@ -594,6 +594,14 @@ textarea::placeholder {
   margin: 0;
 }
 
+/* 글·벙개 상세 하단 배너 광고(앱인토스 전용, 스크롤 가능한 화면에만 배치) */
+.banner-ad {
+  width: 100%;
+  min-height: 96px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
 /* 하단 고정 바(댓글 입력·CTA) — 컨셉의 "Ask me anything" 입력 바 */
 .bottom-bar {
   position: fixed;
