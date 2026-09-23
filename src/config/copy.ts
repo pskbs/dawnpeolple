@@ -148,6 +148,7 @@ export const FEED_COPY = {
   deleteConfirm: '이 글을 삭제할까요?',
   deleted: '글을 삭제했어요.',
   deleteError: '글을 삭제하지 못했어요.',
+  editError: '글을 수정하지 못했어요.',
   shareCopied: '링크를 복사했어요.',
   like: (n: number) => `좋아요 ${n}`,
   replies: (n: number) => `댓글 ${n}`,

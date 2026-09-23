@@ -204,3 +204,4 @@
   - **신고 자동 비노출**: `reports` AFTER INSERT 트리거 `enforce_report_threshold` — 같은 대상에 서로 다른 신고자 3명 이상 누적되면 자동으로 posts/comments→`hidden`, bungaes→`cancelled`, bungae_comments→`hidden` 처리. `target_type='user'` 신고는 자동 정지 기능이 아직 없어(2026-09-22 기록) 자동 조치 없이 관리자 수동 처리만 남김.
   - 두 트리거 함수 모두 기존 카운터 트리거(0004)와 같은 패턴(`security definer` + `revoke execute ... from public, anon, authenticated`)으로 만들어 RPC로 직접 호출되지 않게 막음. `get_advisors(security)` 재확인 결과 새로 추가된 경고 없음(기존에 있던 항목들과 동일).
   - **아직 안 한 것**: 실제 계정으로 한도 초과 케이스를 수동으로 재현해보는 실사용 테스트는 안 함(로직은 기존 검증된 트리거 패턴을 그대로 따름). E2E 테스트에도 아직 반영 안 함.
+- **글(수다방) 수정 기능 추가**: DB는 이미 준비돼 있었음(`edited_at` 컬럼, `posts_update_own_or_admin` RLS, `posts_guard_update` 트리거가 body/media/edited_at만 허용) — 실제 "수정하기" UI만 없던 상태였음("남은 일" 목록에 있던 항목). 댓글 수정에 쓰던 `EditBox`(`CommentSection.tsx`)를 export해서 `PostItem.tsx`에서 재사용, `MoreMenu`의 `onEdit`을 연결. 첨부 사진·동영상은 수정 범위 밖(댓글 수정과 동일한 텍스트만 수정 원칙, 삭제 후 재작성으로 대체 가능).

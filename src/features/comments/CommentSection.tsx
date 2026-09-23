@@ -432,7 +432,7 @@ function selfCard(p: {
   };
 }
 
-function EditBox({
+export function EditBox({
   initial,
   onSave,
   onCancel,

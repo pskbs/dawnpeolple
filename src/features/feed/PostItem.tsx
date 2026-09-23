@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { EditBox } from '../comments/CommentSection'
 import { ExpandableText, MediaGallery } from '../../components/media'
 import { MoreMenu } from '../../components/MoreMenu'
 import { useToast } from '../../components/toast'
@@ -34,6 +35,10 @@ export function PostItem({ post, author, liked, onLike, onDeleted, variant = 'li
   const name = author?.nickname ?? UNKNOWN_NICKNAME
   const isMine = !!profile && post.author_id === profile.id
   const openThread = () => navigate(`/feed/${post.id}`)
+  const [editing, setEditing] = useState(false)
+  const [override, setOverride] = useState<{ body: string; edited_at: string } | null>(null)
+  const body = override?.body ?? post.body
+  const editedAt = override?.edited_at ?? post.edited_at
 
   // 인스타그램처럼 본문을 두 번 톡 치면 좋아요, 한 번이면 스레드로 이동해요.
   function handleBodyTap() {
@@ -66,6 +71,21 @@ export function PostItem({ post, author, liked, onLike, onDeleted, variant = 'li
     if (result === 'copied') toast.show(FEED_COPY.shareCopied)
   }
 
+  async function saveEdit(text: string) {
+    const { data, error } = await supabase
+      .from('posts')
+      .update({ body: text })
+      .eq('id', post.id)
+      .select('body, edited_at')
+      .single()
+    if (error || !data) {
+      toast.show(FEED_COPY.editError)
+      return
+    }
+    setOverride({ body: data.body, edited_at: data.edited_at })
+    setEditing(false)
+  }
+
   return (
     <article className={`post${isDetail ? ' post--detail' : ''}`} data-testid="feed-post">
       <div className="post__rail">
@@ -82,27 +102,32 @@ export function PostItem({ post, author, liked, onLike, onDeleted, variant = 'li
           </ProfileLink>
           <span className="post__time">
             {formatRelativeTime(post.created_at)}
-            {post.edited_at && ` · ${COMMENT_COPY.edited}`}
+            {editedAt && ` · ${COMMENT_COPY.edited}`}
           </span>
           <MoreMenu
             isMine={isMine}
             authorId={post.author_id}
             authorName={name}
             report={{ type: 'post', id: post.id }}
+            onEdit={() => setEditing(true)}
             onDelete={handleDelete}
             deleteConfirm={FEED_COPY.deleteConfirm}
           />
         </header>
 
-        {post.body && (
-          <div className="post__body" onClick={handleBodyTap} title={FEED_COPY.doubleTapHint}>
-            <ExpandableText text={post.body} expandedByDefault={isDetail} />
-            {burst > 0 && (
-              <span key={burst} className="post__burst" aria-hidden="true">
-                <Icon name="heart-icon-filled" />
-              </span>
-            )}
-          </div>
+        {editing ? (
+          <EditBox initial={body} onSave={saveEdit} onCancel={() => setEditing(false)} />
+        ) : (
+          body && (
+            <div className="post__body" onClick={handleBodyTap} title={FEED_COPY.doubleTapHint}>
+              <ExpandableText text={body} expandedByDefault={isDetail} />
+              {burst > 0 && (
+                <span key={burst} className="post__burst" aria-hidden="true">
+                  <Icon name="heart-icon-filled" />
+                </span>
+              )}
+            </div>
+          )
         )}
 
         <MediaGallery items={post.media} />
