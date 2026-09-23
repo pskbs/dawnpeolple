@@ -52,7 +52,14 @@ export async function POST(request: Request): Promise<Response> {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!supabaseUrl || !serviceKey) {
-    console.error('[toss/login] SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY가 없어요')
+    // 값 자체는 절대 로그에 남기지 않고 존재 여부(boolean)만 남겨요 — 어떤 값이 비어있는지, 실제 실행 환경이
+    // 무엇인지(production/preview) 확인하기 위한 진단용 로그예요.
+    console.error('[toss/login] Supabase 환경변수 없음', {
+      hasSupabaseUrl: Boolean(process.env.SUPABASE_URL),
+      hasViteSupabaseUrl: Boolean(process.env.VITE_SUPABASE_URL),
+      hasServiceKey: Boolean(serviceKey),
+      vercelEnv: process.env.VERCEL_ENV,
+    })
     return json(500, { error: 'not_configured' })
   }
 
