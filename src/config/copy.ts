@@ -365,6 +365,7 @@ export const NOTIFICATION_COPY = {
   saveError: '알림 설정을 저장하지 못했어요.',
   types: {
     comment: { label: '댓글', desc: '내 수다글에 누가 댓글을 달았을 때' },
+    comment_reply: { label: '답글', desc: '내가 단 댓글에 누가 답글을 남겼을 때' },
     dm: { label: '메시지', desc: '누가 나에게 메시지를 보냈을 때' },
     bungae_join: { label: '소모임 참가', desc: '내가 연 소모임에 누가 참가했을 때' },
   },

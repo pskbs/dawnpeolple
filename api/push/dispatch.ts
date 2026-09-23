@@ -22,10 +22,11 @@ export async function OPTIONS(): Promise<Response> {
   return new Response(null, { status: 204, headers: CORS_HEADERS })
 }
 
-type NotificationType = 'comment' | 'dm' | 'bungae_join'
+type NotificationType = 'comment' | 'comment_reply' | 'dm' | 'bungae_join'
 
 const TEMPLATE_ENV: Record<NotificationType, string> = {
   comment: 'TOSS_PUSH_TEMPLATE_COMMENT',
+  comment_reply: 'TOSS_PUSH_TEMPLATE_COMMENT_REPLY',
   dm: 'TOSS_PUSH_TEMPLATE_DM',
   bungae_join: 'TOSS_PUSH_TEMPLATE_BUNGAE_JOIN',
 }
