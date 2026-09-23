@@ -167,6 +167,20 @@
 - **`ait` 빌드 파이프라인 세팅 + 로컬 빌드 성공**: `@apps-in-toss/devtools` 설치, `ait init --skip-input`으로 `apps-in-toss.config.ts` 생성(appName: `dawnpeople`, brand.primaryColor: 브랜드 라벤더 `#8465f2`), `vite.config.ts`에 devtools unplugin 연결, `build:toss` 스크립트에 `&& ait build` 추가. `pnpm run build:toss` 로컬 실행 → `dawnpeople.ait`(220KB, 100MB 제한 대비 여유 충분) 정상 생성 확인.
   - **다음은 사용자만 할 수 있는 일**: `ait deploy`로 콘솔에 테스트 빌드를 올리려면 `ait token add`로 API 키가 필요한데, 이건 토스 비즈니스 계정으로 콘솔에서 발급받아야 함(정확한 발급 화면 위치 미확인 — "앱 정보" 근처로 추정). 발급받으면 `ait token add --api-key <값>`으로 등록 후 `pnpm run deploy` 실행 가능.
 
+## 2026-09-23 — 토스 로그인 실기기 테스트 성공 (버그 3개 수정)
+
+- **결과: 실제 토스 앱에서 로그인 성공 확인.** Phase 2 핵심 리스크(토스 로그인 서버 연동)가 완전히 해소됨.
+- **버그 1 — mTLS 인증서/키가 Vercel에 잘못 저장됨**: `TOSS_MTLS_CERT_BASE64`/`TOSS_MTLS_KEY_BASE64`에 실제 base64 값이 아니라 클립보드 복사용 PowerShell 명령어 텍스트(`[Convert]::ToBase64String(...) | ... clipboard`)가 그대로 들어가 있었음(명령 실행 결과 대신 명령어 자체를 붙여넣은 실수로 추정). `error:0480006C:PEM routines::no start line`로 발현. 로컬 `.env`의 검증된 값으로 재등록해 해결.
+- **버그 2 — 재로그인 시 500 에러(정규식 오타)**: `api/auth/toss/login.ts`에서 "이미 가입된 사용자면 통과"시키는 조건이 `/already.*registed/`(오타, `registered`가 아님)라 실제 Supabase 메시지("already been registered")를 못 잡고 재로그인마다 500을 반환. `createError.status === 422 || createError.code === 'email_exists'`로 교체.
+- **버그 3 — verifyOtp 파라미터 오류(진짜 근본 원인)**: `src/platform/toss/login.ts`가 `supabase.auth.verifyOtp({ email, token_hash, type })`처럼 `email`과 `token_hash`를 같이 보냈는데, GoTrue는 `token_hash` 검증 시 `email`이 같이 오면 `validation_failed`("Only the token_hash and type should be provided")로 거부함. TypeScript는 `VerifyOtpParams`가 유니언 타입이라 이 조합을 통과시켜서(각 필드가 유니언의 "어떤" 멤버에는 존재) 컴파일 타임에 못 잡았음 — 백엔드가 200을 반환해도 클라이언트 마지막 단계에서 항상 실패하던 원인. `email` 제거로 해결(로컬에서 `admin.generateLink` → `anon.verifyOtp` 왕복 테스트로 검증).
+- **교훈**: mTLS 인증서/키 같은 긴 값을 Vercel에 등록할 때 클립보드 경유 대신 파일 stdin으로 직접 파이프하는 걸 기본으로. `vercel env pull`은 Secret 타입 값은 못 읽어오니(당연함, "Secret"의 정의상) 재검증하려면 새 값을 등록 후 실제 API 응답/로그로 확인해야 함.
+- **다음 단계(Phase 2 마무리 후보)**:
+  1. 동의 스코프에서 "이름" 빼기(콘솔, 사용자가 직접) — 위 2026-09-23 항목에 이미 있던 권장사항, 아직 미처리.
+  2. 상세 화면 하단 배너 광고 구현(전면 광고는 완료).
+  3. 푸시 알림(메신저 API) 구현 — mTLS 인프라는 이미 있음, 코드 미작성.
+  4. 실제 성별/생일 등 AES-256-GCM 복호화 필드가 진짜 데이터로 정상 디코딩되는지 확인(주석에 "미검증"으로 남아있던 부분 — 이번 로그인 성공 시 `gender` 필드가 실제로 잘 들어왔는지 Supabase `profiles` 테이블에서 확인 권장).
+  5. Phase 3(검수 대비)로 넘어갈지, Phase 2 잔여 항목을 더 채울지 결정.
+
 ## 2026-09-23 — 실제 토스 로그인 테스트 실패 원인 2건 수정 + main 병합
 
 - **배경**: 사용자가 앱인토스에서 실제로 "토스로 로그인"을 눌러봤더니 "토스 로그인에 실패했어요" 발생. 원인 조사 결과 두 가지가 겹쳐 있었음.
