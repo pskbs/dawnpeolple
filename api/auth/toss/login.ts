@@ -94,7 +94,9 @@ export async function POST(request: Request): Promise<Response> {
     user_metadata: { toss_user_key: String(userKey), ...(gender ? { toss_gender: gender } : {}) },
   })
   // 이미 있는 사용자면 무시하고 계속 진행(재로그인). 그 외 오류만 실패 처리.
-  if (createError && !/already.*registed|already.*exists/i.test(createError.message)) {
+  // status 422 + code 'email_exists'가 Supabase의 정식 신호라 메시지 문자열보다 이걸 우선 확인해요.
+  const isExistingUser = createError?.code === 'email_exists' || createError?.status === 422
+  if (createError && !isExistingUser) {
     console.error('[toss/login] 사용자 생성 실패', createError.message)
     return json(500, { error: 'server_error' })
   }
