@@ -17,7 +17,8 @@ export async function signInWithToss() {
     body: JSON.stringify({ authorizationCode, referrer }),
   })
   if (!res.ok) throw new Error('토스 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.')
-  const { email, tokenHash } = (await res.json()) as { email: string; tokenHash: string }
-  const { error } = await supabase.auth.verifyOtp({ email, token_hash: tokenHash, type: 'magiclink' })
+  const { tokenHash } = (await res.json()) as { email: string; tokenHash: string }
+  // token_hash로 검증할 땐 email을 같이 보내면 GoTrue가 validation_failed로 거부해요(email+token 조합 전용 파라미터라서).
+  const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'magiclink' })
   if (error) throw new Error('토스 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.')
 }
