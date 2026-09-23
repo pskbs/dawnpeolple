@@ -196,3 +196,4 @@
 - **처리**: `src/platform/toss/ads.ts`를 슬롯(`'feed' | 'bungae'`)별로 광고그룹 ID·로드 상태·5분 빈도 제한을 따로 관리하도록 변경. `showCompletionAd()`가 `showCompletionAd(slot)`으로 바뀌어 `ComposePage.tsx`는 `'feed'`, `BungaeCreatePage.tsx`는 `'bungae'`를 넘김. 환경변수 `VITE_AD_INTERSTITIAL_ID` → `VITE_AD_INTERSTITIAL_FEED_ID`/`VITE_AD_INTERSTITIAL_BUNGAE_ID`로 분리(`.env.example`, 로컬 `.env`에 실제 값 반영 완료).
 - **⚠️ 사용자가 해야 할 일**: Vercel 프로젝트 환경변수에 있던 `VITE_AD_INTERSTITIAL_ID`를 지우고 `VITE_AD_INTERSTITIAL_FEED_ID`/`VITE_AD_INTERSTITIAL_BUNGAE_ID` 두 개로 새로 등록(값은 위 두 ID). 등록 후 재배포해야 반영됨.
 - **다음**: 상세 화면 하단 배너 광고(`VITE_AD_BANNER_ID`)는 여전히 미구현.
+- **`main` 병합**: 사용자가 "개발적인 판단은 알아서 하라"고 위임 → `feat/sns-social`을 `main`에 fast-forward 병합·푸시(`dbf70be..edd5b33`). 이전 세션에서 `main`에 못 올라가 있던 토스 로그인 버그 수정 3건(2026-09-23자)도 이번에 함께 반영됨 — Vercel 프로덕션이 재배포되면 로그인 수정분도 실서비스에 적용됨.
