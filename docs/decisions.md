@@ -159,3 +159,10 @@
   - **동의 스코프 재검토 필요**: 현재 콘솔 스코프가 "이름"으로 설정돼 있는데, `userKey`는 스코프 없이도 내려오고 구현에서 이름을 저장하지 않으므로(규칙 4) **"이름" 스코프를 콘솔에서 빼는 걸 권장** — 동의 화면이 가벼워지고 개인정보 요청도 줄어듦.
   - `TossAuth.login()`(v3 SDK, `appLogin()`은 deprecated)을 사용.
 - **mTLS PoC 성공(핵심 아키텍처 리스크 해소)**: 사용자가 콘솔에서 발급받은 mTLS 인증서/키를 `.env`에 넣은 뒤, `node:https`의 `Agent({cert, key})`로 실제 토스 API(`generate-token`)에 가짜 인가 코드로 요청 → **TLS 핸드셰이크 성공 + 정상 JSON 에러 응답**(`invalid_grant`, 코드가 가짜라서 나는 정상적인 응답) 확인. 이전까지 "Supabase Edge Function이 mTLS를 지원하지 않아 Vercel Node에서 될지 안 될지 PoC 필요"였던 부분(`docs/apps-in-toss-notes.md` 불명확한 점 2번)이 **해소됨** — 별도 mTLS 지원 서버(비용 발생)는 필요 없고, 기존 `api/`(Vercel Node 런타임) 그대로 쓰면 됨.
+- **로컬에서 검증 가능한 것들은 전부 테스트 완료**:
+  - AES-256-GCM 복호화 왕복 테스트(실제 키+AAD로 직접 암호화→복호화) PASS.
+  - Supabase 관리자 브리지(테스트 계정 생성 → `toss_user_key` 메타데이터 저장 확인 → 매직링크 토큰 발급 → 계정 삭제) 실제 프로젝트 DB에 대고 PASS.
+  - `pnpm dev`의 로컬 API 미들웨어로 `/api/auth/toss/login` 핸들러 전체를 실제로 호출 — 가짜 인가 코드로 502(정상), 빈 요청으로 400(정상) 확인. 이걸로 `api/_lib/toss.ts`+`api/auth/toss/login.ts`의 전체 배선이 검증됨.
+  - **여기서부터는 제가 검증 못 함**: 진짜 `TossAuth.login()` 호출은 토스 앱/샌드박스 안에서만 나옴(디바이스 필요).
+- **`ait` 빌드 파이프라인 세팅 + 로컬 빌드 성공**: `@apps-in-toss/devtools` 설치, `ait init --skip-input`으로 `apps-in-toss.config.ts` 생성(appName: `dawnpeople`, brand.primaryColor: 브랜드 라벤더 `#8465f2`), `vite.config.ts`에 devtools unplugin 연결, `build:toss` 스크립트에 `&& ait build` 추가. `pnpm run build:toss` 로컬 실행 → `dawnpeople.ait`(220KB, 100MB 제한 대비 여유 충분) 정상 생성 확인.
+  - **다음은 사용자만 할 수 있는 일**: `ait deploy`로 콘솔에 테스트 빌드를 올리려면 `ait token add`로 API 키가 필요한데, 이건 토스 비즈니스 계정으로 콘솔에서 발급받아야 함(정확한 발급 화면 위치 미확인 — "앱 정보" 근처로 추정). 발급받으면 `ait token add --api-key <값>`으로 등록 후 `pnpm run deploy` 실행 가능.
