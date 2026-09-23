@@ -2,6 +2,8 @@ import react from '@vitejs/plugin-react'
 import type { IncomingMessage } from 'node:http'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 
+import aitDevtools from "@apps-in-toss/devtools/unplugin";
+
 async function readBody(req: IncomingMessage) {
   const chunks: Buffer[] = []
   for await (const chunk of req) chunks.push(chunk as Buffer)
@@ -52,7 +54,7 @@ function localApi(): Plugin {
         }
       })
     },
-  }
+  };
 }
 
 // https://vite.dev/config/
@@ -60,6 +62,6 @@ export default defineConfig(({ mode }) => {
   // 서버 함수가 process.env로 .env 값을 읽을 수 있게 넣어줘요(VITE_ 접두사 없는 값은 브라우저 번들에 들어가지 않아요).
   for (const [key, value] of Object.entries(loadEnv(mode, process.cwd(), ''))) process.env[key] ??= value
   return {
-    plugins: [react(), localApi()],
-  }
+    plugins: [aitDevtools.vite(), react(), localApi()],
+  };
 })

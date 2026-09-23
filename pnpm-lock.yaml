@@ -27,6 +27,9 @@ importers:
         specifier: ^7.9.4
         version: 7.18.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     devDependencies:
+      '@apps-in-toss/devtools':
+        specifier: ^3.5.0
+        version: 3.5.0(@apps-in-toss/web-framework@3.5.0(typanion@3.14.0)(typescript@6.0.3))(esbuild@0.28.2)(rolldown@1.2.9)(rollup@4.63.4)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0))
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.63.0
@@ -73,6 +76,15 @@ packages:
   '@apps-in-toss/cli@3.5.0':
     resolution: {integrity: sha512-tnq5CSnWagx/4ToRFgfOABGD1ElTuPqLzDsqbKjB40MX3cbPM3j8aYb83AjzPbGJYLJVI7MPI2StIV0l5cn3+A==}
     hasBin: true
+
+  '@apps-in-toss/devtools@3.5.0':
+    resolution: {integrity: sha512-AA7NwIo1IWwQeZukM7t60KuKp+C+pb3xzAjfAoqtUXDZ4qQ65Nbxjn4D2iNjpDqvP6nX8+43vZwVfyslXsAPGg==}
+    engines: {node: '>=24'}
+    peerDependencies:
+      '@apps-in-toss/web-framework': '>=2.6.0 <3.0.0 || >=3.0.1 <4.0.0'
+    peerDependenciesMeta:
+      '@apps-in-toss/web-framework':
+        optional: true
 
   '@apps-in-toss/web-framework@3.5.0':
     resolution: {integrity: sha512-ClMN3i4fvhxvxXE+idm3bU44V3Uvej596cN1LKbmvR0uUNyi5E5FU1ZIa4PI3XYz0iubR0JHYryYGuMqugECnw==}
@@ -1638,6 +1650,42 @@ packages:
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
+  unplugin@3.4.0:
+    resolution: {integrity: sha512-9skdIFlCsPdFV7wUfZxNsFInlW+7nJmGu2gkTu0OUhF56aXGsHab9x52/QhdJ4lC7ZDPWTxbiC4ANqVlsuaW3w==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    peerDependencies:
+      '@farmfe/core': '*'
+      '@rsbuild/core': '*'
+      '@rspack/core': '*'
+      bun-types-no-globals: '*'
+      esbuild: '*'
+      rolldown: '*'
+      rollup: '*'
+      unloader: '*'
+      vite: '*'
+      webpack: '*'
+    peerDependenciesMeta:
+      '@farmfe/core':
+        optional: true
+      '@rsbuild/core':
+        optional: true
+      '@rspack/core':
+        optional: true
+      bun-types-no-globals:
+        optional: true
+      esbuild:
+        optional: true
+      rolldown:
+        optional: true
+      rollup:
+        optional: true
+      unloader:
+        optional: true
+      vite:
+        optional: true
+      webpack:
+        optional: true
+
   update-browserslist-db@1.3.3:
     resolution: {integrity: sha512-pJ2sYawQS0R/WI928Gj5GlPhTGzbMelq0+4INtSYNDV9ErKJcX6xjGWkoG/VnB3dpUm00zALaqkrUD77pO5TDQ==}
     hasBin: true
@@ -1780,6 +1828,9 @@ packages:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
     engines: {node: '>=12'}
 
+  webpack-virtual-modules@0.6.2:
+    resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
+
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
@@ -1850,6 +1901,23 @@ snapshots:
       - magicast
       - supports-color
       - typanion
+
+  '@apps-in-toss/devtools@3.5.0(@apps-in-toss/web-framework@3.5.0(typanion@3.14.0)(typescript@6.0.3))(esbuild@0.28.2)(rolldown@1.2.9)(rollup@4.63.4)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0))':
+    dependencies:
+      unplugin: 3.4.0(esbuild@0.28.2)(rolldown@1.2.9)(rollup@4.63.4)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0))
+    optionalDependencies:
+      '@apps-in-toss/web-framework': 3.5.0(typanion@3.14.0)(typescript@6.0.3)
+    transitivePeerDependencies:
+      - '@farmfe/core'
+      - '@rsbuild/core'
+      - '@rspack/core'
+      - bun-types-no-globals
+      - esbuild
+      - rolldown
+      - rollup
+      - unloader
+      - vite
+      - webpack
 
   '@apps-in-toss/web-framework@3.5.0(typanion@3.14.0)(typescript@6.0.3)':
     dependencies:
@@ -3203,6 +3271,17 @@ snapshots:
 
   undici-types@7.18.2: {}
 
+  unplugin@3.4.0(esbuild@0.28.2)(rolldown@1.2.9)(rollup@4.63.4)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)):
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      picomatch: 4.0.7
+      webpack-virtual-modules: 0.6.2
+    optionalDependencies:
+      esbuild: 0.28.2
+      rolldown: 1.2.9
+      rollup: 4.63.4
+      vite: 8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)
+
   update-browserslist-db@1.3.3(browserslist@4.29.0):
     dependencies:
       browserslist: 4.29.0
@@ -3310,6 +3389,8 @@ snapshots:
       xml-name-validator: 5.0.0
 
   webidl-conversions@7.0.0: {}
+
+  webpack-virtual-modules@0.6.2: {}
 
   whatwg-encoding@3.1.1:
     dependencies:

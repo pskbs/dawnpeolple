@@ -39,3 +39,5 @@ tossemailsecreat/
 coverage/
 playwright-report/
 test-results/
+
+*.ait

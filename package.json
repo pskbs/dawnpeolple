@@ -6,12 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build:web": "tsc -b && vite build",
-    "build:toss": "tsc -b && vite build",
+    "build:toss": "tsc -b && vite build && ait build",
     "lint": "oxlint",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "ait deploy"
   },
   "dependencies": {
     "@apps-in-toss/web-framework": "^3.5.0",
@@ -22,6 +23,7 @@
     "react-router-dom": "^7.9.4"
   },
   "devDependencies": {
+    "@apps-in-toss/devtools": "^3.5.0",
     "@playwright/test": "^1.55.0",
     "@types/node": "^24.13.3",
     "@types/nodemailer": "^8.0.2",
