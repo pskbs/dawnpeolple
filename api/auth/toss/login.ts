@@ -9,11 +9,27 @@ import { createHash } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 import { decryptTossField, generateToken, loginMe } from '../../_lib/toss.js'
 
+// 앱인토스 빌드는 dist를 토스가 자체 호스팅해(webBundleDir) 이 API(Vercel)와 origin이 달라 CORS가 필요해요.
+// authorizationCode는 실제 토스 로그인에서만 발급되는 10분 만료·1회용 값이라 origin을 막을 필요는 없어요.
+const CORS_HEADERS = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'POST, OPTIONS',
+  'access-control-allow-headers': 'content-type',
+}
+
 function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+      ...CORS_HEADERS,
+    },
   })
+}
+
+export async function OPTIONS(): Promise<Response> {
+  return new Response(null, { status: 204, headers: CORS_HEADERS })
 }
 
 function syntheticEmailFor(userKey: number) {

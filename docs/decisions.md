@@ -166,3 +166,12 @@
   - **여기서부터는 제가 검증 못 함**: 진짜 `TossAuth.login()` 호출은 토스 앱/샌드박스 안에서만 나옴(디바이스 필요).
 - **`ait` 빌드 파이프라인 세팅 + 로컬 빌드 성공**: `@apps-in-toss/devtools` 설치, `ait init --skip-input`으로 `apps-in-toss.config.ts` 생성(appName: `dawnpeople`, brand.primaryColor: 브랜드 라벤더 `#8465f2`), `vite.config.ts`에 devtools unplugin 연결, `build:toss` 스크립트에 `&& ait build` 추가. `pnpm run build:toss` 로컬 실행 → `dawnpeople.ait`(220KB, 100MB 제한 대비 여유 충분) 정상 생성 확인.
   - **다음은 사용자만 할 수 있는 일**: `ait deploy`로 콘솔에 테스트 빌드를 올리려면 `ait token add`로 API 키가 필요한데, 이건 토스 비즈니스 계정으로 콘솔에서 발급받아야 함(정확한 발급 화면 위치 미확인 — "앱 정보" 근처로 추정). 발급받으면 `ait token add --api-key <값>`으로 등록 후 `pnpm run deploy` 실행 가능.
+
+## 2026-09-23 — 실제 토스 로그인 테스트 실패 원인 2건 수정 + main 병합
+
+- **배경**: 사용자가 앱인토스에서 실제로 "토스로 로그인"을 눌러봤더니 "토스 로그인에 실패했어요" 발생. 원인 조사 결과 두 가지가 겹쳐 있었음.
+- **원인 1(더 결정적) — `api/auth/toss/login.ts`가 `main`에 없었음**: 그동안 로그인·SNS 확장 작업이 전부 `feat/sns-social` 브랜치에서만 진행되고 `main`은 9/21 초기 상태에 멈춰 있었음. Vercel 프로덕션(`dawnpeople.vercel.app`)은 `main`을 배포하므로 `/api/auth/toss/login`이 아예 **404**였음(`curl`로 직접 확인). **처리**: `feat/sns-social`을 `main`에 병합·푸시해 Vercel이 최신 코드를 재배포하도록 함.
+- **원인 2 — 앱인토스 빌드의 origin 불일치**: `apps-in-toss.config.ts`의 `webBundleDir: 'dist'`로 인해 앱인토스 빌드는 토스가 `dist`를 자체 호스팅함(Vercel과 다른 origin). 그런데 `src/platform/toss/login.ts`가 `fetch('/api/auth/toss/login')`처럼 **상대경로**로 호출해서, 배포가 되어 있어도 앱인토스 안에서는 이 경로가 실제 서버에 닿지 못함(로컬 `pnpm dev`·웹 배포는 같은 origin이라 이 문제가 드러나지 않았음).
+  - **처리**: `src/lib/apiBase.ts`(`apiUrl()`) 신설, `VITE_API_BASE_URL` 환경변수로 절대 URL 구성. 웹 빌드는 빈 값(상대경로 유지), 앱인토스 빌드(`.env.toss`)는 `https://dawnpeople.vercel.app`으로 고정.
+  - `api/auth/toss/login.ts`에 CORS 허용 추가(`access-control-allow-origin: *` + `OPTIONS` 핸들러) — authorizationCode가 실제 토스 로그인에서만 나오는 10분 만료·1회용 값이라 origin 제한이 보안상 의미가 크지 않아 와일드카드로 단순화.
+- **확인 필요(TODO)**: 이번 수정 후 실제 토스 로그인 재테스트 필요(여전히 이 환경에서는 진짜 `TossAuth.login()` 호출을 검증할 수 없음 — 디바이스/샌드박스에서만 확인 가능). 배포 URL이 바뀌면(커스텀 도메인 연결 등) `.env.toss`의 `VITE_API_BASE_URL`도 같이 갱신해야 함.
