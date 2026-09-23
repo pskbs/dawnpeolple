@@ -7,14 +7,6 @@
   gap: 16px;
 }
 
-.app-bar__actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 44px;
-  justify-content: flex-end;
-}
-
 /* ---------- 프로필 상단 ---------- */
 
 .profile-head {

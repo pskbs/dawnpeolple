@@ -8,7 +8,13 @@
   --shadow-soft: 0 10px 30px rgba(var(--glow), 0.1), 0 2px 6px rgba(var(--glow), 0.05);
   --shadow-float: 0 18px 40px rgba(var(--glow), 0.18), 0 4px 10px rgba(var(--glow), 0.08);
   --grad-primary: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-  --app-bar-h: 56px;
+  --app-bar-h: 52px;
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* 앱인토스에서는 토스 내비게이션 바가 이미 상단 안전영역을 차지해서, 우리가 또 띄우면 빈 여백이 두 번 생겨요. */
+:root[data-platform='toss'] {
+  --safe-top: 0px;
 }
 
 /* ---------- 표면 ---------- */
@@ -307,12 +313,29 @@ textarea::placeholder {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: var(--app-bar-h);
+  min-height: calc(var(--app-bar-h) + var(--safe-top));
   margin: 0 -16px;
-  padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px;
-  background: color-mix(in srgb, var(--bg-top) 70%, transparent);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  padding: calc(4px + var(--safe-top)) 16px 4px;
+}
+
+/* 단색 띠를 깔면 아래 배경 그라데이션·오브와 경계가 뚝 끊겨 보여서, 배경은 거의 투명한 흐림만 두고
+   아래쪽으로 갈수록 서서히 사라지게(mask) 해요. 내용(버튼·제목)은 마스크 영향을 안 받도록 가상요소에 깔아요. */
+.app-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -14px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg-top) 55%, transparent) 0%,
+    color-mix(in srgb, var(--bg-top) 30%, transparent) 70%,
+    transparent 100%
+  );
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  mask-image: linear-gradient(180deg, #000 65%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 65%, transparent 100%);
 }
 
 .app-bar__title {
@@ -331,7 +354,9 @@ textarea::placeholder {
 .app-bar__actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
+  min-width: 44px;
   flex-shrink: 0;
 }
 
