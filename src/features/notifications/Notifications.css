@@ -108,6 +108,21 @@
   cursor: pointer;
 }
 
+.notification-push {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.notification-push__text {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .notification-settings__text {
   display: flex;
   flex: 1;

@@ -1,16 +1,54 @@
 import { useToast } from '../../components/toast'
 import { Icon } from '../../components/ui'
 import { NOTIFICATION_COPY } from '../../config/copy'
+import { isPushConsentAvailable, requestPushConsent } from '../../platform'
+import { useState } from 'react'
 import { NOTIFICATION_TYPE_ICONS, NOTIFICATION_TYPES, useNotificationSettings } from './notifications-api'
+import type { NotificationType } from './notifications-api'
 import './Notifications.css'
 
 // 종류별 알림 켜기/끄기. 내정보 설정과 메시지 화면에서 같은 컴포넌트를 써요.
 export function NotificationSettingsSection() {
   const { settings, loaded, update } = useNotificationSettings()
   const toast = useToast()
+  const pushAvailable = isPushConsentAvailable()
+  const [asking, setAsking] = useState(false)
+
+  // 토스 푸시는 알림 종류(캠페인)마다 동의가 필요해요. 이미 동의한 종류는 화면 없이 넘어가요.
+  async function askPushConsent(types: NotificationType[]) {
+    setAsking(true)
+    let rejected = false
+    let failed = false
+    for (const type of types) {
+      const result = await requestPushConsent(type)
+      if (result === 'agreementRejected') rejected = true
+      if (result === 'failed') {
+        failed = true
+        break
+      }
+    }
+    setAsking(false)
+    toast.show(failed ? NOTIFICATION_COPY.pushFailed : rejected ? NOTIFICATION_COPY.pushRejected : NOTIFICATION_COPY.pushDone)
+  }
 
   return (
     <div className="notification-settings">
+      {pushAvailable && (
+        <div className="sheet notification-push">
+          <div className="notification-push__text">
+            <span className="list-row__label">{NOTIFICATION_COPY.pushTitle}</span>
+            <span className="notification-settings__desc">{NOTIFICATION_COPY.pushDesc}</span>
+          </div>
+          <button
+            type="button"
+            className="pill-button pill-button--sm"
+            disabled={!loaded || asking}
+            onClick={() => askPushConsent(NOTIFICATION_TYPES.filter((type) => settings[type]))}
+          >
+            {NOTIFICATION_COPY.pushButton}
+          </button>
+        </div>
+      )}
       <div className="sheet list-rows">
         {NOTIFICATION_TYPES.map((type) => {
           const copy = NOTIFICATION_COPY.types[type]
@@ -30,7 +68,11 @@ export function NotificationSettingsSection() {
                 aria-label={copy.label}
                 onChange={async (e) => {
                   const ok = await update(type, e.target.checked)
-                  if (ok === false) toast.show(NOTIFICATION_COPY.saveError)
+                  if (ok === false) {
+                    toast.show(NOTIFICATION_COPY.saveError)
+                    return
+                  }
+                  if (e.target.checked && pushAvailable) void askPushConsent([type])
                 }}
               />
             </label>

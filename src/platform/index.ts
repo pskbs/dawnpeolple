@@ -4,7 +4,20 @@ import { attachTossBanner, isTossAdSupported, isTossBannerSupported, showTossInt
 
 export type { BannerSlot }
 import { isTossLoginSupported, signInWithToss } from './toss/login'
+import type { PushConsentResult, PushTemplateKey } from './toss/push-consent'
+import { isTossPushConsentSupported, requestTossPushAgreement } from './toss/push-consent'
 import { isTossShareSupported, shareTossPath } from './toss/share'
+
+export type { PushConsentResult, PushTemplateKey }
+
+// 토스 푸시 알림 동의(알림동의문). 앱인토스 밖(웹)에서는 푸시가 없어서 지원하지 않아요.
+export function isPushConsentAvailable() {
+  return isTossPushConsentSupported()
+}
+
+export function requestPushConsent(key: PushTemplateKey): Promise<PushConsentResult> {
+  return requestTossPushAgreement(key)
+}
 
 // 글 작성·벙개 개설 완료 시 호출해요. 앱인토스 밖(웹)에서는 아무 일도 하지 않아요.
 export function showCompletionAd(slot: AdSlot) {
