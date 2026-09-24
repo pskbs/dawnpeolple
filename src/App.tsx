@@ -13,6 +13,7 @@ import { ComposePage } from './features/feed/ComposePage'
 import { FeedPage } from './features/feed/FeedPage'
 import { PostDetailPage } from './features/feed/PostDetailPage'
 import { LegalPage } from './features/legal/LegalPage'
+import { useAutoPushConsent } from './features/notifications/useAutoPushConsent'
 import { OnboardingPage } from './features/onboarding/OnboardingPage'
 import { FollowListPage } from './features/profile/FollowListPage'
 import { PasswordChangePage } from './features/profile/PasswordChangePage'
@@ -45,6 +46,7 @@ const FOCUS_ROUTES = [
 
 function App() {
   const { loading } = useAuth()
+  useAutoPushConsent()
   const { pathname } = useLocation()
   const focused = FOCUS_ROUTES.some((re) => re.test(pathname))
 

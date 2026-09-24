@@ -251,3 +251,10 @@
 - **코드**: `showCompletionAd`(`src/platform/index.ts`)와 `src/platform/toss/ads.ts`의 전면 광고 부분, `ComposePage`·`BungaeCreatePage` 호출, `VITE_AD_INTERSTITIAL_FEED_ID`/`_BUNGAE_ID` 타입·`.env.example` 항목 삭제. 글·소모임 상세 배너 광고는 그대로.
 - **콘솔·Vercel**: 전면 광고그룹 2개는 콘솔에 남아 있어도 코드에서 안 부름(필요하면 콘솔에서 비활성화). Vercel의 `VITE_AD_INTERSTITIAL_*` env는 더 이상 안 쓰므로 지워도 됨.
 - **CLAUDE.md 광고 항목** 갱신: 배너만 사용.
+
+## 2026-09-24 — 푸시 동의를 가입 직후 자동으로 한 번 요청
+
+- **문제**: 실기기 테스트에서 동의 화면이 자동으로 안 떠서, 사용자가 알림 설정의 "푸시 알림 받기"를 직접 누르기 전에는 푸시가 하나도 안 왔음(발송 API는 SUCCESS인데 미전달). 동의 후에는 댓글·DM·참가 푸시 모두 정상 수신 확인.
+- **원인 정리**: 알림동의문은 5개(현재 3개) 캠페인에 공통 1개라 동의 화면은 한 번만 뜸. 자동 요청 코드가 없었음.
+- **변경**: `useAutoPushConsent`(`src/features/notifications/`) — 앱인토스 안에서 프로필이 생긴(온보딩 완료) 계정에 대해 동의 화면을 계정당 한 번만 자동 요청(localStorage `dawnpeople:pushConsentAsked:<id>`). 거절해도 다시 자동으로 묻지 않고, 설정의 "푸시 알림 받기"로 언제든 재요청.
+- **소모임 답글 알림**: 이미 구현돼 있음(`0017`의 `notify_on_bungae_comment` — 리더에게 댓글·답글, 내 소모임 댓글에 답글이 달리면 그 댓글 작성자(참석 중)에게. 푸시 문구는 댓글과 같은 "새 댓글" 캠페인). 코드 변경 없음.
