@@ -238,3 +238,9 @@
   - **개인정보 처리방침** 갱신(처리 목적·생성 정보·토스 위탁 항목에 알림 추가, `docs/legal-notion/02-privacy-policy.md` 동일 반영).
   - **검증**: 테스트 계정 2개로 실제 DB 통합 테스트 19개 항목 통과(각 알림 생성, 본인 행동 제외, 리더 자동 참석 제외, 끄기, 남의 설정 변경 불가, 직접 생성·RPC 호출 불가, 내용 수정 불가, 차단 시 제외, 디스패치 401/skipped, 알림 탭 이동) 후 계정 삭제. 실제 토스 푸시 수신은 템플릿 승인 후에만 확인 가능.
 - **`ait deploy`는 harness가 "배포"로 분류해 막음** — 사용자가 직접 실행해야 함.
+
+## 2026-09-24 — 푸시 캠페인을 5개 → 3개로 축소 ("새 댓글" 하나로 통합)
+
+- **이유**: 캠페인마다 알림동의 화면이 따로 떠서, 댓글·답글·소모임 댓글(문구가 같음)을 하나로 묶어 사용자가 보는 동의 화면을 5개→3개로 줄임.
+- **캠페인 3개**: `dawnpeople-comment`("새 댓글", `'{{ preview }}' 댓글이 달렸어요.` — 댓글·답글·소모임 댓글 공용), `dawnpeople-dm`("새 메시지"), `dawnpeople-bungae-join`("새 참가자"). 이동 URL은 모두 `intoss://dawnpeople/notifications`, 알림동의문은 "새벽사람들 활동 알림 동의문" 공통.
+- **코드**: `api/push/dispatch.ts`의 `TEMPLATE_ENV`, `src/platform/toss/push-consent.ts`의 `PUSH_TEMPLATE_CODES` 두 곳이 같은 묶음이어야 함. Vercel env는 `TOSS_PUSH_TEMPLATE_COMMENT` / `_DM` / `_BUNGAE_JOIN` 3개(`_COMMENT_REPLY`·`_BUNGAE_COMMENT`는 더 이상 안 씀).
