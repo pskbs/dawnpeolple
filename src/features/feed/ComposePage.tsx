@@ -8,7 +8,6 @@ import { FEATURES } from '../../config/features'
 import { useAuth } from '../../lib/auth-context'
 import { MEDIA_LIMITS, removePublicMedia, uploadPublicMediaList, validateFile } from '../../lib/media'
 import { supabase } from '../../lib/supabase'
-import { showCompletionAd } from '../../platform'
 import './FeedPage.css'
 
 // 글자수 제한은 없어요(DB 기술 상한 20,000자만). 다른 사람에게는 500자 넘으면 "더 보기"로 접혀 보여요.
@@ -51,7 +50,6 @@ export function ComposePage() {
         await removePublicMedia(media)
         throw new Error(FEED_COPY.submitError)
       }
-      showCompletionAd('feed')
       // 글쓰기를 연 화면(수다방·프로필 등)으로 돌아가요.
       goBack()
     } catch (err) {

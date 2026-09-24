@@ -244,3 +244,10 @@
 - **이유**: 캠페인마다 알림동의 화면이 따로 떠서, 댓글·답글·소모임 댓글(문구가 같음)을 하나로 묶어 사용자가 보는 동의 화면을 5개→3개로 줄임.
 - **캠페인 3개**: `dawnpeople-comment`("새 댓글", `'{{ preview }}' 댓글이 달렸어요.` — 댓글·답글·소모임 댓글 공용), `dawnpeople-dm`("새 메시지"), `dawnpeople-bungae-join`("새 참가자"). 이동 URL은 모두 `intoss://dawnpeople/notifications`, 알림동의문은 "새벽사람들 활동 알림 동의문" 공통.
 - **코드**: `api/push/dispatch.ts`의 `TEMPLATE_ENV`, `src/platform/toss/push-consent.ts`의 `PUSH_TEMPLATE_CODES` 두 곳이 같은 묶음이어야 함. Vercel env는 `TOSS_PUSH_TEMPLATE_COMMENT` / `_DM` / `_BUNGAE_JOIN` 3개(`_COMMENT_REPLY`·`_BUNGAE_COMMENT`는 더 이상 안 씀).
+
+## 2026-09-24 — 전면 광고(글 작성·소모임 개설 완료) 제거
+
+- **사용자 결정**: 글을 쓰고 나서 전면 광고가 뜨는 경험이 나빠서 수다방·소모임 전면 광고 2개를 모두 뺌.
+- **코드**: `showCompletionAd`(`src/platform/index.ts`)와 `src/platform/toss/ads.ts`의 전면 광고 부분, `ComposePage`·`BungaeCreatePage` 호출, `VITE_AD_INTERSTITIAL_FEED_ID`/`_BUNGAE_ID` 타입·`.env.example` 항목 삭제. 글·소모임 상세 배너 광고는 그대로.
+- **콘솔·Vercel**: 전면 광고그룹 2개는 콘솔에 남아 있어도 코드에서 안 부름(필요하면 콘솔에서 비활성화). Vercel의 `VITE_AD_INTERSTITIAL_*` env는 더 이상 안 쓰므로 지워도 됨.
+- **CLAUDE.md 광고 항목** 갱신: 배너만 사용.
