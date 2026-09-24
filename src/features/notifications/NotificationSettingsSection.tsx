@@ -14,19 +14,12 @@ export function NotificationSettingsSection() {
   const pushAvailable = isPushConsentAvailable()
   const [asking, setAsking] = useState(false)
 
-  // 토스 푸시는 알림 종류(캠페인)마다 동의가 필요해요. 이미 동의한 종류는 화면 없이 넘어가요.
+  // 토스 푸시는 캠페인마다 동의가 필요해요. 이미 동의했거나 같은 캠페인인 종류는 화면 없이 넘어가요.
   async function askPushConsent(types: NotificationType[]) {
     setAsking(true)
-    let rejected = false
-    let failed = false
-    for (const type of types) {
-      const result = await requestPushConsent(type)
-      if (result === 'agreementRejected') rejected = true
-      if (result === 'failed') {
-        failed = true
-        break
-      }
-    }
+    const results = await requestPushConsent(types)
+    const failed = results.includes('failed')
+    const rejected = results.includes('agreementRejected')
     setAsking(false)
     toast.show(failed ? NOTIFICATION_COPY.pushFailed : rejected ? NOTIFICATION_COPY.pushRejected : NOTIFICATION_COPY.pushDone)
   }

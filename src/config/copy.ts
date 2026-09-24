@@ -364,7 +364,7 @@ export const NOTIFICATION_COPY = {
   tossNote: '토스 앱 → 전체 → 설정 → 알림 → 서비스별 알림에서도 한 번에 끌 수 있어요.',
   saveError: '알림 설정을 저장하지 못했어요.',
   pushTitle: '토스 푸시 알림',
-  pushDesc: '동의하면 토스 앱 푸시로도 알려드려요. 알림 종류마다 동의 화면이 한 번씩 나와요.',
+  pushDesc: '동의하면 토스 앱 푸시로도 알려드려요. 동의 화면이 몇 번 나올 수 있어요.',
   pushButton: '푸시 알림 받기',
   pushDone: '푸시 알림을 켰어요.',
   pushRejected: '동의하지 않은 알림은 푸시가 오지 않아요. 앱 안 알림은 계속 받아요.',

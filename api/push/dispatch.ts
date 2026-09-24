@@ -24,10 +24,12 @@ export async function OPTIONS(): Promise<Response> {
 
 type NotificationType = 'comment' | 'comment_reply' | 'bungae_comment' | 'dm' | 'bungae_join'
 
+// 댓글·답글·소모임 댓글은 문구가 같아 "새 댓글" 캠페인 하나로 보내요. 사용자가 받는 알림동의 화면 수를 줄이려는 거예요
+// (클라이언트 src/platform/toss/push-consent.ts의 PUSH_TEMPLATE_CODES와 같은 묶음이어야 해요).
 const TEMPLATE_ENV: Record<NotificationType, string> = {
   comment: 'TOSS_PUSH_TEMPLATE_COMMENT',
-  comment_reply: 'TOSS_PUSH_TEMPLATE_COMMENT_REPLY',
-  bungae_comment: 'TOSS_PUSH_TEMPLATE_BUNGAE_COMMENT',
+  comment_reply: 'TOSS_PUSH_TEMPLATE_COMMENT',
+  bungae_comment: 'TOSS_PUSH_TEMPLATE_COMMENT',
   dm: 'TOSS_PUSH_TEMPLATE_DM',
   bungae_join: 'TOSS_PUSH_TEMPLATE_BUNGAE_JOIN',
 }

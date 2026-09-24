@@ -5,7 +5,7 @@ import { attachTossBanner, isTossAdSupported, isTossBannerSupported, showTossInt
 export type { BannerSlot }
 import { isTossLoginSupported, signInWithToss } from './toss/login'
 import type { PushConsentResult, PushTemplateKey } from './toss/push-consent'
-import { isTossPushConsentSupported, requestTossPushAgreement } from './toss/push-consent'
+import { isTossPushConsentSupported, requestTossPushAgreements } from './toss/push-consent'
 import { isTossShareSupported, shareTossPath } from './toss/share'
 
 export type { PushConsentResult, PushTemplateKey }
@@ -15,8 +15,8 @@ export function isPushConsentAvailable() {
   return isTossPushConsentSupported()
 }
 
-export function requestPushConsent(key: PushTemplateKey): Promise<PushConsentResult> {
-  return requestTossPushAgreement(key)
+export function requestPushConsent(keys: PushTemplateKey[]): Promise<PushConsentResult[]> {
+  return requestTossPushAgreements(keys)
 }
 
 // 글 작성·벙개 개설 완료 시 호출해요. 앱인토스 밖(웹)에서는 아무 일도 하지 않아요.
