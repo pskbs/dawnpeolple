@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useGoBack } from '../lib/use-go-back'
+import { hasSystemBackButton } from '../platform'
 
 export function Icon({ name, className }: { name: string; className?: string }) {
   return (
@@ -78,9 +79,13 @@ export function AppBar({
   right?: ReactNode
 }) {
   const goBack = useGoBack(typeof back === 'string' ? back : '/feed')
+  // 앱인토스에서는 토스 내비게이션 바가 뒤로가기를 이미 보여줘서 우리 뒤로가기는 그리지 않아요(중복 방지).
+  const showBack = !!back && !hasSystemBackButton()
+  // 그러고 나서 보여줄 게 없으면(뒤로가기만 있던 헤더) 빈 막대를 남기지 않아요.
+  if (back && !showBack && !title && !left && !right) return null
   return (
     <header className="app-bar">
-      {back ? (
+      {showBack ? (
         <button
           type="button"
           className="circle-button"

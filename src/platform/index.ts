@@ -4,6 +4,7 @@ import { attachTossBanner, isTossBannerSupported } from './toss/ads'
 
 export type { BannerSlot }
 import { isTossLoginSupported, signInWithToss } from './toss/login'
+import { hasTossNavigationBar } from './toss/navbar'
 import type { PushConsentResult, PushTemplateKey } from './toss/push-consent'
 import { isTossPushConsentSupported, requestTossPushAgreements } from './toss/push-consent'
 import { isTossShareSupported, shareTossPath } from './toss/share'
@@ -31,6 +32,11 @@ export function attachBannerAd(target: HTMLElement, slot: BannerSlot): () => voi
   } catch {
     return () => {}
   }
+}
+
+// 앱인토스 안에서는 시스템(토스) 내비게이션 바의 뒤로가기가 있어서 우리 화면에서는 뒤로가기 버튼을 그리지 않아요.
+export function hasSystemBackButton() {
+  return hasTossNavigationBar()
 }
 
 // 앱인토스 미니앱에서는 로그인 수단이 토스 로그인 하나뿐이에요(대체 로그인 수단 금지).
