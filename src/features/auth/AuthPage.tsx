@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/ui'
 import { BRAND_NAME } from '../../config/brand'
-import { AUTH_COPY, AUTH_ERROR_COPY, AUTH_EXTRA_COPY, CONCEPT_COPY } from '../../config/copy'
+import { AUTH_COPY, AUTH_ERROR_COPY, AUTH_EXTRA_COPY, CONCEPT_COPY, INTRO_COPY } from '../../config/copy'
 import { supabase } from '../../lib/supabase'
 import { isTossLoginAvailable, loginWithToss } from '../../platform'
 import { ResetPasswordSheet } from './ResetPasswordSheet'
@@ -43,9 +44,58 @@ function authErrorMessage(err: unknown): string {
 }
 
 // 앱인토스 미니앱 빌드에서는 로그인 수단이 토스 로그인 하나뿐이에요(대체 로그인 수단 금지).
+// 서비스 소개(인트로) → 토스 로그인 순서. 설명 없이 바로 토스 로그인을 유도하면 검수에서 반려돼요.
+function TossIntroStep({ onStart }: { onStart: () => void }) {
+  const navigate = useNavigate()
+
+  return (
+    <section className="auth-page">
+      <div className="auth-backdrop" aria-hidden="true">
+        <span className="orb auth-backdrop__orb auth-backdrop__orb--a" />
+        <span className="orb auth-backdrop__orb auth-backdrop__orb--b" />
+      </div>
+
+      <div className="auth-card glass-panel">
+        <div className="app-icon" aria-hidden="true">
+          <Icon name="moon-icon" className="app-icon__moon" />
+          <Icon name="sparkle-icon" className="app-icon__sparkle" />
+        </div>
+
+        <h2>{BRAND_NAME}</h2>
+        <p className="auth-sub auth-sub--intro">{INTRO_COPY.title}</p>
+        <p className="intro-desc">{INTRO_COPY.desc}</p>
+
+        <ul className="intro-features">
+          {INTRO_COPY.features.map((f) => (
+            <li key={f.title} className="intro-feature">
+              <span className="intro-feature__icon" aria-hidden="true">
+                <Icon name={f.icon} />
+              </span>
+              <span className="intro-feature__text">
+                <strong>{f.title}</strong>
+                <span>{f.desc}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <button type="button" className="pill-button pill-button--block" onClick={onStart}>
+          {INTRO_COPY.start}
+        </button>
+        <button type="button" className="auth-switch" onClick={() => navigate('/feed')}>
+          {INTRO_COPY.browse}
+        </button>
+      </div>
+    </section>
+  )
+}
+
 function TossAuthPage() {
+  const [step, setStep] = useState<'intro' | 'login'>('intro')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  if (step === 'intro') return <TossIntroStep onStart={() => setStep('login')} />
 
   async function handleLogin() {
     setError(null)
@@ -75,6 +125,8 @@ function TossAuthPage() {
         <p className="auth-sub">
           {BRAND_NAME} · {AUTH_EXTRA_COPY.subtitle}
         </p>
+
+        <p className="auth-hint auth-hint--center">{AUTH_COPY.tossLoginNotice}</p>
 
         {error && <p className="error-text">{error}</p>}
 

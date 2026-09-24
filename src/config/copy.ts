@@ -42,6 +42,20 @@ export const AUTH_COPY = {
   tossLoginTitle: '토스 계정으로 시작해요',
   tossLoginButton: '토스로 로그인',
   tossLoginError: '토스 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.',
+  tossLoginNotice: '토스 계정으로 간편하게 시작해요. 실명과 전화번호는 저장하지 않고, 닉네임으로 활동해요.',
+} as const
+
+// 앱인토스 첫 로그인 전에 먼저 보여주는 서비스 소개(인트로) 화면. 검수: 설명 없이 바로 토스 로그인을 유도하면 반려돼요.
+export const INTRO_COPY = {
+  title: '새벽에 일하는 사람들의 SNS',
+  desc: '저녁에 출근하고 새벽에 퇴근하는 우리, 낮에만 모임이 있어서 아쉬웠죠? 여기서는 새벽에 일하는 사람들끼리 이야기하고 모여요.',
+  features: [
+    { icon: 'chat-icon', title: '수다방', desc: '새벽에 깨어 있는 사람들과 글·사진으로 이야기해요.' },
+    { icon: 'group-icon', title: '소모임', desc: '퇴근 후 가볍게 모이는 오프라인 소모임에 참여하거나 직접 열어요.' },
+    { icon: 'moon-icon', title: '닉네임으로 익명 활동', desc: '실명 없이 새벽 닉네임으로 편하게 활동해요.' },
+  ],
+  start: '시작하기',
+  browse: '먼저 둘러볼게요',
 } as const
 
 // 아이디(이메일) 확인·새 비밀번호 발송

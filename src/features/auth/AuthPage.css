@@ -87,6 +87,83 @@
   font-size: 14px;
 }
 
+.auth-sub--intro {
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.auth-hint--center {
+  margin: -8px 0 16px;
+  padding: 0;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* 앱인토스 첫 로그인 전 서비스 소개 */
+.intro-desc {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-sub);
+}
+
+.intro-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.intro-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+
+.intro-feature__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--grad-primary);
+  color: var(--primary-contrast);
+}
+
+.intro-feature__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.intro-feature__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.intro-feature__text strong {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.intro-feature__text span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-sub);
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
