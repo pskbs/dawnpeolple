@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../../lib/auth-context'
 import { supabase } from '../../lib/supabase'
 
-export type NotificationType = 'comment' | 'comment_reply' | 'dm' | 'bungae_join'
+export type NotificationType = 'comment' | 'comment_reply' | 'dm' | 'bungae_join' | 'bungae_comment'
 
 export type AppNotification = {
   id: number
@@ -17,16 +17,23 @@ export type AppNotification = {
 
 export type NotificationSettings = Record<NotificationType, boolean>
 
-export const NOTIFICATION_TYPES: NotificationType[] = ['comment', 'comment_reply', 'dm', 'bungae_join']
+export const NOTIFICATION_TYPES: NotificationType[] = ['comment', 'comment_reply', 'bungae_comment', 'dm', 'bungae_join']
 
 export const NOTIFICATION_TYPE_ICONS: Record<NotificationType, string> = {
   comment: 'chat-icon',
   comment_reply: 'reply-icon',
+  bungae_comment: 'chat-icon',
   dm: 'send-icon',
   bungae_join: 'group-icon',
 }
 
-const DEFAULT_SETTINGS: NotificationSettings = { comment: true, comment_reply: true, dm: true, bungae_join: true }
+const DEFAULT_SETTINGS: NotificationSettings = {
+  comment: true,
+  comment_reply: true,
+  bungae_comment: true,
+  dm: true,
+  bungae_join: true,
+}
 
 // 알림 목록·안 읽은 수는 새 알림이 오면 실시간으로 다시 불러와요.
 function useNotificationChannel(userId: string | undefined, onChange: () => void, key: string) {
@@ -118,7 +125,7 @@ export function useNotificationSettings() {
     if (!userId) return
     supabase
       .from('notification_settings')
-      .select('comment, comment_reply, dm, bungae_join')
+      .select('comment, comment_reply, bungae_comment, dm, bungae_join')
       .eq('user_id', userId)
       .maybeSingle()
       .then(({ data }) => {

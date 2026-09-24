@@ -1,5 +1,5 @@
 // POST /api/push/dispatch  (Authorization: Bearer <Supabase access token>)
-// 댓글·메시지·소모임 참가 직후 클라이언트가 호출해요. 그 사용자가 방금 만든(actor) 알림 중 아직 푸시를
+// 댓글·메시지·소모임 참가·소모임 댓글 직후 클라이언트가 호출해요. 그 사용자가 방금 만든(actor) 알림 중 아직 푸시를
 // 안 보낸 것을 DB에서 읽어 토스 스마트 발송으로 보내요. 문구는 DB 트리거가 만든 값만 쓰니 위조할 수 없어요.
 // 템플릿 코드(TOSS_PUSH_TEMPLATE_*)가 없거나 받는 사람이 토스 로그인 사용자가 아니면 앱 안 알림만 남기고 건너뛰어요.
 import { createClient } from '@supabase/supabase-js'
@@ -22,11 +22,12 @@ export async function OPTIONS(): Promise<Response> {
   return new Response(null, { status: 204, headers: CORS_HEADERS })
 }
 
-type NotificationType = 'comment' | 'comment_reply' | 'dm' | 'bungae_join'
+type NotificationType = 'comment' | 'comment_reply' | 'bungae_comment' | 'dm' | 'bungae_join'
 
 const TEMPLATE_ENV: Record<NotificationType, string> = {
   comment: 'TOSS_PUSH_TEMPLATE_COMMENT',
   comment_reply: 'TOSS_PUSH_TEMPLATE_COMMENT_REPLY',
+  bungae_comment: 'TOSS_PUSH_TEMPLATE_BUNGAE_COMMENT',
   dm: 'TOSS_PUSH_TEMPLATE_DM',
   bungae_join: 'TOSS_PUSH_TEMPLATE_BUNGAE_JOIN',
 }

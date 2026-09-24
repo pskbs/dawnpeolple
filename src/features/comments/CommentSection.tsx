@@ -181,7 +181,7 @@ export function CommentSection({
         await removePublicMedia(media);
         throw new Error(COMMENT_COPY.submitError);
       }
-      if (table === "comments") dispatchPush();
+      dispatchPush();
       setRows((prev) => [
         ...prev,
         { ...(data as CommentRow), media: asMediaList(data.media) },
