@@ -36,17 +36,22 @@ const TEMPLATE_ENV: Record<NotificationType, string> = {
 const THROTTLE_MS = 60 * 1000
 // 이보다 오래된 대기 알림은 늦게 울리면 오히려 헷갈려서 푸시 없이 건너뛰어요.
 const MAX_AGE_MS = 10 * 60 * 1000
-// 푸시 본문은 25자 제한(변수 제외)이라 미리보기는 짧게 잘라 보내요. 전체 내용은 앱 안 알림에서 봐요.
-const PUSH_PREVIEW_MAX = 20
+// 푸시에는 작성 내용 앞부분만 보내요(길면 …). 전체 내용은 앱 안 알림에서 봐요.
+const PUSH_PREVIEW_MAX = 40
+// 참가 알림의 소모임 제목은 고정 문구 옆에 붙어서 짧게 자르는 편이 안전해요.
+const PUSH_TITLE_MAX = 20
 
 function clip(text: string, max: number) {
   return text.length > max ? text.slice(0, max) + '…' : text
 }
 
 function contextFor(type: NotificationType, meta: Record<string, unknown>): Record<string, string> {
-  const nickname = String(meta.nickname ?? '누군가')
-  if (type === 'bungae_join') return { nickname, title: clip(String(meta.title ?? ''), PUSH_PREVIEW_MAX) }
-  return { nickname, preview: clip(String(meta.preview ?? '').replace(/…$/, ''), PUSH_PREVIEW_MAX) }
+  // 참가 알림만 "○○님이 '소모임'에 참가했어요" 형태. 나머지(댓글·답글·소모임 댓글·메시지)는 작성 내용만 보여줘요.
+  // 콘솔 템플릿에 쓴 변수만 보내요(템플릿에 없는 변수를 보내면 거절될 수 있어요).
+  if (type === 'bungae_join') {
+    return { nickname: String(meta.nickname ?? '누군가'), title: clip(String(meta.title ?? ''), PUSH_TITLE_MAX) }
+  }
+  return { preview: clip(String(meta.preview ?? '').replace(/…$/, ''), PUSH_PREVIEW_MAX) }
 }
 
 export async function POST(request: Request): Promise<Response> {
